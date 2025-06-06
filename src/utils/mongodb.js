@@ -200,27 +200,101 @@ export const fetchComplaints = async (token) => {
   }
 };
 
-export const addComment = async (complaintID, userId, commentText) => {
-  const comment = {
-    author: userId,
+export const addComment = async (complaintID, commentText, token) => {
+ 
+  const commentData = {
+    author: localStorage.getItem("userId"),
     comment: commentText,
     timestamp: Date.now(),
   };
-  await Complaint.findByIdAndUpdate(complaintID, {
-    $push: { comments: comment },
+
+  const response = await fetch("http://192.168.1.37:5000/api/complaint/"+complaintID+"/comment", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`, // Include the auth token
+    },
+    body: JSON.stringify({
+      ...commentData,      
+      timestamp: Date.now() // Optional: add timestamp on client if not handled in backend
+    }),
   });
+
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.message || "Failed to create complaint");
+  }
+
 };
 
-export const markAsSolved = async (complaintID) => {
-  await Complaint.findByIdAndUpdate(complaintID, { status: Statuses.solved });
+export const fetchCommentById = async (complaintID,token) => {
+ // await Complaint.findByIdAndUpdate(complaintID, { status: Statuses.solved });
+  const response = await fetch("http://192.168.1.37:5000/api/complaint/"+complaintID, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`, // Include the auth token
+    }
+  });
+ 
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.message || "Failed to mark complaint as resolved");
+  }
+
+  const data = await res.json();
+  return data;
 };
 
-export const markAsRejected = async (complaintID) => {
-  await Complaint.findByIdAndUpdate(complaintID, { status: Statuses.rejected });
+export const markAsSolved = async (complaintID,token) => {
+ // await Complaint.findByIdAndUpdate(complaintID, { status: Statuses.solved });
+  const response = await fetch("http://192.168.1.37:5000/api/complaint/"+complaintID+"/solved", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`, // Include the auth token
+    }
+  });
+
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.message || "Failed to mark complaint as resolved");
+  }
 };
 
-export const fetchUserById = async (userId) => {
-  return await User.findById(userId).select("-password");
+export const markAsRejected = async (complaintID,token) => {
+  //await Complaint.findByIdAndUpdate(complaintID, { status: Statuses.rejected });
+  const response = await fetch("http://192.168.1.37:5000/api/complaint/"+complaintID+"/rejected", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`, // Include the auth token
+    }
+  });
+
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.message || "Failed to mark complaint as Rejected");
+  }
+};
+
+export const fetchUserById = async (userId,token) => {
+  //return await User.findById(userId).select("-password");
+  const response = await fetch("http://192.168.1.37:5000/api/user/"+userId, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`, // Include the auth token
+    }
+  });
+
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.message || "Failed to find user By Id");
+  }
+  const data = await response.json();
+    return data;
+
 };
 
 // --------- SIMULATED STORAGE FUNCTION ---------

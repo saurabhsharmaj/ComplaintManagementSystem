@@ -1,16 +1,23 @@
 import { faMapMarkerAlt } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Dialog } from "@mui/material";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Statuses, statusColors } from "../utils/enums";
 import ComplaintDetailModal from "./ComplaintDetailModal";
+import { Refresh } from "@mui/icons-material";
+import { fetchCommentById } from "../utils/mongodb";
 
 const ComplaintsCard = ({ complaint }) => {
   const [DialogOpen, setDialogOpen] = useState(false);
+  const [token, setToken] = useState("");
   let date = new Date(complaint.timestamp);
   let StatusColorEnum = Object.keys(Statuses).find(
     (key) => Statuses[key] === complaint.status
   );
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    setToken(token);
+  }, []);
   return (
     <>
       <Dialog
@@ -31,8 +38,8 @@ const ComplaintsCard = ({ complaint }) => {
           <p>Reported Date : {date.toLocaleDateString("en-IN")}</p>
           <p
             className="cursor-pointer text-sm font-semibold"
-            onClick={() => {
-              setDialogOpen(true);
+            onClick={async () => {
+              setDialogOpen(true); 
             }}
           >
             Detailed View

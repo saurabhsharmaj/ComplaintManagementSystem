@@ -145,11 +145,27 @@ router.post("/complaint/:id/comment", verifyToken, async (req, res) => {
   const { comment } = req.body;
   const newComment = {
     author: req.userId,
-    comment,
+    text: req.body.comment,
     timestamp: Date.now(),
   };
+  console.log("Adding comment:", newComment);
   await Complaint.findByIdAndUpdate(req.params.id, { $push: { comments: newComment } });
   res.json({ success: true });
+});
+
+// fetch comment by Id
+router.post("/complaint/:id", verifyToken, async (req, res) => { 
+  await Complaint.findByIdAndUpdate(req.params.id);
+  res.json({ success: true });
+   try {
+    const complaint = await Complaint.findByIdAndUpdate(req.params.id);
+    if (!complaint) {
+      return res.status(404).json({ error: "Complaint not found" });
+    }
+    res.json(complaint);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
 // Mark as solved

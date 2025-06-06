@@ -26,9 +26,26 @@ import CommentsTile from "./CommentsTile";
 const ComplaintDetailModal = ({ setDialogOpen, complaint }) => {
   console.log(complaint);
   const [Official, setOfficial] = useState(false);
+  const [comments, setComments] = useState(complaint.comments || []);
+  const [token, setToken] = useState("");
   const [CommentBoxDisabled, setCommentBoxDisabled] = useState(true);
   useEffect(() => {
-   
+   const token = localStorage.getItem("token");
+   setToken(token);
+     const userId= localStorage.getItem("userId");
+  // Fetch user details
+  fetch("http://192.168.1.37:5000/api/user/"+userId, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  })
+    .then((res) => {
+      if (!res.ok) throw new Error("Unauthorized");
+      return res.json();
+    })
+    .then((user) => {
+      setOfficial(user.type==="admin"); //Based on User Type is admin
+    })
   }, []);
   let TimeStamp = new Date(complaint.timestamp);
   let date = TimeStamp.toLocaleDateString();
@@ -90,7 +107,15 @@ const ComplaintDetailModal = ({ setDialogOpen, complaint }) => {
             />
           )}
           <h2 className="text-lg font-bold my-4">Comments</h2>
-          
+          <div>
+            {complaint.comments && complaint.comments.length === 0 ? (
+              <p className="text-center">No Comments</p>
+            ) : (
+              complaint.comments.map((comment) => (
+                <CommentsTile key={comment._id} comment={comment} />
+              ))
+            )}
+          </div>
           <div
             className={`${
               complaint.status !== Statuses.inProgress ? "hidden" : "block"
@@ -112,10 +137,21 @@ const ComplaintDetailModal = ({ setDialogOpen, complaint }) => {
             />
             <IconButton
               className="h-10 w-10 shadow-xl border rounded-full flex items-center justify-center"
-              onClick={() => {
-                addComment(complaint._id, CommentFValue);
-                setCommentFValue("");
-                // setDialogOpen(false);
+              onClick={async () => {
+                const newComment = {
+                  author: localStorage.getItem("userId"),
+                  comment: CommentFValue,
+                  timestamp: Date.now(),
+                };
+
+                try {
+                  await addComment(complaint._id, CommentFValue, token);
+                  setComments((prev) => [...prev, newComment]); // ✅ Directly update state
+                  setCommentFValue("");
+                  setDialogOpen(false);
+                } catch (error) {
+                  console.error("Error adding comment:", error.message);
+                }
               }}
               disabled={CommentBoxDisabled}
             >
@@ -130,7 +166,7 @@ const ComplaintDetailModal = ({ setDialogOpen, complaint }) => {
           <>
             <Button color="error" variant="outlined"
               onClick={async () => {
-                await markAsRejected(complaint._id);
+                await markAsRejected(complaint._id,token);
                 setDialogOpen(false);
               }}
             >
@@ -138,7 +174,7 @@ const ComplaintDetailModal = ({ setDialogOpen, complaint }) => {
             </Button>
             <Button
               onClick={async () => {
-                await markAsSolved(complaint._id);
+                await markAsSolved(complaint._id,token);
                 setDialogOpen(false);
               }}
               color="success"

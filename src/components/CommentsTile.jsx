@@ -22,6 +22,7 @@ const CommentsTile = ({ comment }) => {
           <FontAwesomeIcon icon={faUser} color="#fff" size="1x" />
         </div>
         <div className="font-semibold flex px-4 items-center w-full justify-between">
+          <p>{comment.text}</p>
           <p>{CommentAuthor.name}</p>
           <p>{date + " , " + time}</p>
         </div>
