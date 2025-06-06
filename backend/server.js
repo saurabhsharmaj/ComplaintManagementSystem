@@ -18,10 +18,9 @@ connection.once('open', () => {
     console.log(uri);
 })
 
-const usersRouter = require('./routes/users');
+
 const apiRoutes = require("./routes/api");
 
-app.use('/users', usersRouter);
 app.use("/api", apiRoutes);
 
 if(process.env.NODE_ENV === 'production') {
