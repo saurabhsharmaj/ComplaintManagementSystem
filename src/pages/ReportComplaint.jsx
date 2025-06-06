@@ -66,7 +66,7 @@ const ReportComplaint = () => {
         if (!user || !isOfficial(user.uid)) {
         return navigate("/");
       }
-      setFormData({ ...FormData, reportedBy: user.uid });        
+      setFormData({ ...FormData, reportedBy: userId });        
       });
 
     

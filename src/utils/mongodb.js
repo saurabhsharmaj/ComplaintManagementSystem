@@ -81,18 +81,22 @@ export const handleLogin = async (formData) => {
 
 // --------- COMPLAINT FUNCTIONS ---------
 
-export const createComplaint = async (formData, mediaUrl, token) => {
+export const createComplaint = async (formData, mediaFile, token) => {
+  const formPayload = new FormData()
+  const userId= localStorage.getItem("userId");
+  // Append all fields
+  Object.entries(formData).forEach(([key, value]) => {
+    formPayload.append(key, typeof value === 'object' ? JSON.stringify(value) : value);
+  });
+
+  // Append media file (image or video)
+  formPayload.append("media", mediaFile);
   const response = await fetch("http://192.168.1.37:5000/api/complaint", {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
+    headers: {      
       Authorization: `Bearer ${token}`, // Include the auth token
     },
-    body: JSON.stringify({
-      ...formData,
-      mediaPath: mediaUrl,
-      timestamp: Date.now(), // Optional: add timestamp on client if not handled in backend
-    }),
+    body: formPayload,
   });
 
   if (!response.ok) {

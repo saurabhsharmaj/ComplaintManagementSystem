@@ -4,6 +4,8 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const User = require("../models/user.model");
 const Complaint = require("../models/complaint.model");
+const multer = require("multer");
+const upload = multer({ storage: multer.memoryStorage() });
 
 // Middleware to verify JWT
 function verifyToken(req, res, next) {
@@ -108,22 +110,30 @@ router.get("/user/currentUser", verifyToken, async (req, res) => {
   }
 });
 // Create complaint
-router.post("/complaint", verifyToken, async (req, res) => {
-  const { location,mediaPath,reason,additionalInfo, status, mediaType } = req.body;
-  const complaint = new Complaint({
-    location,
-    mediaType,
-    reason,
-    additionalInfo,
-    status,
-    reportedBy: req.body.reportedBy || req.userId,
-    timestamp: Date.now(),
-    mediaPath,
-    comments: []
-  });
-  await complaint.save();
-  console.log("Complaint created:", complaint);
-  res.json(complaint);
+router.post("/complaint", verifyToken, upload.single("media"), async (req, res) => {
+  try {
+    const { reason, additionalInfo, status, mediaType, location } = req.body;
+
+    const parsedLocation = JSON.parse(location); // If sent as JSON string in FormData
+
+    const complaint = new Complaint({
+      location: parsedLocation,
+      mediaType,
+      reason,
+      additionalInfo,
+      status,
+      reportedBy: req.body.reportedBy || req.userId,
+      timestamp: Date.now(),
+      mediaPath: req.file, // This will have buffer, mimetype, originalname, etc.
+      comments: [],
+    });
+
+    await complaint.save();
+    res.json(complaint);
+  } catch (error) {
+    console.error("Error in /complaint:", error);
+    res.status(500).json({ error: "Something went wrong" });
+  }
 });
 
 // Fetch complaints by user

@@ -97,13 +97,13 @@ const ComplaintDetailModal = ({ setDialogOpen, complaint }) => {
           {complaint.mediaType === "image" ? (
             <img
               className="max-w-full w-auto h-96 object-scale-down"
-              src={complaint.mediaPath}
+              src={`data:image/png;base64,${complaint.mediaPath.buffer}`}
             />
           ) : (
             <video
               controls
               className="max-w-full w-auto h-96 object-scale-down"
-              src={complaint.mediaPath}
+              src={`data:image/png;base64,${complaint.mediaPath.buffer}`}
             />
           )}
           <h2 className="text-lg font-bold my-4">Comments</h2>

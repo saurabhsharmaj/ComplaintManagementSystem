@@ -1,9 +1,12 @@
 const express = require('express');
 const cors = require('cors');
 const mongoose =require('mongoose');
-
+const multer = require("multer");
+const upload = multer({ storage: multer.memoryStorage() }); 
 require('dotenv').config();
 const app=express();
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 const port = process.env.PORT || 5000;
 
 app.use(cors());
