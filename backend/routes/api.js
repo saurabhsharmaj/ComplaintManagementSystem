@@ -1,0 +1,167 @@
+const express = require("express");
+const router = require('express').Router();
+const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
+const User = require("../models/user.model");
+const Complaint = require("../models/complaint.model");
+
+// Middleware to verify JWT
+function verifyToken(req, res, next) {
+  const authHeader = req.headers.authorization;
+  if (!authHeader) return res.status(401).json({ error: "No token" });
+  const token = authHeader.split(" ")[1];
+  jwt.verify(token, "your_jwt_secret", (err, decoded) => {
+    if (err) return res.status(401).json({ error: "Invalid token" });
+    req.userId = decoded.userId;
+    next();
+  });
+}
+
+router.post("/register", async (req, res) => {
+  try {
+    const { name, email, password, mobile } = req.body;
+
+    // Check if user already exists by email or mobile
+    const existingUser = await User.findOne({
+      $or: [{ email }, { mobile }],
+    });
+    if (existingUser) {
+      return res.status(400).json({ message: "Email or mobile already registered" });
+    }
+
+    // Hash the password
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    const user = new User({
+      name,
+      email,
+      password: hashedPassword,
+      mobile,
+      type: "citizen",
+    });
+
+    await user.save();
+
+    const userObj = user.toObject();
+    delete userObj.password;
+
+    res.status(201).json(userObj);
+  } catch (err) {
+    if (err.code === 11000) {
+      const field = Object.keys(err.keyValue)[0];
+      return res.status(400).json({ message: `${field} already registered` });
+    }
+
+    console.error("Registration error:", err);
+    res.status(500).json({ message: err.message || "Registration failed" });
+  }
+});
+
+
+// Login
+router.post("/login", async (req, res) => {
+  try {
+    const { email, password } = req.body;
+    const user = await User.findOne({ email });
+    if (!user) {
+      console.log("User not found for email:", email);
+      return res.status(404).json({ error: "User not found" });
+    }
+    console.log("User found:", user);
+    console.log("Password from DB:", user.password);
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+    console.log("Password valid?", isPasswordValid);
+    if (!isPasswordValid) return res.status(400).json({ error: "Incorrect password" });
+    const token = jwt.sign({ userId: user._id }, "your_jwt_secret");
+    res.json({ user, token });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+// Get user by ID
+router.get("/user/:id", verifyToken, async (req, res) => {
+  const user = await User.findById(req.params.id).select("-password");
+  res.json(user);
+});
+
+// Get user by ID
+router.get("/users/verifyToken/:id", verifyToken, async (req, res) => {
+  const user = await User.findById(req.params.id).select("-password");
+  res.json(user);
+});
+
+// Check if user is official
+router.get("/user/isOfficial/:id", verifyToken, async (req, res) => {
+  const user = await User.findById(req.params.id);
+  res.json({ isOfficial: user?.type === "official" });
+});
+
+router.get("/user/currentUser", verifyToken, async (req, res) => {
+  try {
+    const user = await User.findById(req.userId).select("-password");
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+    res.json(user);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+// Create complaint
+router.post("/complaint", verifyToken, async (req, res) => {
+  const { location,mediaPath,reason,additionalInfo, status, mediaType } = req.body;
+  const complaint = new Complaint({
+    location,
+    mediaType,
+    reason,
+    additionalInfo,
+    status,
+    reportedBy: req.body.reportedBy || req.userId,
+    timestamp: Date.now(),
+    mediaPath,
+    comments: []
+  });
+  await complaint.save();
+  console.log("Complaint created:", complaint);
+  res.json(complaint);
+});
+
+// Fetch complaints by user
+router.get("/complaints/user/:id", verifyToken, async (req, res) => {
+  const complaints = await Complaint.find({ reportedBy: req.params.id });
+  res.json(complaints);
+});
+
+// Fetch all complaints
+router.get("/complaints", verifyToken, async (req, res) => {
+  const complaints = await Complaint.find();
+    //.populate("reportedBy", "name")
+   // .populate("comments.author", "name");
+  res.json(complaints);
+});
+
+// Add comment
+router.post("/complaint/:id/comment", verifyToken, async (req, res) => {
+  const { comment } = req.body;
+  const newComment = {
+    author: req.userId,
+    comment,
+    timestamp: Date.now(),
+  };
+  await Complaint.findByIdAndUpdate(req.params.id, { $push: { comments: newComment } });
+  res.json({ success: true });
+});
+
+// Mark as solved
+router.post("/complaint/:id/solved", verifyToken, async (req, res) => {
+  await Complaint.findByIdAndUpdate(req.params.id, { status: "SOLVED" });
+  res.json({ success: true });
+});
+
+// Mark as rejected
+router.post("/complaint/:id/rejected", verifyToken, async (req, res) => {
+  await Complaint.findByIdAndUpdate(req.params.id, { status: "REJECTED" });
+  res.json({ success: true });
+});
+
+module.exports = router;
