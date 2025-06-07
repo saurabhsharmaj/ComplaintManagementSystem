@@ -56,7 +56,17 @@ const OfficialDashboard = () => {
 
   const getUser = (userId) => {
     const user = users.find((u) => u._id === userId);
-    return user ? user : "Unknown";
+
+    return user.mediaPath?<p><img
+                    src={`data:image/png;base64,${user.mediaPath.buffer}`}
+                    alt="Profile"
+                    style={{
+                      width: "32px",
+                      height: "32px",
+                      borderRadius: "50%",
+                      objectFit: "cover"
+                    }}
+                  />{user.name}</p>:<p><img alt=""/>{user.name}</p>;
   };
 
   let columns = [
@@ -69,8 +79,8 @@ const OfficialDashboard = () => {
     {
       field: "reportedBy",
       headerName: "Reported By",
-     renderCell: (params) => getUser(params.value)!=="Unknown"?getUser(params.value).name:"NA",
-      width: 150
+     renderCell: (params) => getUser(params.value),
+                  width: 150
     },
     {
       field: "location",

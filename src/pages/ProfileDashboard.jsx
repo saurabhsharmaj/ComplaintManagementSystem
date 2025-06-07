@@ -17,7 +17,7 @@ import { ToastContainer, toast } from "react-toastify";
 import DashboardLinkButton from "../components/DashboardLinkButton";
 import Navbar from "../components/Navbar";
 import SpinnerModal from "../components/SpinnerModal";
-import { createComplaint, isOfficial } from "../utils/mongodb";
+import { handleUserProfile } from "../utils/mongodb";
 import { identifyLocation } from "../utils/MiscFunctions";
 import { Statuses } from "../utils/enums";
 
@@ -31,24 +31,60 @@ const ReportComplaint = () => {
   const [Media, setMedia] = useState();
   const [MediaPath, setMediaPath] = useState("");
   const [token, setToken] = useState("");
+  const [user, setUser] = useState(null);
   const [FormData, setFormData] = useState({
       name: "",
       email: "",
       mobile: "",
       password: "",
       confirmPassword: "",
+      mediaPath: "",
+      mediaType: ""
     });
-    const [Err, setErr] = useState(null);
+  const [Err, setErr] = useState(null);
   const [LoaderVisibile, setLoaderVisibile] = useState(false);
   const FileInput = useRef(null);
   const navigate = useNavigate();
-    useEffect(() => {
+  useEffect(() => {
+
+    const token = localStorage.getItem("token");
+    const userId = localStorage.getItem("userId");
+    if (!token || !userId) {
+      navigate("/citizen-login");
+      return;
+    } else{
+      setToken(token);
+    }
+
+    fetch(`http://192.168.1.37:5000/api/user/${userId}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    })
+      .then((res) => {
+        if (!res.ok) throw new Error("Unauthorized");
+          return res.json();
+      })
+      .then((userData) => {
+        setUser(userData);
+        setFormData((prev) => ({
+          ...prev,
+          name: userData.name,
+          email: userData.email,
+          mobile: userData.mobile,
+        }));
+      })
+      .catch(() => {
+        navigate("/citizen-login");
+      });
+    
+
         if (FormData.password != FormData.confirmPassword) {
           setErr("The password and confirmation password do not match.");
         } else {
           setErr(null);
         }
-      }, [FormData]);
+      }, [FormData.password, FormData.confirmPassword]);
   return (
     
     <div className="overflow-x-hidden">
@@ -81,17 +117,63 @@ const ReportComplaint = () => {
             onSubmit={(e) => {
               e.preventDefault();
     
-              handleRegistration(FormData)
+              handleUserProfile(FormData, Media,token)
                 .then((user) => {
-                  console.log(user);
-    
-                  navigate("/citizen-dashboard?newUser=true");
+                  console.log(user.mediaPath.buffer);
+                  //{`data:image/png;base64,${user.mediaPath.buffer}`
+                 // navigate("/profile-dashboard?newUser=true");
                 })
                 .catch((err) => {
                   setErr(err.message.split(": ")[1]);
                 });
             }}
           >
+
+        <input
+          required
+          type="file"
+          ref={FileInput}
+          className="opacity-0"
+          accept="image/*, video/*"
+          onChange={(e) => {
+            setMedia(e.target.files[0]);
+            setFormData({
+              ...FormData,
+              mediaType: e.target.files[0].type.split("/")[0],
+            });
+            setMediaPath(URL.createObjectURL(e.target.files[0]));
+          }}
+          name=""
+          id=""
+        />
+        <DashboardLinkButton
+          className={`${Media ? "hidden" : "block"} mx-[8vw]` }
+          icon={faCamera}
+          name={"Upload a picture/video of incident"}
+          onClick={() => FileInput.current.click()}
+          subtitle={"Make sure that everything is clear"}
+        />
+        <div
+          className={`flex flex-col justify-center items-center mx-8 lg:mx-20 py-6 ${
+            Media ? "block" : "hidden"
+          }`}
+        >
+          <img
+            src={Media && FormData.mediaType === "image" ? MediaPath : null}
+            alt=""
+            className={`max-w-full w-auto my-6 h-96 object-scale-down
+          ${Media && FormData.mediaType == "image" ? "block" : "hidden"}
+          `}
+          />
+         
+          <Button
+            onClick={() => FileInput.current.click()}
+            hidden={Media ? false : true}
+            variant="outlined"
+          >
+            Change Image
+          </Button>
+        </div>
         <div>
           <label className="block font-medium">Name</label>
           <input

@@ -81,6 +81,93 @@ router.post("/login", async (req, res) => {
   }
 });
 
+router.post("/user/:id", verifyToken, upload.single("media"), async (req, res) => {
+  try {
+    const { mediaType, name, email, password, mobile } = req.body;
+
+    const existingUser = await User.findById(req.params.id);
+    if (!existingUser) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    // Update fields from request
+    existingUser.name = name;
+    existingUser.email = email;
+    existingUser.mobile = mobile;
+
+    // Optional: update password only if provided
+    if (password && password.trim() !== "") {
+      const hashedPassword = await bcrypt.hash(password, 10);
+      existingUser.password = hashedPassword;
+    }
+
+    // Optional: update profile photo
+      console.log(req.file);
+    if (req.file) {
+      existingUser.mediaPath = req.file; // Or just `req.file.filename` if you store name
+      console.log( existingUser.mediaPath);
+      existingUser.mediaType = mediaType || req.file.mimetype.split("/")[0];
+    }
+    console.log("Updating user:", existingUser);
+    await existingUser.save();
+    res.json(existingUser);
+
+  } catch (error) {
+    console.error("Error in /user/:id update:", error);
+    res.status(500).json({ error: "Failed to update user profile" });
+  }
+});
+
+
+// Update User Profile
+router.post("/userold/:id", verifyToken, upload.single("media"), async (req, res) => {
+  try {
+    const { mediaType, name, email, password, mobile } = req.body;
+
+    // Hash the password
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    const user = new User({
+      name,
+      email,
+      password: hashedPassword,
+      mobile,
+      mediaPath: req.file,
+      mediaType
+    });
+
+    
+    const existingUser = await User.findById(req.params.id);
+    if (!existingUser) {
+      console.log("User not found for id:", req.params.id);
+      return res.status(404).json({ error: "User not found" });
+    }
+    console.log("User found:", existingUser);
+    console.log("Password from DB:", user.password);
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+    console.log("Password valid?", isPasswordValid);
+    if (!isPasswordValid) return res.status(400).json({ error: "Incorrect password" });
+
+    existingUser.name = user.name;
+    existingUser.email = user.email;
+    existingUser.mobile = user.mobile;
+    existingUser.mediaType = user.mediaType;
+    existingUser.password = user.password;
+
+
+    if (req.file) {
+     existingUser.mediaPath = user.mediaPath; // Or just `req.file` if you're storing full object
+    }
+
+    await existingUser.save();
+
+    res.json(existingUser);
+  } catch (error) {
+    console.error("Error in /user:", error);
+    res.status(500).json({ error: "Something went wrong while update user Profile." });
+  }
+});
+
 router.get("/users", verifyToken, async (req, res) => {
   const users = await User.find().select("-password");
   res.json(users);

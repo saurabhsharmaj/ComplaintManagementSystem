@@ -29,6 +29,15 @@ const userSchema = new Schema({
         type: String,
         enum: ['citizen', 'admin'],
         default: 'citizen'
+    }, 
+    mediaPath: {
+    type: Schema.Types.Mixed, // allows object, string, array, etc.
+    default: null
+    }, 
+    mediaType: {
+        type: String,
+        enum: ['image'],
+        required: false
     }
 }, {
     timestamps: true,

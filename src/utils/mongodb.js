@@ -83,6 +83,34 @@ export const fetchUsers = async (token) => {
   }
 };
 
+
+export const handleUserProfile = async (formData, mediaFile, token) => {
+  const formPayload = new FormData()
+  const userId= localStorage.getItem("userId");
+  // Append all fields
+  Object.entries(formData).forEach(([key, value]) => {
+    formPayload.append(key, typeof value === 'object' ? JSON.stringify(value) : value);
+  });
+
+  // Append media file (image or video)
+  formPayload.append("media", mediaFile);
+  const response = await fetch("http://192.168.1.37:5000/api/user/"+userId, {
+    method: "POST",
+    headers: {      
+      Authorization: `Bearer ${token}`, // Include the auth token
+    },
+    body: formPayload,
+  });
+
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.message || "Failed to update UserProfile");
+  }
+
+  const user = await response.json();
+  return user;
+};
+
 export const handleLogin = async (formData) => {
   try {
     const response = await axios.post("http://192.168.1.37:5000/api/login", formData, {
