@@ -80,6 +80,11 @@ router.post("/login", async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
+
+router.get("/users", verifyToken, async (req, res) => {
+  const users = await User.find().select("-password");
+  res.json(users);
+});
 // Get user by ID
 router.get("/user/:id", verifyToken, async (req, res) => {
   const user = await User.findById(req.params.id).select("-password");

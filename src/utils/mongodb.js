@@ -61,6 +61,27 @@ export const handleRegistration = async (formData) => {
   }
 };
 
+export const fetchUsers = async (token) => {
+  try {
+    const res = await fetch(`http://192.168.1.37:5000/api/users`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`
+      }
+    });
+
+    if (!res.ok) {
+      throw new Error("Failed to fetch Users");
+    }
+
+    const data = await res.json();
+    return data;
+  } catch (err) {
+    console.error("Error:", err.message);
+    return [];
+  }
+};
 
 export const handleLogin = async (formData) => {
   try {

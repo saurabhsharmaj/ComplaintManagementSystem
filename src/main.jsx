@@ -11,11 +11,16 @@ import HomePage from "./pages/HomePage";
 import OfficialDashboard from "./pages/OfficialDashboard";
 import OfficialLogin from "./pages/OfficialLogin";
 import ReportComplaint from "./pages/ReportComplaint";
+import ProfileDashboard from "./pages/ProfileDashboard";
 
 const router = createBrowserRouter([
   {
     path: "/",
     element: <HomePage />,
+  },
+  {
+    path: "/profile-Dashboard",
+    element: <ProfileDashboard />,
   },
   {
     path: "/citizen-login",

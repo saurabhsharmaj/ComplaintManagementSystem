@@ -69,6 +69,13 @@ const Navbar = () => {
             >
               Dashboard
             </Button>
+            <Button
+              component={Link}
+              to= "/profile-dashboard"
+              variant="outlined"
+            >
+              Profile
+            </Button>
             <Button onClick={handleLogout} variant="outlined">
               Logout
             </Button>

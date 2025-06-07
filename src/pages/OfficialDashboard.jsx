@@ -6,10 +6,11 @@ import { useNavigate } from "react-router-dom";
 import ComplaintDetailModal from "../components/ComplaintDetailModal";
 import Navbar from "../components/Navbar";
 import SpinnerModal from "../components/SpinnerModal";
-import { fetchComplaints, isOfficial } from "../utils/mongodb";
+import { fetchUsers, fetchComplaints, isOfficial } from "../utils/mongodb";
 import { Statuses, statusColors } from "../utils/enums";
 
 const OfficialDashboard = () => {
+  const [users, setUsers] = useState([]);
   const [Complaints, setComplaints] = useState([]);
   const [ModalOpen, setModalOpen] = useState(false);
   const [complaint, setComplaint] = useState({});
@@ -39,6 +40,7 @@ const OfficialDashboard = () => {
       } else {
         setSpinnerVisible(false);
         fetchComplaints(token).then(handleComplaintsUpdate);
+        fetchUsers(token).then((users)=>{setUsers(users)});
       }
     })
     .catch((err) => {
@@ -52,6 +54,11 @@ const OfficialDashboard = () => {
     setComplaints(updatedComplaints);
   };
 
+  const getUser = (userId) => {
+    const user = users.find((u) => u._id === userId);
+    return user ? user : "Unknown";
+  };
+
   let columns = [
     {
       field: "reason",
@@ -60,9 +67,10 @@ const OfficialDashboard = () => {
       headerClassName: "",
     },
     {
-      field: "author",
+      field: "reportedBy",
       headerName: "Reported By",
-      width: 150,
+     renderCell: (params) => getUser(params.value)!=="Unknown"?getUser(params.value).name:"NA",
+      width: 150
     },
     {
       field: "location",
