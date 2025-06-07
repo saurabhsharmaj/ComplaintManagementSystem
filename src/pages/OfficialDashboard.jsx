@@ -58,15 +58,19 @@ const OfficialDashboard = () => {
     const user = users.find((u) => u._id === userId);
 
     return user.mediaPath?<p><img
-                    src={`data:image/png;base64,${user.mediaPath.buffer}`}
-                    alt="Profile"
-                    style={{
-                      width: "32px",
-                      height: "32px",
-                      borderRadius: "50%",
-                      objectFit: "cover"
-                    }}
-                  />{user.name}</p>:<p><img alt=""/>{user.name}</p>;
+                  src={
+                    user?.mediaPath?.buffer
+                      ? `data:image/png;base64,${user.mediaPath.buffer}`
+                      : "/default-avatar.png" // Use your local or hosted default image
+                  }
+                  alt="Profile"
+                  style={{
+                    width: "32px",
+                    height: "32px",
+                    borderRadius: "50%",
+                    objectFit: "cover",
+                  }}
+                />{user.name}</p>:<p><img alt=""/>{user.name}</p>;
   };
 
   let columns = [

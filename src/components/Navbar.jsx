@@ -18,7 +18,7 @@ export const Button = styled(MuiButton)((props) => ({
 }));
 const Navbar = () => {
   const [Visible, setVisible] = useState(false);
-  const [User, setUser] = useState(null);
+  const [user, setUser] = useState(null);
   const [Official, setOfficial] = useState(false);
   const navigate = useNavigate();
   const handleLogout = () => {
@@ -60,7 +60,7 @@ const Navbar = () => {
             <h2 className="font-bold text-sm animate-typing whitespace-nowrap overflow-hidden lg:text-lg">Shiv Vihar Vikas Samiti</h2>
           </div>
         </Link>
-        {User ? (
+        {user ? (
           <div className="ButtonGroup gap-8 hidden lg:flex">
             <Button
               component={Link}
@@ -77,6 +77,21 @@ const Navbar = () => {
               Profile
             </Button>
             <Button onClick={handleLogout} variant="outlined">
+              <img
+                  src={
+                    user?.mediaPath?.buffer
+                      ? `data:image/png;base64,${user.mediaPath.buffer}`
+                      : "/default-avatar.png" // Use your local or hosted default image
+                  }
+                  alt="Profile"
+                  style={{
+                    width: "32px",
+                    height: "32px",
+                    borderRadius: "50%",
+                    objectFit: "cover",
+                  }}
+                />
+
               Logout
             </Button>
           </div>
@@ -105,7 +120,7 @@ const Navbar = () => {
         }`}
       >
         <ul className=" flex flex-col gap-16 font-bold">
-          {User ? (
+          {user ? (
             <>
               <Link
                 to={Official ? "/official-dashboard" : "/citizen-dashboard"}
