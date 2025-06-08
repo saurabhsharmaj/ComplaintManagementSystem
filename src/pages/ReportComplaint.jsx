@@ -20,6 +20,7 @@ import SpinnerModal from "../components/SpinnerModal";
 import { createComplaint, isOfficial } from "../utils/mongodb";
 import { identifyLocation } from "../utils/MiscFunctions";
 import { Statuses } from "../utils/enums";
+import { API_BASE_URL } from "@/config";
 
 const TextField = styled(MuiTextField)((props) => ({
   width: "80%",
@@ -57,7 +58,7 @@ const ReportComplaint = () => {
   setToken(token);
   const userId= localStorage.getItem("userId");
   // Fetch user details
-  fetch("http://192.168.1.37:5000/api/user/"+userId, {
+  fetch(API_BASE_URL+"/user/"+userId, {
     headers: {
       Authorization: `Bearer ${token}`,
     },

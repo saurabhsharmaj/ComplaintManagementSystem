@@ -6,6 +6,7 @@ import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { handleLogin, handleRegistration } from "../utils/mongodb";
 import Logo from "/src/assets/logo.png";
+import { API_BASE_URL } from "@/config";
 
 export const Button = styled(MuiButton)((props) => ({
   borderRadius: "25px",
@@ -32,7 +33,7 @@ const Navbar = () => {
   if (token) {
     const userId= localStorage.getItem("userId");
     // Fetch user info from backend using the token
-    fetch("http://192.168.1.37:5000/api/user/"+userId, {
+    fetch(API_BASE_URL+"/user/"+userId, {
       headers: {
         Authorization: `Bearer ${token}`,
       },

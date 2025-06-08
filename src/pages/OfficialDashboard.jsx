@@ -8,6 +8,7 @@ import Navbar from "../components/Navbar";
 import SpinnerModal from "../components/SpinnerModal";
 import { fetchUsers, fetchComplaints, isOfficial } from "../utils/mongodb";
 import { Statuses, statusColors } from "../utils/enums";
+import { API_BASE_URL } from "@/config";
 
 const OfficialDashboard = () => {
   const [users, setUsers] = useState([]);
@@ -16,6 +17,9 @@ const OfficialDashboard = () => {
   const [complaint, setComplaint] = useState({});
   const [SpinnerVisible, setSpinnerVisible] = useState(false);
   const navigate = useNavigate();
+  const [inProgress, setInProgress] = useState();
+  const [solved, setSolved] = useState();
+  const [rejected, setRejected] = useState();
   
   useEffect(() => {
   const token = localStorage.getItem("token");
@@ -24,7 +28,7 @@ const OfficialDashboard = () => {
     return;
   }
   const userId= localStorage.getItem("userId");
-  fetch("http://192.168.1.37:5000/api/user/"+userId, {
+  fetch(API_BASE_URL+"/user/"+userId, {
     method: "GET",
     headers: {
       Authorization: `Bearer ${token}`,
@@ -47,6 +51,30 @@ const OfficialDashboard = () => {
       console.error("Fetch current user error:", err);
       navigate("/official-login");
     });
+
+    
+    fetch(API_BASE_URL+"/complaints/status-summary", {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    })
+    .then((res) => {
+      if (!res.ok) throw new Error("Unauthorized");
+      return res.json();
+    })
+    .then((res) => {
+      
+      setInProgress(res.inProgress);
+      setRejected(res.rejected);
+      setSolved(res.solved);
+      console.log("--"+inProgress);
+    })
+    .catch((err) => {
+      console.error("Fetch current user error:", err);
+      //navigate("/official-login");
+    });
+
 }, []);
 
 
@@ -80,20 +108,14 @@ const OfficialDashboard = () => {
       width: 300,
       headerClassName: "",
     },
-    {
-      field: "reportedBy",
-      headerName: "Reported By",
-     renderCell: (params) => getUser(params.value),
-                  width: 150
-    },
+   
     {
       field: "location",
       headerName: "Reported Location",
       width: 200,
 
       valueGetter: (params) => `${params.row.location.name}`,
-    },
-    {
+    },{
       field: "timestamp",
       headerName: "Reported Date & Time",
       width: 200,
@@ -108,8 +130,12 @@ const OfficialDashboard = () => {
         });
         return date + " , " + time;
       },
-    },
-    {
+    },{
+      field: "reportedBy",
+      headerName: "Reported By",
+     renderCell: (params) => getUser(params.value),
+                  width: 150
+    },{
       field: "status",
       headerName: "Status",
       width: 150,
@@ -137,6 +163,19 @@ const OfficialDashboard = () => {
         <h2 className=" lg:mt-10 leading-normal font-bold text-center text-xl lg:text-[2rem] my-8 lg:text-left">
           Official Dashboard
         </h2>
+        <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
+      <p style={{ margin: 0, color: statusColors.inProgress }}>
+        In Progress : {inProgress}
+      </p>
+      <span>|</span>
+      <p style={{ margin: 0, color: statusColors.solved }}>
+        Solved : {solved}
+      </p>
+      <span>|</span>
+      <p style={{ margin: 0, color: statusColors.rejected }}>
+        Rejected : {rejected}
+      </p>
+    </div>
         <Dialog
           open={ModalOpen}
           children={

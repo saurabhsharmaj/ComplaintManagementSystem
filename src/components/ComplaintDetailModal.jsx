@@ -22,6 +22,7 @@ import {
 } from "../utils/mongodb";
 import { Statuses, statusColors } from "../utils/enums";
 import CommentsTile from "./CommentsTile";
+import { API_BASE_URL } from "@/config";
 
 const ComplaintDetailModal = ({ setDialogOpen, complaint }) => {
   console.log(complaint);
@@ -34,7 +35,7 @@ const ComplaintDetailModal = ({ setDialogOpen, complaint }) => {
    setToken(token);
      const userId= localStorage.getItem("userId");
   // Fetch user details
-  fetch("http://192.168.1.37:5000/api/user/"+userId, {
+  fetch(API_BASE_URL+"/user/"+userId, {
     headers: {
       Authorization: `Bearer ${token}`,
     },

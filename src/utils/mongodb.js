@@ -1,5 +1,8 @@
 import axios from "axios";
 import mongoose from "mongoose";
+import { API_BASE_URL } from "@/config";
+
+
 
 // Enums
 export const Statuses = {
@@ -52,7 +55,7 @@ const Complaint = mongoose.model("Complaint", ComplaintSchema);
 
 export const handleRegistration = async (formData) => {
   try {
-    const response = await axios.post("http://192.168.1.37:5000/api/register", formData, {
+    const response = await axios.post(API_BASE_URL+"/register", formData, {
       headers: { "Content-Type": "application/json" },
     });
     return response.data;
@@ -63,7 +66,7 @@ export const handleRegistration = async (formData) => {
 
 export const fetchUsers = async (token) => {
   try {
-    const res = await fetch(`http://192.168.1.37:5000/api/users`, {
+    const res = await fetch(API_BASE_URL+"/users", {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
@@ -94,7 +97,7 @@ export const handleUserProfile = async (formData, mediaFile, token) => {
 
   // Append media file (image or video)
   formPayload.append("media", mediaFile);
-  const response = await fetch("http://192.168.1.37:5000/api/user/"+userId, {
+  const response = await fetch(API_BASE_URL+"/user/"+userId, {
     method: "POST",
     headers: {      
       Authorization: `Bearer ${token}`, // Include the auth token
@@ -113,7 +116,7 @@ export const handleUserProfile = async (formData, mediaFile, token) => {
 
 export const handleLogin = async (formData) => {
   try {
-    const response = await axios.post("http://192.168.1.37:5000/api/login", formData, {
+    const response = await axios.post(API_BASE_URL+"/login", formData, {
       headers: { "Content-Type": "application/json" },
     });
     console.log(formData)
@@ -140,7 +143,7 @@ export const createComplaint = async (formData, mediaFile, token) => {
 
   // Append media file (image or video)
   formPayload.append("media", mediaFile);
-  const response = await fetch("http://192.168.1.37:5000/api/complaint", {
+  const response = await fetch(API_BASE_URL+"/complaint", {
     method: "POST",
     headers: {      
       Authorization: `Bearer ${token}`, // Include the auth token
@@ -160,7 +163,7 @@ export const createComplaint = async (formData, mediaFile, token) => {
 export const isOfficial = async (formData, mediaUrl, token) => {
   
   const userId= localStorage.getItem("userId");
-  const response = await fetch("http://192.168.1.37:5000/api/isOfficial/"+userId, {
+  const response = await fetch(API_BASE_URL+"/isOfficial/"+userId, {
     method: "GET",
     headers: {
       "Content-Type": "application/json",
@@ -185,7 +188,7 @@ export const isOfficial = async (formData, mediaUrl, token) => {
 export const complaint = async (formData, mediaUrl, token) => {
   
   const userId= localStorage.getItem("userId");
-  const response = await fetch("http://192.168.1.37:5000/api/isOfficial/"+userId, {
+  const response = await fetch(API_BASE_URL+"/isOfficial/"+userId, {
     method: "GET",
     headers: {
       "Content-Type": "application/json",
@@ -209,7 +212,7 @@ export const complaint = async (formData, mediaUrl, token) => {
 
 const fetchComplaintsByUser = async (userId, token) => {
   try {
-    const res = await fetch(`http://192.168.1.37:5000/api/complaints/user/${userId}`, {
+    const res = await fetch(API_BASE_URL+"/complaints/user/${userId}", {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
@@ -233,7 +236,7 @@ const fetchComplaintsByUser = async (userId, token) => {
 
 export const fetchComplaints = async (token) => {
   try {
-    const res = await fetch(`http://192.168.1.37:5000/api/complaints`, {
+    const res = await fetch(API_BASE_URL+"/complaints", {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
@@ -261,7 +264,7 @@ export const addComment = async (complaintID, commentText, token) => {
     timestamp: Date.now(),
   };
 
-  const response = await fetch("http://192.168.1.37:5000/api/complaint/"+complaintID+"/comment", {
+  const response = await fetch(API_BASE_URL+"/complaint/"+complaintID+"/comment", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -282,7 +285,7 @@ export const addComment = async (complaintID, commentText, token) => {
 
 export const fetchCommentById = async (complaintID,token) => {
  // await Complaint.findByIdAndUpdate(complaintID, { status: Statuses.solved });
-  const response = await fetch("http://192.168.1.37:5000/api/complaint/"+complaintID, {
+  const response = await fetch(API_BASE_URL+"/complaint/"+complaintID, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -301,7 +304,7 @@ export const fetchCommentById = async (complaintID,token) => {
 
 export const markAsSolved = async (complaintID,token) => {
  // await Complaint.findByIdAndUpdate(complaintID, { status: Statuses.solved });
-  const response = await fetch("http://192.168.1.37:5000/api/complaint/"+complaintID+"/solved", {
+  const response = await fetch(API_BASE_URL+"/complaint/"+complaintID+"/solved", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -317,7 +320,7 @@ export const markAsSolved = async (complaintID,token) => {
 
 export const markAsRejected = async (complaintID,token) => {
   //await Complaint.findByIdAndUpdate(complaintID, { status: Statuses.rejected });
-  const response = await fetch("http://192.168.1.37:5000/api/complaint/"+complaintID+"/rejected", {
+  const response = await fetch(API_BASE_URL+"/complaint/"+complaintID+"/rejected", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -333,7 +336,7 @@ export const markAsRejected = async (complaintID,token) => {
 
 export const fetchUserById = async (userId,token) => {
   //return await User.findById(userId).select("-password");
-  const response = await fetch("http://192.168.1.37:5000/api/user/"+userId, {
+  const response = await fetch(API_BASE_URL+"/user/"+userId, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",

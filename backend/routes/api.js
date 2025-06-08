@@ -282,4 +282,38 @@ router.post("/complaint/:id/rejected", verifyToken, async (req, res) => {
   res.json({ success: true });
 });
 
+
+// GET /complaints/status-summary
+router.get("/complaints/status-summary", verifyToken, async (req, res) => {
+  try {
+    const summary = await Complaint.aggregate([
+      {
+        $group: {
+          _id: "$status",
+          count: { $sum: 1 }
+        }
+      }
+    ]);
+
+    // Transform result to a map with default 0
+    const response = {
+      inProgress: 0,
+      solved: 0,
+      rejected: 0
+    };
+
+    summary.forEach((item) => {
+      if (item._id === "In-Progress") response.inProgress = item.count;
+      else if (item._id === "SOLVED") response.solved = item.count;
+      else if (item._id === "REJECTED") response.rejected = item.count;
+    });
+
+    res.json(response);
+  } catch (err) {
+    console.error("Error fetching status summary:", err);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+
 module.exports = router;

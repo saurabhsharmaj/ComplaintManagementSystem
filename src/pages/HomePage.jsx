@@ -4,13 +4,14 @@ import RegisterAccount from "../components/RegisterAccount";
 import { isOfficial } from "../utils/mongodb";
 import TrafficArt from "/src/assets/traffic-art.png";
 import Navbar from "/src/components/Navbar";
+import { API_BASE_URL } from "@/config";
 const HomePage = () => {
   const navigate = useNavigate();
   useEffect(() => {
   const token = localStorage.getItem("token");
   if (!token) return;
 
-  fetch("http://192.168.1.37:5000/api/users/verifyToken", {
+  fetch(API_BASE_URL+"/users/verifyToken", {
     headers: {
       Authorization: `Bearer ${token}`,
     },

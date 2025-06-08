@@ -5,6 +5,7 @@ import Navbar from "../components/Navbar";
 import { TextField } from "../components/RegisterAccount";
 import { handleLogin, isOfficial } from "../utils/mongodb";
 import SpinnerModal from "../components/SpinnerModal";
+import { API_BASE_URL } from "@/config";
 
 const OfficialLogin = () => {
   const [FormData, setFormData] = useState({
@@ -18,7 +19,7 @@ const OfficialLogin = () => {
   const token = localStorage.getItem("token");
   if (!token) return;
 
-  fetch("http://192.168.1.37:5000/api/users/verifyToken", {
+  fetch(API_BASE_URL+"/users/verifyToken", {
     headers: {
       Authorization: `Bearer ${token}`,
     },

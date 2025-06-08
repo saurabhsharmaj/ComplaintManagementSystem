@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import ComplaintsCard from "./ComplaintsCard";
+import { API_BASE_URL } from "@/config";
 
 const ReportedComplaints = () => {
   const [Complaints, setComplaints] = useState([]);
@@ -15,7 +16,7 @@ const ReportedComplaints = () => {
 
   const userId= localStorage.getItem("userId");
   // Fetch user details
-  fetch("http://192.168.1.37:5000/api/user/"+userId, {
+  fetch(API_BASE_URL+"/user/"+userId, {
     headers: {
       Authorization: `Bearer ${token}`,
     },
@@ -31,7 +32,7 @@ const ReportedComplaints = () => {
         // Fetch complaints for this user
         //fetchComplaintsByUser(user._id).then(handleComplaintsUpdate);
 
-        fetch(`http://192.168.1.37:5000/api/complaints/user/${userId}`, {
+        fetch(API_BASE_URL+"/complaints/user/${userId}", {
               method: "GET",
               headers: {
                 "Content-Type": "application/json",

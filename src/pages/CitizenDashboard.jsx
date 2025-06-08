@@ -12,6 +12,7 @@ import Navbar from "../components/Navbar";
 import ReportedComplaints from "../components/ReportedComplaints";
 import SpinnerModal from "../components/SpinnerModal";
 import { isOfficial } from "../utils/mongodb";
+import { API_BASE_URL } from "@/config";
 
 const CitizenDashboard = () => {
   const [deferredPrompt, setDeferredPrompt] = useState(null);
@@ -28,7 +29,7 @@ const CitizenDashboard = () => {
 
    const userId= localStorage.getItem("userId");
   // Fetch user details
-  fetch("http://192.168.1.37:5000/api/user/"+userId, {
+  fetch(API_BASE_URL+"/user/"+userId, {
     headers: {
       Authorization: `Bearer ${token}`,
     },

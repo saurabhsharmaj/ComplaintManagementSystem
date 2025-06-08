@@ -56,7 +56,7 @@ const ReportComplaint = () => {
       setToken(token);
     }
 
-    fetch(`http://192.168.1.37:5000/api/user/${userId}`, {
+    fetch(API_BASE_URL+"/user/${userId}", {
       headers: {
         Authorization: `Bearer ${token}`,
       },
