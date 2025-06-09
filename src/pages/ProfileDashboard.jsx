@@ -57,7 +57,7 @@ const ReportComplaint = () => {
       setToken(token);
     }
 
-    fetch(API_BASE_URL+"/user/${userId}", {
+    fetch(API_BASE_URL+`/user/${userId}`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
