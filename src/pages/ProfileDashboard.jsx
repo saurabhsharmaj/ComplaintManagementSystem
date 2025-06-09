@@ -20,6 +20,7 @@ import SpinnerModal from "../components/SpinnerModal";
 import { handleUserProfile } from "../utils/mongodb";
 import { identifyLocation } from "../utils/MiscFunctions";
 import { Statuses } from "../utils/enums";
+import { API_BASE_URL } from "@/config";
 
 const TextField = styled(MuiTextField)((props) => ({
   width: "80%",

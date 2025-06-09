@@ -32,7 +32,7 @@ const ReportedComplaints = () => {
         // Fetch complaints for this user
         //fetchComplaintsByUser(user._id).then(handleComplaintsUpdate);
 
-        fetch(API_BASE_URL+"/complaints/user/${userId}", {
+        fetch(API_BASE_URL+"/complaints/user/"+`${userId}`, {
               method: "GET",
               headers: {
                 "Content-Type": "application/json",

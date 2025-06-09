@@ -128,6 +128,11 @@ const Navbar = () => {
               >
                 Dashboard
               </Link>
+              <Link
+                to={"/profile-dashboard"}
+              >
+                Profile X
+              </Link>
               <Link onClick={handleLogout}>Logout</Link>{" "}
             </>
           ) : (
