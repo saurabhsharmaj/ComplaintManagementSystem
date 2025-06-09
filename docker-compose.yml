@@ -16,3 +16,4 @@ services:
       - "5000:5000"
     environment:
       - MONGO_URI=mongodb+srv://ersaurabhsharmamca:SUXVZQUyUW5X2qI3@gatepass-db.alvtd.mongodb.net/complaint-management-db?retryWrites=true&w=majority&appName=complaint-management-db
+#docker-compose up --build
