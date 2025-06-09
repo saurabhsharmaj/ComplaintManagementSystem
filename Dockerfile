@@ -3,6 +3,8 @@ FROM node:18-alpine as build
 WORKDIR /app
 COPY . .
 RUN npm install --force
+ARG VITE_API_BASE_URL
+ENV VITE_API_BASE_URL=$VITE_API_BASE_URL
 RUN npm run build 
 
 # Stage 2 - Serve with nginx
