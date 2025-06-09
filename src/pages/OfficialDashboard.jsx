@@ -9,6 +9,8 @@ import SpinnerModal from "../components/SpinnerModal";
 import { fetchUsers, fetchComplaints, isOfficial } from "../utils/mongodb";
 import { Statuses, statusColors } from "../utils/enums";
 import { API_BASE_URL } from "@/config";
+import ReportedComplaints from "../components/ReportedComplaints";
+import ComplaintsCard from "../components/ComplaintsCard";
 
 const OfficialDashboard = () => {
   const [users, setUsers] = useState([]);
@@ -20,7 +22,8 @@ const OfficialDashboard = () => {
   const [inProgress, setInProgress] = useState();
   const [solved, setSolved] = useState();
   const [rejected, setRejected] = useState();
-  
+  const [Visible, setVisible] = useState(false);
+
   useEffect(() => {
   const token = localStorage.getItem("token");
   if (!token) {
@@ -159,72 +162,16 @@ const OfficialDashboard = () => {
     <>
       <SpinnerModal visible={SpinnerVisible} />
       <Navbar />
-      <div className="px-20 ">
-        <h2 className=" lg:mt-10 leading-normal font-bold text-center text-xl lg:text-[2rem] my-8 lg:text-left">
-          Official Dashboard
-        </h2>
-        <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
-      <p style={{ margin: 0, color: statusColors.inProgress }}>
-        In Progress : {inProgress}
-      </p>
-      <span>|</span>
-      <p style={{ margin: 0, color: statusColors.solved }}>
-        Solved : {solved}
-      </p>
-      <span>|</span>
-      <p style={{ margin: 0, color: statusColors.rejected }}>
-        Rejected : {rejected}
-      </p>
-    </div>
-        <Dialog
-          open={ModalOpen}
-          children={
-            <ComplaintDetailModal
-              setDialogOpen={setModalOpen}
-              complaint={complaint}
-            />
-          }
-        />
-        <DataGrid
-          rows={Complaints}
-          getRowId={(row) => row._id}
-          columns={columns}
-          onRowClick={(params) => {
-            setComplaint(params.row);
-            setModalOpen(true);
-          }}
-          initialState={{
-            pagination: {
-              paginationModel: { page: 0, pageSize: 10 },
-            },
-          }}
-          pageSizeOptions={[10, 20, 30]}
-          sx={{
-            ".MuiDataGrid-columnHeaderTitle": {
-              fontWeight: "bold !important",
-              overflow: "visible !important",
-            },
-            "& .StatusCol": {
-              color: "#fff",
-              fontWeight: 900,
-              marginY: 1.5,
-              minHeight: "30px !important",
-              marginLeft: "auto !important",
-              borderRadius: 500,
-            },
-            "& .StatusCol.inProgress": {
-              backgroundColor: statusColors.inProgress,
-            },
-            "& .StatusCol.Rejected": {
-              backgroundColor: statusColors.rejected,
-            },
-            "& .StatusCol.Solved": {
-              backgroundColor: statusColors.solved,
-            },
-          }}
-          // checkboxSelection
-        ></DataGrid>
-      </div>
+     <div className="container px-4 overflow-y-auto">
+          {Complaints.length === 0 ? (
+            <h2>No Complaints Found #</h2>
+          ) : (
+            Complaints &&
+            Complaints.map((complaint) => {
+              return <ComplaintsCard key={complaint._id} complaint={complaint} />;
+            })
+          )}
+        </div>
     </>
   );
 };
