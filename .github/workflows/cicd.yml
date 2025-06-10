@@ -40,14 +40,14 @@ jobs:
         if: steps.filter.outputs.backend == 'true'
         run: |
           TAG=${{ github.event.release.tag_name || 'latest' }}
-          docker build -t rajdeepsingh642/cms-backend:$TAG ./back-end
+          docker build  -t rajdeepsingh642/cms-backend:$TAG ./back-end
           docker push rajdeepsingh642/cms-backend:$TAG
 
       - name: Build & Push Frontend
         if: steps.filter.outputs.frontend == 'true'
         run: |
           TAG=${{ github.event.release.tag_name || 'latest' }}
-          docker build -t rajdeepsingh642/cms-frontend:$TAG ./front-end
+          docker build --build-arg VITE_API_BASE_URL=http://localhost:5000/api  -t rajdeepsingh642/cms-frontend:$TAG ./front-end
           docker push rajdeepsingh642/cms-frontend:$TAG
 
   deploy:
@@ -88,8 +88,8 @@ jobs:
                   image: rajdeepsingh642/cms-frontend
                   ports:
                        - "3010:80" 
-                  args:
-                       VITE_API_BASE_URL: ${VITE_API_BASE_URL}
+                  environment:
+                          - VITE_API_BASE_URL=http://localhost:5000/api
                   depends_on:
                     - backend
                   restart: always
