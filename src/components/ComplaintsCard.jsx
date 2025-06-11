@@ -10,6 +10,7 @@ import { fetchUserById } from "../utils/mongodb";
 
 const ComplaintsCard = ({ complaint }) => {
   const [DialogOpen, setDialogOpen] = useState(false);
+  console.log(complaint);
   const [user, setUser] = useState(null);
   let date = new Date(complaint.timestamp);
   let StatusColorEnum = Object.keys(Statuses).find(
@@ -18,7 +19,7 @@ const ComplaintsCard = ({ complaint }) => {
 
   useEffect(() => {
     const token = localStorage.getItem("token");
-    const userId = localStorage.getItem("userId");
+    const userId = complaint.reportedBy;
     if (userId && token) {
       fetchUserById(userId, token).then((user) => {
         console.log(user);
@@ -27,7 +28,7 @@ const ComplaintsCard = ({ complaint }) => {
         console.log(err);
       });
     }
-  }, []);
+  }, [complaint]);
   if (!user) {
     return null;
   }

@@ -11,6 +11,7 @@ import { Statuses } from "../utils/enums";
 import { API_BASE_URL } from "@/config";
 import ReportedComplaints from "../components/ReportedComplaints";
 import ComplaintsCard from "../components/ComplaintsCard";
+import { RingLoader } from "react-spinners";
 
 const OfficialDashboard = () => {
   const [users, setUsers] = useState([]);
@@ -126,7 +127,23 @@ const OfficialDashboard = () => {
       <Navbar />
 
       <div className="container px-4 py-4 overflow-y-auto">
-        {/* Dropdown Filter */}
+        {/* Status Summary */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6 px-2">
+          <div className="bg-yellow-100 text-yellow-800 p-4 rounded-lg shadow text-center">
+            <h3 className="text-lg font-bold">In Progress</h3>
+            <p className="text-2xl">{inProgress ?? 0}</p>
+          </div>
+          <div className="bg-green-100 text-green-800 p-4 rounded-lg shadow text-center">
+            <h3 className="text-lg font-bold">Solved</h3>
+            <p className="text-2xl">{solved ?? 0}</p>
+          </div>
+          <div className="bg-red-100 text-red-800 p-4 rounded-lg shadow text-center">
+            <h3 className="text-lg font-bold">Rejected</h3>
+            <p className="text-2xl">{rejected ?? 0}</p>
+          </div>
+        </div>
+
+        {/* Filter Dropdown */}
         <div className="mb-4 flex items-center space-x-4">
           <label htmlFor="reason" className="text-sm font-semibold">
             Filter by Reason:
@@ -141,9 +158,7 @@ const OfficialDashboard = () => {
               if (value === "") {
                 setFilteredComplaints(Complaints);
               } else {
-                setFilteredComplaints(
-                  Complaints.filter((c) => c.reason === value)
-                );
+                setFilteredComplaints(Complaints.filter((c) => c.reason === value));
               }
             }}
           >
@@ -158,13 +173,16 @@ const OfficialDashboard = () => {
 
         {/* Complaint Cards */}
         {filteredComplaints.length === 0 ? (
-          <h2>No Complaints Found</h2>
+          <div className="w-full h-[60vh] flex justify-center items-center">
+            <RingLoader />
+          </div>
         ) : (
           filteredComplaints.map((complaint) => (
             <ComplaintsCard key={complaint._id} complaint={complaint} />
           ))
         )}
       </div>
+
     </>
   );
 };

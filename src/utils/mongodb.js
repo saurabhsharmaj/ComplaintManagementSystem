@@ -54,14 +54,13 @@ const Complaint = mongoose.model("Complaint", ComplaintSchema);
 // --------- AUTHENTICATION FUNCTIONS ---------
 
 export const handleRegistration = async (formData) => {
-  try {
-    const response = await axios.post(API_BASE_URL + "/register", formData, {
-      headers: { "Content-Type": "application/json" },
-    });
-    return response.data;
-  } catch (error) {
-    throw new Error(error.response?.data?.message || "Registration failed");
-  }
+  const response = await axios.post(API_BASE_URL + "/register", formData, {
+    headers: { "Content-Type": "application/json" },
+  });
+  return response;
+  // } catch (error) {
+  //   throw new Error(error.response?.data?.message || "Registration failed");
+  // }
 };
 
 export const fetchUsers = async (token) => {

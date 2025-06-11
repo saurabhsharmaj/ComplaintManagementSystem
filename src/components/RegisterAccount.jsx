@@ -4,6 +4,7 @@ import MuiTextField from "@mui/material/TextField";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { handleRegistration } from "../utils/mongodb.js";
+import { toast } from "react-toastify";
 
 export const TextField = styled(MuiTextField)((props) => ({
   width: "100%",
@@ -43,9 +44,12 @@ const RegisterAccount = () => {
         className=" flex flex-col gap-5 w-full"
         onSubmit={async (e) => {
           e.preventDefault();
-          const res = await handleRegistration(FormData);
-          console.log(res);
-          navigate("/citizen-dashboard")
+          handleRegistration(FormData).then((res) => {
+            console.log(res);
+            navigate("/citizen-dashboard")
+          }).catch((err) => {
+            toast.warn(err.response.data.message || err.message);
+          })
 
         }}
       >
