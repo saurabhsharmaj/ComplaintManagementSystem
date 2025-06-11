@@ -13,23 +13,22 @@
 # EXPOSE 80
 # CMD ["nginx", "-g", "daemon off;"]
 # Stage 1 - Build
+# Stage 1 - Build
 FROM node:18-alpine as build
-
 WORKDIR /app
+
+# Copy everything including .env.production
 COPY . .
 
 RUN npm install --force
 
-# Inject VITE_API_BASE_URL at build time
-ARG VITE_API_BASE_URL
-RUN echo "VITE_API_BASE_URL=$VITE_API_BASE_URL" > .env.production
+# If your file is named .env.production, you can rename or copy it
+RUN cp .env.production .env
 
-RUN npm run build 
+RUN npm run build
 
 # Stage 2 - Serve with nginx
 FROM nginx:alpine
-
 COPY --from=build /app/dist /usr/share/nginx/html
-
 EXPOSE 80
 CMD ["nginx", "-g", "daemon off;"]
