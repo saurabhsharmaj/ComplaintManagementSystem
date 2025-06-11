@@ -1,6 +1,6 @@
 import axios from "axios";
 import mongoose from "mongoose";
-import { API_BASE_URL } from "@/config";
+import { API_BASE_URL } from "@/config.js";
 
 
 
@@ -55,7 +55,7 @@ const Complaint = mongoose.model("Complaint", ComplaintSchema);
 
 export const handleRegistration = async (formData) => {
   try {
-    const response = await axios.post(API_BASE_URL+"/register", formData, {
+    const response = await axios.post(API_BASE_URL + "/register", formData, {
       headers: { "Content-Type": "application/json" },
     });
     return response.data;
@@ -66,7 +66,7 @@ export const handleRegistration = async (formData) => {
 
 export const fetchUsers = async (token) => {
   try {
-    const res = await fetch(API_BASE_URL+"/users", {
+    const res = await fetch(API_BASE_URL + "/users", {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
@@ -89,7 +89,7 @@ export const fetchUsers = async (token) => {
 
 export const handleUserProfile = async (formData, mediaFile, token) => {
   const formPayload = new FormData()
-  const userId= localStorage.getItem("userId");
+  const userId = localStorage.getItem("userId");
   // Append all fields
   Object.entries(formData).forEach(([key, value]) => {
     formPayload.append(key, typeof value === 'object' ? JSON.stringify(value) : value);
@@ -97,9 +97,9 @@ export const handleUserProfile = async (formData, mediaFile, token) => {
 
   // Append media file (image or video)
   formPayload.append("media", mediaFile);
-  const response = await fetch(API_BASE_URL+"/user/"+userId, {
+  const response = await fetch(API_BASE_URL + "/user/" + userId, {
     method: "POST",
-    headers: {      
+    headers: {
       Authorization: `Bearer ${token}`, // Include the auth token
     },
     body: formPayload,
@@ -115,18 +115,18 @@ export const handleUserProfile = async (formData, mediaFile, token) => {
 };
 
 export const handleLogin = async (formData) => {
-  try {
-    const response = await axios.post(API_BASE_URL+"/login", formData, {
-      headers: { "Content-Type": "application/json" },
-    });
-    console.log(formData)
-    console.log(response.data);
-    localStorage.setItem("userId", response.data.user._id);    
-    localStorage.setItem("token", response.data.token); 
-    return response.data;
-  } catch (error) {
-    throw new Error(error.response?.data?.message || "Login failed");
-  }
+  // try {
+  const response = await axios.post(API_BASE_URL + "/login", formData, {
+    headers: { "Content-Type": "application/json" },
+  });
+  console.log(formData)
+  console.log(response);
+  localStorage.setItem("userId", response.data.user._id);
+  localStorage.setItem("token", response.data.token);
+  return response.data;
+  // } catch (error) {
+  //   throw new Error(error.response?.data?.message || "Login failed");
+  // }
 };
 
 
@@ -135,7 +135,7 @@ export const handleLogin = async (formData) => {
 
 export const createComplaint = async (formData, mediaFile, token) => {
   const formPayload = new FormData()
-  const userId= localStorage.getItem("userId");
+  const userId = localStorage.getItem("userId");
   // Append all fields
   Object.entries(formData).forEach(([key, value]) => {
     formPayload.append(key, typeof value === 'object' ? JSON.stringify(value) : value);
@@ -143,9 +143,9 @@ export const createComplaint = async (formData, mediaFile, token) => {
 
   // Append media file (image or video)
   formPayload.append("media", mediaFile);
-  const response = await fetch(API_BASE_URL+"/complaint", {
+  const response = await fetch(API_BASE_URL + "/complaint", {
     method: "POST",
-    headers: {      
+    headers: {
       Authorization: `Bearer ${token}`, // Include the auth token
     },
     body: formPayload,
@@ -161,9 +161,9 @@ export const createComplaint = async (formData, mediaFile, token) => {
 };
 
 export const isOfficial = async (formData, mediaUrl, token) => {
-  
-  const userId= localStorage.getItem("userId");
-  const response = await fetch(API_BASE_URL+"/isOfficial/"+userId, {
+
+  const userId = localStorage.getItem("userId");
+  const response = await fetch(API_BASE_URL + "/isOfficial/" + userId, {
     method: "GET",
     headers: {
       "Content-Type": "application/json",
@@ -186,9 +186,9 @@ export const isOfficial = async (formData, mediaUrl, token) => {
 };
 
 export const complaint = async (formData, mediaUrl, token) => {
-  
-  const userId= localStorage.getItem("userId");
-  const response = await fetch(API_BASE_URL+"/isOfficial/"+userId, {
+
+  const userId = localStorage.getItem("userId");
+  const response = await fetch(API_BASE_URL + "/isOfficial/" + userId, {
     method: "GET",
     headers: {
       "Content-Type": "application/json",
@@ -212,7 +212,7 @@ export const complaint = async (formData, mediaUrl, token) => {
 
 const fetchComplaintsByUser = async (userId, token) => {
   try {
-    const res = await fetch(API_BASE_URL+"/complaints/user/${userId}", {
+    const res = await fetch(API_BASE_URL + "/complaints/user/${userId}", {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
@@ -236,7 +236,7 @@ const fetchComplaintsByUser = async (userId, token) => {
 
 export const fetchComplaints = async (token) => {
   try {
-    const res = await fetch(API_BASE_URL+"/complaints", {
+    const res = await fetch(API_BASE_URL + "/complaints", {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
@@ -257,21 +257,21 @@ export const fetchComplaints = async (token) => {
 };
 
 export const addComment = async (complaintID, commentText, token) => {
- 
+
   const commentData = {
     author: localStorage.getItem("userId"),
     comment: commentText,
     timestamp: Date.now(),
   };
 
-  const response = await fetch(API_BASE_URL+"/complaint/"+complaintID+"/comment", {
+  const response = await fetch(API_BASE_URL + "/complaint/" + complaintID + "/comment", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
       Authorization: `Bearer ${token}`, // Include the auth token
     },
     body: JSON.stringify({
-      ...commentData,      
+      ...commentData,
       timestamp: Date.now() // Optional: add timestamp on client if not handled in backend
     }),
   });
@@ -283,16 +283,16 @@ export const addComment = async (complaintID, commentText, token) => {
 
 };
 
-export const fetchCommentById = async (complaintID,token) => {
- // await Complaint.findByIdAndUpdate(complaintID, { status: Statuses.solved });
-  const response = await fetch(API_BASE_URL+"/complaint/"+complaintID, {
+export const fetchCommentById = async (complaintID, token) => {
+  // await Complaint.findByIdAndUpdate(complaintID, { status: Statuses.solved });
+  const response = await fetch(API_BASE_URL + "/complaint/" + complaintID, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
       Authorization: `Bearer ${token}`, // Include the auth token
     }
   });
- 
+
   if (!response.ok) {
     const error = await response.json();
     throw new Error(error.message || "Failed to mark complaint as resolved");
@@ -302,9 +302,9 @@ export const fetchCommentById = async (complaintID,token) => {
   return data;
 };
 
-export const markAsSolved = async (complaintID,token) => {
- // await Complaint.findByIdAndUpdate(complaintID, { status: Statuses.solved });
-  const response = await fetch(API_BASE_URL+"/complaint/"+complaintID+"/solved", {
+export const markAsSolved = async (complaintID, token) => {
+  // await Complaint.findByIdAndUpdate(complaintID, { status: Statuses.solved });
+  const response = await fetch(API_BASE_URL + "/complaint/" + complaintID + "/solved", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -318,9 +318,9 @@ export const markAsSolved = async (complaintID,token) => {
   }
 };
 
-export const markAsRejected = async (complaintID,token) => {
+export const markAsRejected = async (complaintID, token) => {
   //await Complaint.findByIdAndUpdate(complaintID, { status: Statuses.rejected });
-  const response = await fetch(API_BASE_URL+"/complaint/"+complaintID+"/rejected", {
+  const response = await fetch(API_BASE_URL + "/complaint/" + complaintID + "/rejected", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -334,22 +334,21 @@ export const markAsRejected = async (complaintID,token) => {
   }
 };
 
-export const fetchUserById = async (userId,token) => {
+export const fetchUserById = async (userId, token) => {
   //return await User.findById(userId).select("-password");
-  const response = await fetch(API_BASE_URL+"/user/"+userId, {
-    method: "POST",
+  const response = await fetch(API_BASE_URL + "/user/" + userId, {
+    method: "GET",
     headers: {
       "Content-Type": "application/json",
       Authorization: `Bearer ${token}`, // Include the auth token
     }
   });
-
   if (!response.ok) {
     const error = await response.json();
     throw new Error(error.message || "Failed to find user By Id");
   }
   const data = await response.json();
-    return data;
+  return data;
 
 };
 

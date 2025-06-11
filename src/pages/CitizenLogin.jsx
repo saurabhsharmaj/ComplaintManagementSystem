@@ -14,22 +14,22 @@ const CitizenLogin = () => {
   const [Err, setErr] = useState("");
   const navigate = useNavigate();
   useEffect(() => {
-  const token = localStorage.getItem("token");
-  const userId= localStorage.getItem("userId");
-  if (!token) return;
+    const token = localStorage.getItem("token");
+    const userId = localStorage.getItem("userId");
+    if (!token) return;
 
-  fetch("/users/verifyToken", {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  })
-    .then((res) => res.json())
-    .then((data) => {
-      if (data.isOfficial === false) {
-        navigate("/citizen-dashboard");
-      }
-    });
-}, []);
+    fetch("/users/verifyToken", {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    })
+      .then((res) => res.json())
+      .catch((data) => {
+        if (data.user) {
+          navigate("/citizen-dashboard");
+        }
+      });
+  }, []);
   return (
     <div className="h-screen overflow-hidden">
       <SpinnerModal visible={Spinner} />
@@ -52,7 +52,7 @@ const CitizenLogin = () => {
               setSpinner(true);
               handleLogin(FormData)
                 .then(async (user) => {
-                  if (user.type!=="admin") {
+                  if (user.type !== "admin") {
                     navigate("/citizen-dashboard");
                   } else {
                     await auth.signOut();

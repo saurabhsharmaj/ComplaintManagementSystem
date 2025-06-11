@@ -1,9 +1,9 @@
 import styled from "@emotion/styled";
 import { Button } from "@mui/material";
 import MuiTextField from "@mui/material/TextField";
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { handleRegistration } from "../utils/mongodb"; // adjust path
+import { handleRegistration } from "../utils/mongodb.js";
 
 export const TextField = styled(MuiTextField)((props) => ({
   width: "100%",
@@ -41,18 +41,12 @@ const RegisterAccount = () => {
       <form
         action=""
         className=" flex flex-col gap-5 w-full"
-        onSubmit={(e) => {
+        onSubmit={async (e) => {
           e.preventDefault();
+          const res = await handleRegistration(FormData);
+          console.log(res);
+          navigate("/citizen-dashboard")
 
-          handleRegistration(FormData)
-            .then((user) => {
-              console.log(user);
-
-              navigate("/citizen-dashboard?newUser=true");
-            })
-            .catch((err) => {
-              setErr(err.message.split(": ")[1]);
-            });
         }}
       >
         <TextField
