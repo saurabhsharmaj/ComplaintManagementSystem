@@ -1,15 +1,12 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import { VitePWA } from "vite-plugin-pwa";
-
-import path from 'path';
-
+import path from "path";
 
 // https://vitejs.dev/config/
 const manifestForPlugin = {
   registerType: "prompt",
   includeAssets: [
-    "logo.png",
     "logo.png",
     "maskable_iconx48.png",
     "maskable_iconx72.png",
@@ -18,7 +15,7 @@ const manifestForPlugin = {
     "maskable_iconx192.png",
     "maskable_iconx384.png",
     "maskable_iconx512.png",
-    "maskable_icon.png",
+    "maskable_icon.png"
   ],
   manifest: {
     name: "MobilEASE - Mobile Efficient Assistance for Traffic",
@@ -84,14 +81,17 @@ const manifestForPlugin = {
     enabled: true,
   },
 };
+
 export default defineConfig({
+  base: './', // ← important fix
   plugins: [react(), VitePWA(manifestForPlugin)],
   build: {
-    target: "es2022", // or at least "es2020" for BigInt support
+    outDir: "dist",  // optional if default
+    target: "es2022",
   },
   resolve: {
     alias: {
-      '@': path.resolve(__dirname, './src')
-    }
-  }
+      "@": path.resolve(__dirname, "./src"),
+    },
+  },
 });
