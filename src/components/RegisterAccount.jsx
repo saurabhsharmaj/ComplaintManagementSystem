@@ -31,7 +31,7 @@ const RegisterAccount = () => {
   }, [FormData]);
   return (
     <div
-      className="RegisterAccount flex flex-col gap-5 items-center 
+      className="RegisterAccount flex flex-col gap-5 items-center mt-20 
       border-solid border-gray-500 px-3 lg:px-4 py-5 mx-4 lg:mx-12 rounded-3xl
       border-2 shadow-[0px_20px_20px_10px_#00000024] bg-opacity-20
     "

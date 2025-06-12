@@ -130,6 +130,8 @@ export const handleLogin = async (formData) => {
 
 
 
+
+
 // --------- COMPLAINT FUNCTIONS ---------
 
 export const createComplaint = async (formData, mediaFile, token) => {
@@ -333,23 +335,25 @@ export const markAsRejected = async (complaintID, token) => {
   }
 };
 
+
 export const fetchUserById = async (userId, token) => {
-  //return await User.findById(userId).select("-password");
   const response = await fetch(API_BASE_URL + "/user/" + userId, {
     method: "GET",
     headers: {
       "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`, // Include the auth token
-    }
+      Authorization: `Bearer ${token}`,
+    },
   });
+
   if (!response.ok) {
     const error = await response.json();
     throw new Error(error.message || "Failed to find user By Id");
   }
+
   const data = await response.json();
   return data;
-
 };
+
 
 // --------- SIMULATED STORAGE FUNCTION ---------
 

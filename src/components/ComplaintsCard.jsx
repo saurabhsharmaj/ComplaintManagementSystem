@@ -5,8 +5,7 @@ import { useEffect, useState } from "react";
 import { Statuses, statusColors } from "../utils/enums";
 import ComplaintDetailModal from "./ComplaintDetailModal";
 import { fetchUserById } from "../utils/mongodb";
-// import { Refresh } from "@mui/icons-material";
-// import { fetchCommentById } from "../utils/mongodb";
+
 
 const ComplaintsCard = ({ complaint }) => {
   const [DialogOpen, setDialogOpen] = useState(false);
@@ -44,7 +43,7 @@ const ComplaintsCard = ({ complaint }) => {
         }
       />
       <div
-        className="border shadow-[2px_4px_11px_1px_rgba(0,0,0,0.25)] border-solid border-[rgba(45,41,41,0.4)] rounded-lg my-4 p-4 flex flex-col gap-2">
+        className="border shadow-[2px_4px_11px_1px_rgba(0,0,0,0.25)] border-solid border-[rgba(45,41,41,0.4)] rounded-lg my-4 p-4 flex flex-col gap-2 ml-16">
         <div className="flex justify-between">
           <p>Reported Date : {date.toLocaleDateString("en-IN")}</p>
           <p

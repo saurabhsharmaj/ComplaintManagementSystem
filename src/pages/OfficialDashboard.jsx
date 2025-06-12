@@ -128,7 +128,7 @@ const OfficialDashboard = () => {
 
       <div className="container px-4 py-4 overflow-y-auto">
         {/* Status Summary */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6 px-2">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6 px-2 ml-16">
           <div className="bg-yellow-100 text-yellow-800 p-4 rounded-lg shadow text-center">
             <h3 className="text-lg font-bold">In Progress</h3>
             <p className="text-2xl">{inProgress ?? 0}</p>
@@ -144,7 +144,7 @@ const OfficialDashboard = () => {
         </div>
 
         {/* Filter Dropdown */}
-        <div className="mb-4 flex items-center space-x-4">
+        <div className="mb-4 flex items-center space-x-4 ml-16">
           <label htmlFor="reason" className="text-sm font-semibold">
             Filter by Reason:
           </label>

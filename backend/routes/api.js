@@ -60,26 +60,48 @@ router.post("/register", async (req, res) => {
 });
 
 
-// Login
 router.post("/login", async (req, res) => {
   try {
-    const { email, password } = req.body;
-    const user = await User.findOne({ email });
+    const { email, mobile, password } = req.body;
+
+    if (!password || (!email && !mobile)) {
+      return res.status(400).json({ error: "Email or mobile and password are required" });
+    }
+
+    // Build dynamic query condition
+    const query = email
+      ? { email }
+      : mobile
+        ? { mobile }
+        : null;
+
+    if (!query) {
+      return res.status(400).json({ error: "Invalid login input" });
+    }
+
+    const user = await User.findOne(query);
+
     if (!user) {
-      console.log("User not found for email:", email);
       return res.status(404).json({ error: "User not found" });
     }
-    console.log("User found:", user);
-    console.log("Password from DB:", user.password);
+
     const isPasswordValid = await bcrypt.compare(password, user.password);
-    console.log("Password valid?", isPasswordValid);
-    if (!isPasswordValid) return res.status(400).json({ error: "Incorrect password" });
-    const token = jwt.sign({ userId: user._id }, "your_jwt_secret");
+    if (!isPasswordValid) {
+      return res.status(400).json({ error: "Incorrect password" });
+    }
+
+    const token = jwt.sign({ userId: user._id }, "your_jwt_secret", {
+      expiresIn: "1d",
+    });
+
     res.json({ user, token });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    console.error("Login error:", err);
+    res.status(500).json({ error: "Internal server error" });
   }
 });
+
+
 
 router.post("/user/:id", verifyToken, upload.single("media"), async (req, res) => {
   try {
