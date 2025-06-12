@@ -62,27 +62,25 @@ router.post("/register", async (req, res) => {
 
 router.post("/login", async (req, res) => {
   try {
-    const { email, mobile, password } = req.body;
+    const { email, phone, password } = req.body;
 
-    if (!password || (!email && !mobile)) {
-      return res.status(400).json({ error: "Email or mobile and password are required" });
+    if (!password) {
+      return res.status(400).json({ error: "password is required" });
     }
 
-    // Build dynamic query condition
-    const query = email
-      ? { email }
-      : mobile
-        ? { mobile }
-        : null;
-
-    if (!query) {
-      return res.status(400).json({ error: "Invalid login input" });
+    if (!email && !phone) {
+      return res.status(400).json({ error: "email or phone is required" });
     }
 
-    const user = await User.findOne(query);
+    const user = await User.findOne({
+      $or: [
+        { email: email },
+        { mobile: phone }
+      ]
+    });
 
     if (!user) {
-      return res.status(404).json({ error: "User not found" });
+      return res.status(404).json({ error: "Email or Phone is Wrong!" });
     }
 
     const isPasswordValid = await bcrypt.compare(password, user.password);

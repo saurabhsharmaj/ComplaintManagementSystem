@@ -119,7 +119,7 @@ export const handleLogin = async (formData) => {
     headers: { "Content-Type": "application/json" },
   });
   console.log(formData)
-  console.log(response);
+  console.log(response.data);
   localStorage.setItem("userId", response.data.user._id);
   localStorage.setItem("token", response.data.token);
   return response.data;
@@ -334,8 +334,6 @@ export const markAsRejected = async (complaintID, token) => {
     throw new Error(error.message || "Failed to mark complaint as Rejected");
   }
 };
-
-
 export const fetchUserById = async (userId, token) => {
   const response = await fetch(API_BASE_URL + "/user/" + userId, {
     method: "GET",

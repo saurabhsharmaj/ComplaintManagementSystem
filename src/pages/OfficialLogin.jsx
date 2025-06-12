@@ -9,6 +9,7 @@ import { API_BASE_URL } from "@/config";
 
 const OfficialLogin = () => {
   const [FormData, setFormData] = useState({
+    phone: "",
     email: "",
     password: "",
   });
@@ -52,7 +53,6 @@ const OfficialLogin = () => {
               setSpinner(true);
               handleLogin(FormData)
                 .then(async (data) => {
-
                   if (data.user.type === "admin") {
                     navigate("/official-dashboard");
                   } else {
@@ -60,9 +60,7 @@ const OfficialLogin = () => {
                   }
                 })
                 .catch((err) => {
-                  err.message.split(": ")[1]
-                    ? setErr(err.message.split(": ")[1])
-                    : setErr(err.message);
+                  setErr(err.response.data.error || err.message);
                 })
                 .finally(() => {
                   setSpinner(false);
@@ -72,11 +70,15 @@ const OfficialLogin = () => {
           >
             <TextField
               variant="outlined"
-              label="E-mail"
-              type="email"
-              value={FormData.email}
-              onChange={(e) =>
-                setFormData({ ...FormData, email: e.target.value })
+              label="E-mail or Phone"
+              type="text"
+              onChange={(e) => {
+                if (!isNaN(e.target.value)) {
+                  setFormData((prev) => ({ ...prev, phone: e.target.value }));
+                } else {
+                  setFormData((prev) => ({ ...prev, email: e.target.value }))
+                }
+              }
               }
               required
             />
