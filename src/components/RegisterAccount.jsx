@@ -1,9 +1,10 @@
 import styled from "@emotion/styled";
 import { Button } from "@mui/material";
 import MuiTextField from "@mui/material/TextField";
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { handleRegistration } from "../utils/mongodb"; // adjust path
+import { handleRegistration } from "../utils/mongodb.js";
+import { toast } from "react-toastify";
 
 export const TextField = styled(MuiTextField)((props) => ({
   width: "100%",
@@ -30,7 +31,7 @@ const RegisterAccount = () => {
   }, [FormData]);
   return (
     <div
-      className="RegisterAccount flex flex-col gap-5 items-center 
+      className="RegisterAccount flex flex-col gap-5 items-center mt-20 
       border-solid border-gray-500 px-3 lg:px-4 py-5 mx-4 lg:mx-12 rounded-3xl
       border-2 shadow-[0px_20px_20px_10px_#00000024] bg-opacity-20
     "
@@ -41,18 +42,15 @@ const RegisterAccount = () => {
       <form
         action=""
         className=" flex flex-col gap-5 w-full"
-        onSubmit={(e) => {
+        onSubmit={async (e) => {
           e.preventDefault();
+          handleRegistration(FormData).then((res) => {
+            console.log(res);
+            navigate("/citizen-dashboard")
+          }).catch((err) => {
+            toast.warn(err.response.data.message || err.message);
+          })
 
-          handleRegistration(FormData)
-            .then((user) => {
-              console.log(user);
-
-              navigate("/citizen-dashboard?newUser=true");
-            })
-            .catch((err) => {
-              setErr(err.message.split(": ")[1]);
-            });
         }}
       >
         <TextField

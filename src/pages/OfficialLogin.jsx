@@ -9,6 +9,7 @@ import { API_BASE_URL } from "@/config";
 
 const OfficialLogin = () => {
   const [FormData, setFormData] = useState({
+    phone: "",
     email: "",
     password: "",
   });
@@ -16,23 +17,23 @@ const OfficialLogin = () => {
   const [Err, setErr] = useState("");
   const [Spinner, setSpinner] = useState(false);
   useEffect(() => {
-  const token = localStorage.getItem("token");
-  if (!token) return;
+    const token = localStorage.getItem("token");
+    if (!token) return;
 
-  fetch(API_BASE_URL+"/users/verifyToken", {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  })
-    .then((res) => res.json())
-    .then((data) => {
-      if (data.user.type === "admin") {
-        navigate("/official-dashboard");
-      }
-    });
-}, []);
+    fetch(API_BASE_URL + "/users/verifyToken", {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.user.type === "admin") {
+          navigate("/official-dashboard");
+        }
+      });
+  }, []);
   return (
-    <div className="h-screen overflow-hidden">
+    <div className="h-screen overflow-hidden ">
       <SpinnerModal visible={Spinner} />
       <Navbar />
       <div className=" lg:px-96 px-4 h-3/4 flex flex-col justify-center">
@@ -52,17 +53,14 @@ const OfficialLogin = () => {
               setSpinner(true);
               handleLogin(FormData)
                 .then(async (data) => {
-                 
-                  if (data.user.type==="admin") {
+                  if (data.user.type === "admin") {
                     navigate("/official-dashboard");
                   } else {
                     setErr("Invalid user");
                   }
                 })
                 .catch((err) => {
-                  err.message.split(": ")[1]
-                    ? setErr(err.message.split(": ")[1])
-                    : setErr(err.message);
+                  setErr(err.response.data.error || err.message);
                 })
                 .finally(() => {
                   setSpinner(false);
@@ -72,11 +70,15 @@ const OfficialLogin = () => {
           >
             <TextField
               variant="outlined"
-              label="E-mail"
-              type="email"
-              value={FormData.email}
-              onChange={(e) =>
-                setFormData({ ...FormData, email: e.target.value })
+              label="E-mail or Phone"
+              type="text"
+              onChange={(e) => {
+                if (!isNaN(e.target.value)) {
+                  setFormData((prev) => ({ ...prev, phone: e.target.value }));
+                } else {
+                  setFormData((prev) => ({ ...prev, email: e.target.value }))
+                }
+              }
               }
               required
             />

@@ -2,73 +2,81 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import ComplaintsCard from "./ComplaintsCard";
 import { API_BASE_URL } from "@/config";
+import { BarLoader, RingLoader } from "react-spinners";
 
 const ReportedComplaints = () => {
-  const [Complaints, setComplaints] = useState([]);
+  const [Complaints, setComplaints] = useState(null);
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
-  
-  useEffect(() => {
   const token = localStorage.getItem("token");
-  if (!token) {
-    navigate("/citizen-login");
-    return;
-  }
+  const userId = localStorage.getItem("userId");
 
-  const userId= localStorage.getItem("userId");
-  // Fetch user details
-  fetch(API_BASE_URL+"/user/"+userId, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  })
-    .then((res) => {
-      if (!res.ok) throw new Error("Unauthorized");
-      return res.json();
-    })
-    .then((user) => {
+  const handleGetComplaints = async () => {
+    setLoading(true);
+    const res = await fetch(API_BASE_URL + "/user/" + userId, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    if (!res.ok) throw new Error("Unauthorized"); {
+      const user = await res.json();
       if (!user || user.type !== "citizen") {
         navigate("/citizen-login");
       } else {
         // Fetch complaints for this user
         //fetchComplaintsByUser(user._id).then(handleComplaintsUpdate);
 
-        fetch(API_BASE_URL+"/complaints/user/"+`${userId}`, {
-              method: "GET",
-              headers: {
-                "Content-Type": "application/json",
-                Authorization: `Bearer ${token}`
-              }
-            })
-              .then((response) => {
-                if (!response.ok) {
-                  throw new Error("Failed to fetch complaints");
-                }
-                return response.json(); // ✅ Parse response
-              })
-              .then((data) => {
-                setComplaints(data); // ✅ Use parsed JSON
-                console.log("length:", data.length); // ✅ Print length of data
-              })
-              .catch((error) => {
-                console.error("Error fetching complaints:", error);
-              });
-       
+        const response = await fetch(API_BASE_URL + "/complaints/user/" + `${userId}`, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`
+          }
+        });
+        if (!response.ok) {
+          throw new Error("Failed to fetch complaints");
+        }
+        const data = await response.json(); // ✅ Parse response
+        setComplaints(data); // ✅ Use parsed JSON
+        console.log("length:", data.length); // ✅ Print length of data
+
+        setLoading(false);
+
       }
-    })
-    .catch(() => {
-      //navigate("/citizen-login");
-    });
-}, []);
+    }
+  }
+
+  useEffect(() => {
+    if (!token) {
+      navigate("/citizen-login");
+      return;
+    }
+    if (token && userId) {
+      handleGetComplaints();
+    }
+
+    // Fetch user details
+  }, [token, userId]);
 
   const handleComplaintsUpdate = (updatedComplaints) => {
     setComplaints(updatedComplaints);
   };
+
+  if (loading) {
+    return (
+      <div className="w-full h-[60vh] flex justify-center items-center">
+        <RingLoader />
+      </div>
+    )
+  }
+
   return (
     <div className="lg:border lg:shadow-[3px_4px_4px_rgba(0,0,0,0.26)] rounded-lg lg:border-solid lg:border-black w-full flex flex-col items-center lg:h-[28rem] py-2">
       <h3 className="font-bold my-2">Complaints Reported by You</h3>
       <div className="container px-4 overflow-y-auto">
-        {Complaints.length === 0 ? (
+        {Complaints && Complaints.length === 0 ? (
           <h2>No Complaints Found #</h2>
+
         ) : (
           Complaints &&
           Complaints.map((complaint) => {

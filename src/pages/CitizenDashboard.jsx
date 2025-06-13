@@ -19,49 +19,49 @@ const CitizenDashboard = () => {
   const [SpinnerVisible, setSpinnerVisible] = useState(false);
   const navigate = useNavigate();
   const [params] = useSearchParams();
-  
+
   useEffect(() => {
-  const token = localStorage.getItem("token");
-  if (!token) {
-    navigate("/citizen-login");
-    return;
-  }
-
-   const userId= localStorage.getItem("userId");
-  // Fetch user details
-  fetch(API_BASE_URL+"/user/"+userId, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  })
-    .then((res) => {
-      if (!res.ok) throw new Error("Unauthorized");
-      return res.json();
-    })
-    .then((user) => {
-      if (user.type === "official") {
-        navigate("/official-dashboard");
-      } else {
-        setSpinnerVisible(false);
-        if (params.get("newUser")) {
-          toast.success("Registration Succesful, Welcome to citizen dashboard", {
-            icon: "👋",
-          });
-        }
-      }
-    })
-    .catch(() => {
+    const token = localStorage.getItem("token");
+    if (!token) {
       navigate("/citizen-login");
-    });
+      return;
+    }
 
-  window.addEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
-  return () => {
-    window.removeEventListener(
-      "beforeinstallprompt",
-      handleBeforeInstallPrompt
-    );
-  };
-}, []);
+    const userId = localStorage.getItem("userId");
+    // Fetch user details
+    fetch(API_BASE_URL + "/user/" + userId, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    })
+      .then((res) => {
+        if (!res.ok) throw new Error("Unauthorized");
+        return res.json();
+      })
+      .then((user) => {
+        if (user.type === "official") {
+          navigate("/official-dashboard");
+        } else {
+          setSpinnerVisible(false);
+          if (params.get("newUser")) {
+            toast.success("Registration Succesful, Welcome to citizen dashboard", {
+              icon: "👋",
+            });
+          }
+        }
+      })
+      .catch(() => {
+        navigate("/citizen-login");
+      });
+
+    window.addEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
+    return () => {
+      window.removeEventListener(
+        "beforeinstallprompt",
+        handleBeforeInstallPrompt
+      );
+    };
+  }, []);
   const handleBeforeInstallPrompt = (event) => {
     event.preventDefault();
     setDeferredPrompt(event);
@@ -113,15 +113,16 @@ const CitizenDashboard = () => {
             link={"/track-complaints"}
             className={"lg:hidden"}
           />
-          <DashboardLinkButton
+          {/* <DashboardLinkButton
             icon={faMobileScreen}
             name={"Install as an app (Mobile)"}
             onClick={handleInstall}
             className={"lg:hidden"}
-          />
+          /> */}
           <DashboardLinkButton
             icon={faSignOut}
             name={"Logout"}
+            link={"/"}
             onClick={handleLogout}
             className={"lg:hidden"}
           />

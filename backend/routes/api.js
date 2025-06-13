@@ -60,26 +60,46 @@ router.post("/register", async (req, res) => {
 });
 
 
-// Login
 router.post("/login", async (req, res) => {
   try {
-    const { email, password } = req.body;
-    const user = await User.findOne({ email });
-    if (!user) {
-      console.log("User not found for email:", email);
-      return res.status(404).json({ error: "User not found" });
+    const { email, phone, password } = req.body;
+
+    if (!password) {
+      return res.status(400).json({ error: "password is required" });
     }
-    console.log("User found:", user);
-    console.log("Password from DB:", user.password);
+
+    if (!email && !phone) {
+      return res.status(400).json({ error: "email or phone is required" });
+    }
+
+    const user = await User.findOne({
+      $or: [
+        { email: email },
+        { mobile: phone }
+      ]
+    });
+
+    if (!user) {
+      return res.status(404).json({ error: "Email or Phone is Wrong!" });
+    }
+
     const isPasswordValid = await bcrypt.compare(password, user.password);
-    console.log("Password valid?", isPasswordValid);
-    if (!isPasswordValid) return res.status(400).json({ error: "Incorrect password" });
-    const token = jwt.sign({ userId: user._id }, "your_jwt_secret");
+    if (!isPasswordValid) {
+      return res.status(400).json({ error: "Incorrect password" });
+    }
+
+    const token = jwt.sign({ userId: user._id }, "your_jwt_secret", {
+      expiresIn: "1d",
+    });
+
     res.json({ user, token });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    console.error("Login error:", err);
+    res.status(500).json({ error: "Internal server error" });
   }
 });
+
+
 
 router.post("/user/:id", verifyToken, upload.single("media"), async (req, res) => {
   try {
@@ -102,10 +122,10 @@ router.post("/user/:id", verifyToken, upload.single("media"), async (req, res) =
     }
 
     // Optional: update profile photo
-      console.log(req.file);
+    console.log(req.file);
     if (req.file) {
       existingUser.mediaPath = req.file; // Or just `req.file.filename` if you store name
-      console.log( existingUser.mediaPath);
+      console.log(existingUser.mediaPath);
       existingUser.mediaType = mediaType || req.file.mimetype.split("/")[0];
     }
     console.log("Updating user:", existingUser);
@@ -136,7 +156,7 @@ router.post("/userold/:id", verifyToken, upload.single("media"), async (req, res
       mediaType
     });
 
-    
+
     const existingUser = await User.findById(req.params.id);
     if (!existingUser) {
       console.log("User not found for id:", req.params.id);
@@ -156,7 +176,7 @@ router.post("/userold/:id", verifyToken, upload.single("media"), async (req, res
 
 
     if (req.file) {
-     existingUser.mediaPath = user.mediaPath; // Or just `req.file` if you're storing full object
+      existingUser.mediaPath = user.mediaPath; // Or just `req.file` if you're storing full object
     }
 
     await existingUser.save();
@@ -237,8 +257,8 @@ router.get("/complaints/user/:id", verifyToken, async (req, res) => {
 // Fetch all complaints
 router.get("/complaints", verifyToken, async (req, res) => {
   const complaints = await Complaint.find();
-    //.populate("reportedBy", "name")
-   // .populate("comments.author", "name");
+  //.populate("reportedBy", "name")
+  // .populate("comments.author", "name");
   res.json(complaints);
 });
 
@@ -256,10 +276,10 @@ router.post("/complaint/:id/comment", verifyToken, async (req, res) => {
 });
 
 // fetch comment by Id
-router.post("/complaint/:id", verifyToken, async (req, res) => { 
+router.post("/complaint/:id", verifyToken, async (req, res) => {
   await Complaint.findByIdAndUpdate(req.params.id);
   res.json({ success: true });
-   try {
+  try {
     const complaint = await Complaint.findByIdAndUpdate(req.params.id);
     if (!complaint) {
       return res.status(404).json({ error: "Complaint not found" });

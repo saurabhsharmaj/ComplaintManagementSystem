@@ -12,6 +12,7 @@ import OfficialDashboard from "./pages/OfficialDashboard";
 import OfficialLogin from "./pages/OfficialLogin";
 import ReportComplaint from "./pages/ReportComplaint";
 import ProfileDashboard from "./pages/ProfileDashboard";
+import { ToastContainer } from "react-toastify";
 
 const router = createBrowserRouter([
   {
@@ -55,6 +56,7 @@ const router = createBrowserRouter([
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
     <RouterProvider router={router} />
+    <ToastContainer limit={1} />
   </React.StrictMode>
 );
 

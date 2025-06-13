@@ -9,3 +9,5 @@ backend/package-lock.json
 # Ignore dev-dist directory
 dev-dist/
 dist/
+
+.env

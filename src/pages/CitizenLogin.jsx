@@ -14,22 +14,22 @@ const CitizenLogin = () => {
   const [Err, setErr] = useState("");
   const navigate = useNavigate();
   useEffect(() => {
-  const token = localStorage.getItem("token");
-  const userId= localStorage.getItem("userId");
-  if (!token) return;
+    const token = localStorage.getItem("token");
+    const userId = localStorage.getItem("userId");
+    if (!token) return;
 
-  fetch("/users/verifyToken", {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  })
-    .then((res) => res.json())
-    .then((data) => {
-      if (data.isOfficial === false) {
-        navigate("/citizen-dashboard");
-      }
-    });
-}, []);
+    fetch("/users/verifyToken", {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    })
+      .then((res) => res.json())
+      .catch((data) => {
+        if (data.user) {
+          navigate("/citizen-dashboard");
+        }
+      });
+  }, []);
   return (
     <div className="h-screen overflow-hidden">
       <SpinnerModal visible={Spinner} />
@@ -49,10 +49,12 @@ const CitizenLogin = () => {
             action=""
             onSubmit={(e) => {
               e.preventDefault();
+              console.log(FormData);
               setSpinner(true);
               handleLogin(FormData)
                 .then(async (user) => {
-                  if (user.type!=="admin") {
+                  console.log(user);
+                  if (user.type !== "admin") {
                     navigate("/citizen-dashboard");
                   } else {
                     await auth.signOut();
@@ -60,9 +62,9 @@ const CitizenLogin = () => {
                   }
                 })
                 .catch((err) => {
-                  err.message.split(": ")[1]
-                    ? setErr(err.message.split(": ")[1])
-                    : setErr(err.message);
+                  console.log(err);
+
+                  setErr(err.response.data.error || err.message);
                 })
                 .finally(() => {
                   setSpinner(false);
@@ -72,10 +74,15 @@ const CitizenLogin = () => {
           >
             <TextField
               variant="outlined"
-              label="E-mail"
-              type="email"
-              onChange={(e) =>
-                setFormData({ ...FormData, email: e.target.value })
+              label="E-mail or Phone"
+              type="text"
+              onChange={(e) => {
+                if (!isNaN(e.target.value)) {
+                  setFormData((prev) => ({ ...prev, phone: e.target.value }));
+                } else {
+                  setFormData((prev) => ({ ...prev, email: e.target.value }))
+                }
+              }
               }
               required
             />
@@ -101,3 +108,8 @@ const CitizenLogin = () => {
 };
 
 export default CitizenLogin;
+
+
+
+
+//okkk
