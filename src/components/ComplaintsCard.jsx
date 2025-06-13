@@ -2,35 +2,31 @@ import { faMapMarkerAlt } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Dialog } from "@mui/material";
 import { useEffect, useState } from "react";
-import { Statuses, statusColors } from "../utils/enums";
 import ComplaintDetailModal from "./ComplaintDetailModal";
 import { fetchUserById } from "../utils/mongodb";
-
+import { Statuses, statusColors } from "../utils/enums";
 
 const ComplaintsCard = ({ complaint }) => {
   const [DialogOpen, setDialogOpen] = useState(false);
-  console.log(complaint);
   const [user, setUser] = useState(null);
-  let date = new Date(complaint.timestamp);
-  let StatusColorEnum = Object.keys(Statuses).find(
+  const date = new Date(complaint.timestamp);
+  const statusKey = Object.keys(Statuses).find(
     (key) => Statuses[key] === complaint.status
   );
+  const statusColor = statusColors[statusKey] || "#333";
 
   useEffect(() => {
     const token = localStorage.getItem("token");
     const userId = complaint.reportedBy;
     if (userId && token) {
-      fetchUserById(userId, token).then((user) => {
-        console.log(user);
-        setUser(user);
-      }).catch((err) => {
-        console.log(err);
-      });
+      fetchUserById(userId, token)
+        .then(setUser)
+        .catch((err) => console.error("User fetch error:", err));
     }
   }, [complaint]);
-  if (!user) {
-    return null;
-  }
+
+  if (!user) return null;
+
   return (
     <>
       <Dialog
@@ -43,53 +39,48 @@ const ComplaintsCard = ({ complaint }) => {
         }
       />
       <div
-        className="border shadow-[2px_4px_11px_1px_rgba(0,0,0,0.25)] border-solid border-[rgba(45,41,41,0.4)] rounded-lg my-4 p-4 flex flex-col gap-2 ml-16">
-        <div className="flex justify-between">
-          <p>Reported Date : {date.toLocaleDateString("en-IN")}</p>
-          <p
-            className="cursor-pointer text-sm font-semibold"
-            onClick={async () => {
-              setDialogOpen(true);
-            }}
+        className="border shadow-md rounded-lg my-4 p-4 flex flex-col gap-3"
+        style={{ borderLeft: `5px solid ${statusColor}` }}
+      >
+        <div className="flex justify-between text-sm">
+          <span>Reported Date: {date.toLocaleDateString("en-IN")}</span>
+          <span
+            className="cursor-pointer font-semibold text-blue-600 hover:underline"
+            onClick={() => setDialogOpen(true)}
           >
             Detailed View
-          </p>
+          </span>
         </div>
-        <p className="font-bold">{user.name}</p>
-        <p className="font-bold">{user.mobile}</p>
-        <p className="font-bold">{complaint.reason}</p>
 
-        <div>
+        <div className="flex items-center gap-3">
           <img
             src={
               user?.mediaPath?.buffer
                 ? `data:image/png;base64,${user.mediaPath.buffer}`
-                : "/default-avatar.png" // Use your local or hosted default image
+                : "/default-avatar.png"
             }
-            alt="Profile"
-            style={{
-              width: "32px",
-              height: "32px",
-              borderRadius: "50%",
-              objectFit: "cover",
-            }}
+            alt="User"
+            className="w-20 h-20 rounded-full object-cover"
           />
-        </div>
-        <div className="flex justify-between">
-          <div className="flex gap-3 items-center">
-            <FontAwesomeIcon size="1x" icon={faMapMarkerAlt} />
-            <p>{complaint.location.name}</p>
+          <div>
+            <p className="font-bold text-sm">{user.name}</p>
+            <p className="text-xs text-gray-600">{user.mobile}</p>
+            <p className="font-semibold"><span className="text-gray-800">{complaint.reason}</span></p>
           </div>
-          <span className="flex gap-2 font-bold">
-            Status:{" "}
-            <p
-              style={{
-                color: statusColors[StatusColorEnum],
-              }}
-            >
-              {complaint.status}
-            </p>
-          </span>
+        </div>
+
+        <div>
+        </div>
+
+        <div className="flex flex-wrap justify-between items-center text-sm">
+          <div className="flex items-center gap-2">
+            <FontAwesomeIcon icon={faMapMarkerAlt} />
+            <span>{complaint.location?.name}</span>
+          </div>
+          <div className="font-bold flex items-center gap-1">
+            Status:
+            <span style={{ color: statusColor }}>{complaint.status}</span>
+          </div>
         </div>
       </div>
     </>

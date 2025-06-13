@@ -1,41 +1,33 @@
-import { Dialog } from "@mui/material";
-import { DataGrid } from "@mui/x-data-grid";
-import clsx from "clsx";
-import React, { useEffect, useState } from "react";
+import { RingLoader } from "react-spinners";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import ComplaintDetailModal from "../components/ComplaintDetailModal";
 import Navbar from "../components/Navbar";
 import SpinnerModal from "../components/SpinnerModal";
-import { fetchUsers, fetchComplaints, isOfficial } from "../utils/mongodb";
-import { Statuses } from "../utils/enums";
+import { fetchUsers, fetchComplaints } from "../utils/mongodb";
 import { API_BASE_URL } from "@/config";
-import ReportedComplaints from "../components/ReportedComplaints";
 import ComplaintsCard from "../components/ComplaintsCard";
-import { RingLoader } from "react-spinners";
 
 const OfficialDashboard = () => {
   const [users, setUsers] = useState([]);
   const [Complaints, setComplaints] = useState([]);
   const [filteredComplaints, setFilteredComplaints] = useState([]);
-  const [ModalOpen, setModalOpen] = useState(false);
-  const [complaint, setComplaint] = useState({});
   const [SpinnerVisible, setSpinnerVisible] = useState(false);
-  const navigate = useNavigate();
-  const [inProgress, setInProgress] = useState();
-  const [solved, setSolved] = useState();
-  const [rejected, setRejected] = useState();
-  const [Visible, setVisible] = useState(false);
+  const [inProgress, setInProgress] = useState(0);
+  const [solved, setSolved] = useState(0);
+  const [rejected, setRejected] = useState(0);
   const [selectedReason, setSelectedReason] = useState("");
+  const [selectedStatus, setSelectedStatus] = useState("");
   const [uniqueReasons, setUniqueReasons] = useState([]);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const token = localStorage.getItem("token");
-    if (!token) {
+    const userId = localStorage.getItem("userId");
+
+    if (!token || !userId) {
       navigate("/official-login");
       return;
     }
-
-    const userId = localStorage.getItem("userId");
 
     fetch(`${API_BASE_URL}/user/${userId}`, {
       method: "GET",
@@ -48,77 +40,55 @@ const OfficialDashboard = () => {
         return res.json();
       })
       .then((user) => {
-        if (!user || user.type !== "admin") {
+        if (user?.type !== "admin") {
           navigate("/citizen-dashboard");
         } else {
-          setSpinnerVisible(false);
           fetchComplaints(token).then(handleComplaintsUpdate);
-          fetchUsers(token).then((users) => setUsers(users));
+          fetchUsers(token).then(setUsers);
         }
       })
       .catch((err) => {
-        console.error("Fetch current user error:", err);
+        console.error("User fetch error:", err);
         navigate("/official-login");
       });
 
     fetch(`${API_BASE_URL}/complaints/status-summary`, {
-      method: "GET",
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
+      headers: { Authorization: `Bearer ${token}` },
     })
+      .then((res) => res.json())
       .then((res) => {
-        if (!res.ok) throw new Error("Unauthorized");
-        return res.json();
+        setInProgress(res.inProgress || 0);
+        setSolved(res.solved || 0);
+        setRejected(res.rejected || 0);
       })
-      .then((res) => {
-        setInProgress(res.inProgress);
-        setRejected(res.rejected);
-        setSolved(res.solved);
-      })
-      .catch((err) => {
-        console.error("Fetch summary error:", err);
-      });
+      .catch((err) => console.error("Summary fetch error:", err));
   }, []);
+
+  useEffect(() => {
+    let complaints = [...Complaints];
+
+    if (selectedStatus) {
+      complaints = complaints.filter(
+        (c) => c.status?.toLowerCase() === selectedStatus
+      );
+    }
+
+    if (selectedReason) {
+      complaints = complaints.filter((c) => c.reason === selectedReason);
+    }
+
+    setFilteredComplaints(complaints);
+  }, [selectedStatus, selectedReason, Complaints]);
 
   const handleComplaintsUpdate = (updatedComplaints) => {
     setComplaints(updatedComplaints);
     setFilteredComplaints(updatedComplaints);
-
     const reasons = [
       ...new Set(
         updatedComplaints.map((c) => c.reason?.trim()).filter(Boolean)
       ),
     ];
     setUniqueReasons(reasons);
-  };
-
-  const getUser = (userId) => {
-    const user = users.find((u) => u._id === userId);
-    return user?.mediaPath ? (
-      <p>
-        <img
-          src={
-            user?.mediaPath?.buffer
-              ? `data:image/png;base64,${user.mediaPath.buffer}`
-              : "/default-avatar.png"
-          }
-          alt="Profile"
-          style={{
-            width: "32px",
-            height: "32px",
-            borderRadius: "50%",
-            objectFit: "cover",
-          }}
-        />
-        {user.name}
-      </p>
-    ) : (
-      <p>
-        <img alt="" />
-        {user?.name}
-      </p>
-    );
   };
 
   return (
@@ -128,23 +98,61 @@ const OfficialDashboard = () => {
 
       <div className="container px-4 py-4 overflow-y-auto">
         {/* Status Summary */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6 px-2 ml-16">
-          <div className="bg-yellow-100 text-yellow-800 p-4 rounded-lg shadow text-center">
-            <h3 className="text-lg font-bold">In Progress</h3>
-            <p className="text-2xl">{inProgress ?? 0}</p>
-          </div>
-          <div className="bg-green-100 text-green-800 p-4 rounded-lg shadow text-center">
-            <h3 className="text-lg font-bold">Solved</h3>
-            <p className="text-2xl">{solved ?? 0}</p>
-          </div>
-          <div className="bg-red-100 text-red-800 p-4 rounded-lg shadow text-center">
-            <h3 className="text-lg font-bold">Rejected</h3>
-            <p className="text-2xl">{rejected ?? 0}</p>
-          </div>
+        <div className="flex flex-wrap justify-center sm:justify-between gap-4 mb-6 px-2">
+          {[
+            { label: "In Progress", value: "in-progress", color: "yellow" },
+            { label: "Solved", value: "solved", color: "green" },
+            { label: "Rejected", value: "rejected", color: "red" },
+          ].map((status) => {
+            const isActive = selectedStatus === status.value;
+            const bgColor = isActive
+              ? `bg-${status.color}-300`
+              : `bg-${status.color}-100`;
+            const textColor = `text-${status.color}-800`;
+            const hoverColor = `hover:bg-${status.color}-200`;
+
+            const count =
+              status.value === "in-progress"
+                ? inProgress
+                : status.value === "solved"
+                  ? solved
+                  : rejected;
+
+            return (
+              <div
+                key={status.value}
+                className={`flex-1 min-w-[160px] ${bgColor} ${textColor} p-4 rounded-lg shadow text-center cursor-pointer transition ${hoverColor} ring-1 ring-inset ${isActive ? "ring-black/50" : "ring-transparent"
+                  }`}
+                onClick={() =>
+                  setSelectedStatus((prev) =>
+                    prev === status.value ? "" : status.value
+                  )
+                }
+              >
+                <h3 className="text-lg font-bold">{status.label}</h3>
+                <p className="text-2xl">{count}</p>
+              </div>
+            );
+          })}
         </div>
 
+        {/* Clear Filters */}
+        {(selectedReason || selectedStatus) && (
+          <div className="mb-2 text-right">
+            <button
+              className="text-sm bg-gray-200 px-3 py-1 rounded hover:bg-gray-300 transition"
+              onClick={() => {
+                setSelectedReason("");
+                setSelectedStatus("");
+              }}
+            >
+              Clear Filters
+            </button>
+          </div>
+        )}
+
         {/* Filter Dropdown */}
-        <div className="mb-4 flex items-center space-x-4 ml-16">
+        <div className="mb-4 flex flex-wrap items-center gap-2">
           <label htmlFor="reason" className="text-sm font-semibold">
             Filter by Reason:
           </label>
@@ -152,15 +160,7 @@ const OfficialDashboard = () => {
             id="reason"
             className="border border-gray-300 rounded-md px-3 py-1 text-sm"
             value={selectedReason}
-            onChange={(e) => {
-              const value = e.target.value;
-              setSelectedReason(value);
-              if (value === "") {
-                setFilteredComplaints(Complaints);
-              } else {
-                setFilteredComplaints(Complaints.filter((c) => c.reason === value));
-              }
-            }}
+            onChange={(e) => setSelectedReason(e.target.value)}
           >
             <option value="">All Reasons</option>
             {uniqueReasons.map((reason, idx) => (
@@ -182,7 +182,6 @@ const OfficialDashboard = () => {
           ))
         )}
       </div>
-
     </>
   );
 };

@@ -2,7 +2,7 @@ import styled from "@emotion/styled";
 import { faBars, faClose } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import MuiButton from "@mui/material/Button";
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { handleLogin, handleRegistration } from "../utils/mongodb";
 import Logo from "/src/assets/logo.png";
@@ -130,7 +130,7 @@ const Navbar = () => {
               <Link
                 to={"/profile-dashboard"}
               >
-                Profile X
+                Profile
               </Link>
               <Link onClick={handleLogout}>Logout</Link>{" "}
             </>
