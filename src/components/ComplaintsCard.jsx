@@ -39,20 +39,10 @@ const ComplaintsCard = ({ complaint }) => {
         }
       />
       <div
-        className="border shadow-md rounded-lg my-4 p-4 flex flex-col gap-3"
+        className="border shadow-md rounded-lg my-4 p-4 flex justify-between gap-3"
         style={{ borderLeft: `5px solid ${statusColor}` }}
       >
-        <div className="flex justify-between text-sm">
-          <span>Reported Date: {date.toLocaleDateString("en-IN")}</span>
-          <span
-            className="cursor-pointer font-semibold text-blue-600 hover:underline"
-            onClick={() => setDialogOpen(true)}
-          >
-            Detailed View
-          </span>
-        </div>
-
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-8">
           <img
             src={
               user?.mediaPath?.buffer
@@ -60,23 +50,30 @@ const ComplaintsCard = ({ complaint }) => {
                 : "/default-avatar.png"
             }
             alt="User"
-            className="w-20 h-20 rounded-full object-cover"
+            className="w-28 h-28 rounded-sm object-cover"
           />
           <div>
+            <span>Reported Date: {date.toLocaleDateString("en-IN")}</span>
             <p className="font-bold text-sm">{user.name}</p>
             <p className="text-xs text-gray-600">{user.mobile}</p>
             <p className="font-semibold"><span className="text-gray-800">{complaint.reason}</span></p>
+            <div className="flex items-center gap-2">
+              <FontAwesomeIcon icon={faMapMarkerAlt} />
+              <span>{complaint.location?.name}</span>
+            </div>
           </div>
         </div>
 
-        <div>
-        </div>
+        {/* <div className="flex justify-between text-sm">
+        </div> */}
 
-        <div className="flex flex-wrap justify-between items-center text-sm">
-          <div className="flex items-center gap-2">
-            <FontAwesomeIcon icon={faMapMarkerAlt} />
-            <span>{complaint.location?.name}</span>
-          </div>
+        <div className="flex flex-col justify-between text-sm">
+          <span
+            className="cursor-pointer font-semibold text-blue-600 hover:underline flex justify-end"
+            onClick={() => setDialogOpen(true)}
+          >
+            Detailed View
+          </span>
           <div className="font-bold flex items-center gap-1">
             Status:
             <span style={{ color: statusColor }}>{complaint.status}</span>

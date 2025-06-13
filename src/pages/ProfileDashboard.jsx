@@ -116,7 +116,13 @@ const ReportComplaint = () => {
                 toast.success("Profile updated successfully!", {
                   position: "bottom-center",
                 });
-                // navigate(`/citizen-dashboard`);
+                if (user.type === "admin") {
+                  navigate(`/official-dashboard`);
+
+                } else {
+                  navigate(`/citizen-dashboard`);
+
+                }
               })
               .catch((err) => {
                 setLoaderVisibile(false);

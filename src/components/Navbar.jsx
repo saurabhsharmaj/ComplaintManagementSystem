@@ -4,7 +4,6 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import MuiButton from "@mui/material/Button";
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { handleLogin, handleRegistration } from "../utils/mongodb";
 import Logo from "/src/assets/logo.png";
 import { API_BASE_URL } from "@/config";
 
@@ -22,6 +21,7 @@ const Navbar = () => {
   const [user, setUser] = useState(null);
   const [Official, setOfficial] = useState(false);
   const navigate = useNavigate();
+  const token = localStorage.getItem("token");
   const handleLogout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("userId");
@@ -29,7 +29,6 @@ const Navbar = () => {
     navigate("/");
   };
   useEffect(() => {
-    const token = localStorage.getItem("token");
     if (token) {
       const userId = localStorage.getItem("userId");
       // Fetch user info from backend using the token
@@ -51,7 +50,7 @@ const Navbar = () => {
       setUser(null);
       setOfficial(false);
     }
-  }, []);
+  }, [user, token]);
   return (
     <>
       <div className="Navbar w-screen flex justify-between items-center px-4 py-2 lg:py-4 lg:px-8">
@@ -74,10 +73,8 @@ const Navbar = () => {
               component={Link}
               to="/profile-dashboard"
               variant="outlined"
+              className="flex gap-3"
             >
-              Profile
-            </Button>
-            <Button onClick={handleLogout} variant="outlined">
               <img
                 src={
                   user?.mediaPath?.buffer
@@ -92,6 +89,12 @@ const Navbar = () => {
                   objectFit: "cover",
                 }}
               />
+              <span>
+                Profile
+              </span>
+            </Button>
+            <Button onClick={handleLogout} variant="outlined">
+
 
               Logout
             </Button>

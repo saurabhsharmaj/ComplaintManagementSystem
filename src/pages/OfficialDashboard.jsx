@@ -98,9 +98,9 @@ const OfficialDashboard = () => {
 
       <div className="container px-4 py-4 overflow-y-auto">
         {/* Status Summary */}
-        <div className="flex flex-wrap justify-center sm:justify-between gap-4 mb-6 px-2">
+        <div className="flex justify-center sm:justify-between gap-1 mb-6 px-2">
           {[
-            { label: "In Progress", value: "in-progress", color: "yellow" },
+            { label: "InProgress", value: "in-progress", color: "yellow" },
             { label: "Solved", value: "solved", color: "green" },
             { label: "Rejected", value: "rejected", color: "red" },
           ].map((status) => {
@@ -121,7 +121,7 @@ const OfficialDashboard = () => {
             return (
               <div
                 key={status.value}
-                className={`flex-1 min-w-[160px] ${bgColor} ${textColor} p-4 rounded-lg shadow text-center cursor-pointer transition ${hoverColor} ring-1 ring-inset ${isActive ? "ring-black/50" : "ring-transparent"
+                className={`flex-1 min-w-[120px] ${bgColor} ${textColor} p-4 rounded-lg shadow text-center cursor-pointer transition ${hoverColor} ring-1 ring-inset ${isActive ? "ring-black/50" : "ring-transparent"
                   }`}
                 onClick={() =>
                   setSelectedStatus((prev) =>
@@ -129,8 +129,8 @@ const OfficialDashboard = () => {
                   )
                 }
               >
-                <h3 className="text-lg font-bold">{status.label}</h3>
-                <p className="text-2xl">{count}</p>
+                <h3 className="text-sm font-bold">{status.label}</h3>
+                <p className="text-xl">{count}</p>
               </div>
             );
           })}
