@@ -43,18 +43,21 @@ const ComplaintsCard = ({ complaint }) => {
         style={{ borderLeft: `5px solid ${statusColor}` }}
       >
         <div className="flex items-center gap-8">
-          <img
-            src={
-              user?.mediaPath?.buffer
-                ? `data:image/png;base64,${user.mediaPath.buffer}`
-                : "/default-avatar.png"
-            }
-            alt="User"
-            className="w-28 h-28 rounded-sm object-cover"
-          />
+          <div className="flex flex-col items-center">
+            <img
+              src={
+                user?.mediaPath?.buffer
+                  ? `data:image/png;base64,${user.mediaPath.buffer}`
+                  : "/default-avatar.png"
+              }
+              alt="User"
+              className="w-28 h-28 rounded-sm object-cover"
+            />
+            <p className="font-bold text-sm mt-2">{user.name}</p>
+          </div>
           <div>
             <span>Reported Date: {date.toLocaleDateString("en-IN")}</span>
-            <p className="font-bold text-sm">{user.name}</p>
+            
             <p className="text-xs text-gray-600">{user.mobile}</p>
             <p className="font-semibold"><span className="text-gray-800">{complaint.reason}</span></p>
             <div className="flex items-center gap-2">
