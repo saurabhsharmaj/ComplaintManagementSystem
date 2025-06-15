@@ -13,6 +13,8 @@ import OfficialLogin from "./pages/OfficialLogin";
 import ReportComplaint from "./pages/ReportComplaint";
 import ProfileDashboard from "./pages/ProfileDashboard";
 import { ToastContainer } from "react-toastify";
+import OfficialDigitalDirectory from "./pages/OfficialDigitalDirectory";
+import CitizenDigitalDirectory from "./pages/CitizenDigitalDirectory";
 
 const router = createBrowserRouter([
   {
@@ -38,8 +40,13 @@ const router = createBrowserRouter([
   {
     path: "/official-dashboard",
     element: <OfficialDashboard />,
-  },
-  {
+  },{
+    path: "/official-digital-directory-dashboard",
+    element: <OfficialDigitalDirectory />,
+  },{
+    path: "/citizen-digital-directory-dashboard",
+    element: <CitizenDigitalDirectory />,
+  },{
     path: "/report",
     element: <ReportComplaint />,
   },

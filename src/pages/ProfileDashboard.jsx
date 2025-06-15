@@ -83,161 +83,155 @@ const ReportComplaint = () => {
 
   return (
     <div className="overflow-x-hidden">
-      <SpinnerModal visible={LoaderVisibile} />
-      <Navbar />
+  <SpinnerModal visible={LoaderVisibile} />
+  <Navbar />
 
-      <ToastContainer
-        position="bottom-center"
-        autoClose={5000}
-        hideProgressBar
-        newestOnTop={false}
-        closeOnClick
-        rtl={false}
-        pauseOnFocusLoss
-        draggable
-        pauseOnHover
-        theme="light"
-      />
+  <ToastContainer
+    position="bottom-center"
+    autoClose={5000}
+    hideProgressBar
+    newestOnTop={false}
+    closeOnClick
+    rtl={false}
+    pauseOnFocusLoss
+    draggable
+    pauseOnHover
+    theme="light"
+  />
 
-      <h2 className="lg:mt-10 leading-normal font-bold text-center text-xl lg:text-[2rem] my-6 lg:text-left lg:mx-20">
-        👤 Edit Profile
-      </h2>
+  <h2 className="lg:mt-10 leading-normal font-bold text-center text-xl lg:text-[2rem] my-6 lg:text-left lg:mx-20">
+    👤 Edit Profile
+  </h2>
 
-      <div className="RegisterAccount flex flex-col gap-5 items-center border-solid border-gray-500 px-3 lg:px-4 py-5 mx-4 lg:mx-12 rounded-3xl border-2 shadow-[0px_20px_20px_10px_#00000024] bg-opacity-20">
-        <form
-          className="flex flex-col gap-5 w-full"
-          onSubmit={(e) => {
-            e.preventDefault();
-            setLoaderVisibile(true);
-
-            handleUserProfile(FormData, Media, token)
-              .then((updatedUser) => {
-                setLoaderVisibile(false);
-                toast.success("Profile updated successfully!", {
-                  position: "bottom-center",
-                });
-                if (user.type === "admin") {
-                  navigate(`/official-dashboard`);
-
-                } else {
-                  navigate(`/citizen-dashboard`);
-
-                }
-              })
-              .catch((err) => {
-                setLoaderVisibile(false);
-                const msg = err?.message?.split(": ")[1] || "Profile update failed.";
-                setErr(msg);
-                toast.error("Failed to update profile", {
-                  position: "bottom-center",
-                });
-              });
-          }}
-        >
-
-          <input
-            required
-            type="file"
-            ref={FileInput}
-            className="opacity-0"
-            accept="image/*,video/*"
-            onChange={(e) => {
-              setMedia(e.target.files[0]);
-              setFormData({
-                ...FormData,
-                mediaType: e.target.files[0].type.split("/")[0],
-              });
-              setMediaPath(URL.createObjectURL(e.target.files[0]));
-            }}
-          />
-
-          <DashboardLinkButton
-            className={`${Media ? "hidden" : "block"} mx-[8vw]`}
-            icon={faCamera}
-            name={"Upload a picture/video of incident"}
-            onClick={() => FileInput.current.click()}
-            subtitle={"Make sure that everything is clear"}
-          />
-
-          {Media && (
-            <div className="flex flex-col justify-center items-center mx-8 lg:mx-20 py-6">
-              {FormData.mediaType === "image" && (
-                <img
-                  src={MediaPath}
-                  alt="Preview"
-                  className="max-w-full w-auto my-6 h-96 object-scale-down"
-                />
-              )}
-              <Button onClick={() => FileInput.current.click()} variant="outlined">
-                Change Image
-              </Button>
-            </div>
+  <div className="RegisterAccount flex flex-col gap-5 items-center border-solid border-gray-500 px-3 lg:px-4 py-5 mx-4 lg:mx-12 rounded-3xl border-2 shadow-[0px_20px_20px_10px_#00000024] bg-opacity-20">
+    <div className="flex flex-col lg:flex-row w-full gap-10">
+      {/* Media Preview Section */}
+      {Media && (
+        <div className="w-full lg:w-1/2 flex flex-col items-center justify-center">
+          {FormData.mediaType === "image" && (
+            <img
+              src={MediaPath}
+              alt="Preview"
+              className="w-full h-auto max-h-[400px] object-contain rounded-lg shadow"
+            />
           )}
+          <Button onClick={() => FileInput.current.click()} variant="outlined" className="mt-4">
+            Change Image
+          </Button>
+        </div>
+      )}
 
-          <div>
-            <label className="block font-medium">Name</label>
-            <input
-              type="text"
-              value={FormData.name}
-              onChange={(e) => setFormData({ ...FormData, name: e.target.value })}
-              required
-              className="w-full border p-2 rounded"
-            />
-          </div>
+      {/* Form Section */}
+      <form
+        className="flex flex-col gap-5 w-full lg:w-1/2"
+        onSubmit={(e) => {
+          e.preventDefault();
+          setLoaderVisibile(true);
 
-          <div>
-            <label className="block font-medium">Email</label>
-            <input
-              type="email"
-              value={FormData.email}
-              onChange={(e) => setFormData({ ...FormData, email: e.target.value })}
-              required
-              className="w-full border p-2 rounded"
-            />
-          </div>
+          handleUserProfile(FormData, Media, token)
+            .then((updatedUser) => {
+              setLoaderVisibile(false);
+              toast.success("Profile updated successfully!");
+              navigate(user.type === "admin" ? `/official-dashboard` : `/citizen-dashboard`);
+            })
+            .catch((err) => {
+              setLoaderVisibile(false);
+              const msg = err?.message?.split(": ")[1] || "Profile update failed.";
+              setErr(msg);
+              toast.error("Failed to update profile");
+            });
+        }}
+      >
+        <input
+          required
+          type="file"
+          ref={FileInput}
+          className="opacity-0"
+          accept="image/*,video/*"
+          onChange={(e) => {
+            setMedia(e.target.files[0]);
+            setFormData({
+              ...FormData,
+              mediaType: e.target.files[0].type.split("/")[0],
+            });
+            setMediaPath(URL.createObjectURL(e.target.files[0]));
+          }}
+        />
 
-          <div>
-            <label className="block font-medium">Mobile</label>
-            <input
-              type="text"
-              value={FormData.mobile}
-              onChange={(e) => setFormData({ ...FormData, mobile: e.target.value })}
-              required
-              className="w-full border p-2 rounded"
-            />
-          </div>
+        <DashboardLinkButton
+          className={`${Media ? "hidden" : "block"} mx-[8vw]`}
+          icon={faCamera}
+          name={"Upload a picture/video of incident"}
+          onClick={() => FileInput.current.click()}
+          subtitle={"Make sure that everything is clear"}
+        />
 
-          <div>
-            <label className="block font-medium">New Password (optional)</label>
-            <input
-              type="password"
-              value={FormData.password}
-              onChange={(e) => setFormData({ ...FormData, password: e.target.value })}
-              className="w-full border p-2 rounded"
-            />
-          </div>
+        <div>
+          <label className="block font-medium">Name</label>
+          <input
+            type="text"
+            value={FormData.name}
+            onChange={(e) => setFormData({ ...FormData, name: e.target.value })}
+            required
+            className="w-full border p-2 rounded"
+          />
+        </div>
 
-          <div>
-            <label className="block font-medium">Confirm Password</label>
-            <input
-              type="password"
-              value={FormData.confirmPassword}
-              onChange={(e) => setFormData({ ...FormData, confirmPassword: e.target.value })}
-              className="w-full border p-2 rounded"
-            />
-          </div>
+        <div>
+          <label className="block font-medium">Email</label>
+          <input
+            type="email"
+            value={FormData.email}
+            onChange={(e) => setFormData({ ...FormData, email: e.target.value })}
+            required
+            className="w-full border p-2 rounded"
+          />
+        </div>
 
-          {Err && <p className="text-red-600 text-sm">{Err}</p>}
+        <div>
+          <label className="block font-medium">Mobile</label>
+          <input
+            type="text"
+            value={FormData.mobile}
+            onChange={(e) => setFormData({ ...FormData, mobile: e.target.value })}
+            required
+            className="w-full border p-2 rounded"
+          />
+        </div>
 
-          <button
-            type="submit"
-            className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
-          >
-            Update Profile
-          </button>
-        </form>
-      </div>
+        <div>
+          <label className="block font-medium">New Password (optional)</label>
+          <input
+            type="password"
+            value={FormData.password}
+            onChange={(e) => setFormData({ ...FormData, password: e.target.value })}
+            className="w-full border p-2 rounded"
+          />
+        </div>
+
+        <div>
+          <label className="block font-medium">Confirm Password</label>
+          <input
+            type="password"
+            value={FormData.confirmPassword}
+            onChange={(e) => setFormData({ ...FormData, confirmPassword: e.target.value })}
+            className="w-full border p-2 rounded"
+          />
+        </div>
+
+        {Err && <p className="text-red-600 text-sm">{Err}</p>}
+
+        <button
+          type="submit"
+          className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+        >
+          Update Profile
+        </button>
+      </form>
     </div>
+  </div>
+</div>
+
   );
 };
 

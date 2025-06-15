@@ -71,6 +71,13 @@ const Navbar = () => {
             </Button>
             <Button
               component={Link}
+              to={Official ? "/official-digital-directory-dashboard" : "/citizen-digital-directory-dashboard"}
+              variant="outlined"
+            >
+              Digital Directory
+            </Button>
+            <Button
+              component={Link}
               to="/profile-dashboard"
               variant="outlined"
               className="flex gap-3"
@@ -93,6 +100,7 @@ const Navbar = () => {
                 Profile
               </span>
             </Button>
+             
             <Button onClick={handleLogout} variant="outlined">
 
 
@@ -131,10 +139,16 @@ const Navbar = () => {
                 Dashboard
               </Link>
               <Link
+                to={Official ? "/official-digital-directory-dashboard":"citizen-digital-directory-dashboard"}
+              >
+                Digital Directory
+              </Link>
+              <Link
                 to={"/profile-dashboard"}
               >
                 Profile
               </Link>
+              
               <Link onClick={handleLogout}>Logout</Link>{" "}
             </>
           ) : (
