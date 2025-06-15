@@ -1,42 +1,24 @@
-const express = require('express');
-const cors = require('cors');
-const mongoose = require('mongoose');
-const multer = require("multer");
-const upload = multer({ storage: multer.memoryStorage() });
-require('dotenv').config();
+const express = require("express");
+const cors = require("cors");
+const connectDB = require("./db"); // MongoDB connection
+const userRoutes = require("./routes/user.route"); // User-related routes
+const complaintRoutes = require("./routes/complaint.route"); // Complaint-related routes
+require("dotenv").config(); // Load environment variables from .env
+
 const app = express();
-app.use(express.json({ limit: '10mb' }));
-app.use(express.urlencoded({ extended: true, limit: '10mb' }));
-const port = process.env.PORT || 5000;
+const PORT = process.env.PORT || 5000;
 
+// Middleware
 app.use(cors());
-app.use(express.json());
+app.use(express.json()); // Parse JSON request bodies
 
-const uri = "mongodb+srv://ersaurabhsharmamca:SUXVZQUyUW5X2qI3@gatepass-db.alvtd.mongodb.net/complaint-management-db?retryWrites=true&w=majority&appName=complaint-management-db";
-mongoose.connect(uri).then(() => {
-    console.log("db connection successful.");
-}).catch((err) => {
-    if (err.EREFUSED) {
-        console.log("check your internet connection!")
-    } else {
-        console.log("unable to connect with database!", err)
-    }
-})
+// Routes
+app.use("/api", userRoutes);
+app.use("/api", complaintRoutes);
 
-
-
-
-const apiRoutes = require("./routes/api");
-
-app.use("/api", apiRoutes);
-
-if (process.env.NODE_ENV === 'production') {
-    app.use(express.static('client/build'));
-    app.get('*', (req, res) => {
-        res.sendFile(path.resolve(__dirname, 'client', 'build', 'index.html'));
-    });
-}
-
-app.listen(port, () => {
-    console.log(`server is running on port: ${port}`)
-})
+// Connect to MongoDB, then start server
+connectDB().then(() => {
+  app.listen(PORT, () => {
+    console.log(`🚀 Server running on http://localhost:${PORT}`);
+  });
+});
