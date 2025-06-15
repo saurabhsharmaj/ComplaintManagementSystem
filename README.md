@@ -38,7 +38,7 @@ and collaboration.
 
 - Clone the repository
 ```shell  https://github.com/vivekkj123/mobilEASE
-$ git clone https://github.com/vivekkj123/mobileEASE.git
+[$ git clone https://github.com/vivekkj123/mobileEASE.git](https://github.com/saurabhsharmaj/ComplaintManagementSystem.git)
 ```
 - Install all dependencies
 
