@@ -12,10 +12,9 @@ const PORT = process.env.PORT || 5000;
 app.set("trust proxy", 1);
 
 // ✅ CORS: Allow only your frontend domain (recommended)
-app.use(cors({
-  origin: "https://cms.8bit.co.in",
-  credentials: true
-}));
+app.use(cors({ origin: ['http://192.168.1.39:5173', 'http://localhost:5173', 'https://cms.8bit.co.in'], // allow both dev and prod 
+ credentials: true // if you're using cookies or Authorization headers 
+ }));
 
 app.use(express.json());
 
