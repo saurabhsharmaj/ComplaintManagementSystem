@@ -12,16 +12,27 @@ import SpinnerModal from "../components/SpinnerModal";
 import { handleUserProfile } from "../utils/mongodb";
 import { API_BASE_URL } from "@/config";
 
-const TextField = styled(MuiTextField)((props) => ({
+const TextField = styled(MuiTextField)({
   width: "80%",
-  [`& fieldset`]: {
+  "& fieldset": {
     borderRadius: "15px",
   },
-}));
+});
+
+// Helper function to convert buffer to base64 string
+function bufferToBase64(buffer) {
+  if (!buffer) return null;
+  let binary = '';
+  const bytes = new Uint8Array(buffer);
+  for (let i = 0; i < bytes.byteLength; i++) {
+    binary += String.fromCharCode(bytes[i]);
+  }
+  return window.btoa(binary);
+}
 
 const ReportComplaint = () => {
-  const [Media, setMedia] = useState();
-  const [MediaPath, setMediaPath] = useState("");
+  const [Media, setMedia] = useState(null);
+  const [MediaPath, setMediaPath] = useState(""); // preview URL
   const [token, setToken] = useState("");
   const [user, setUser] = useState(null);
   const [FormData, setFormData] = useState({
@@ -31,13 +42,14 @@ const ReportComplaint = () => {
     password: "",
     confirmPassword: "",
     mediaPath: "",
-    mediaType: ""
+    mediaType: "image",
   });
   const [Err, setErr] = useState(null);
   const [LoaderVisibile, setLoaderVisibile] = useState(false);
   const FileInput = useRef(null);
   const navigate = useNavigate();
 
+  // Fetch user profile on mount
   useEffect(() => {
     const token = localStorage.getItem("token");
     const userId = localStorage.getItem("userId");
@@ -45,14 +57,12 @@ const ReportComplaint = () => {
     if (!token || !userId) {
       navigate("/citizen-login");
       return;
-    } else {
-      setToken(token);
     }
 
+    setToken(token);
+
     fetch(`${API_BASE_URL}/user/${userId}`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
+      headers: { Authorization: `Bearer ${token}` },
     })
       .then((res) => {
         if (!res.ok) throw new Error("Unauthorized");
@@ -60,19 +70,26 @@ const ReportComplaint = () => {
       })
       .then((userData) => {
         setUser(userData);
+        console.log(userData)
         setFormData((prev) => ({
           ...prev,
           name: userData.name,
           email: userData.email,
           mobile: userData.mobile,
+          mediaPath: userData.mediaPath || "",
+          mediaType: "image",
         }));
+        if (userData.mediaPath?.buffer) {
+          setMediaPath(`data:image/png;base64,${userData.mediaPath?.buffer}`);
+        }
       })
-      .catch(() => {
+      .catch((err) => {
+        console.error("Error loading profile:", err);
         navigate("/citizen-login");
       });
-
   }, []);
 
+  // Validate password match
   useEffect(() => {
     if (FormData.password !== FormData.confirmPassword) {
       setErr("The password and confirmation password do not match.");
@@ -86,18 +103,7 @@ const ReportComplaint = () => {
       <SpinnerModal visible={LoaderVisibile} />
       <Navbar />
 
-      <ToastContainer
-        position="bottom-center"
-        autoClose={5000}
-        hideProgressBar
-        newestOnTop={false}
-        closeOnClick
-        rtl={false}
-        pauseOnFocusLoss
-        draggable
-        pauseOnHover
-        theme="light"
-      />
+      <ToastContainer position="bottom-center" autoClose={5000} hideProgressBar />
 
       <h2 className="lg:mt-10 leading-normal font-bold text-center text-xl lg:text-[2rem] my-6 lg:text-left lg:mx-20">
         👤 Edit Profile
@@ -111,69 +117,67 @@ const ReportComplaint = () => {
             setLoaderVisibile(true);
 
             handleUserProfile(FormData, Media, token)
-              .then((updatedUser) => {
+              .then(() => {
                 setLoaderVisibile(false);
-                toast.success("Profile updated successfully!", {
-                  position: "bottom-center",
-                });
-                if (user.type === "admin") {
-                  navigate(`/official-dashboard`);
-
-                } else {
-                  navigate(`/citizen-dashboard`);
-
-                }
+                toast.success("Profile updated successfully!");
+                navigate(user?.type === "admin" ? "/official-dashboard" : "/citizen-dashboard");
               })
               .catch((err) => {
                 setLoaderVisibile(false);
                 const msg = err?.message?.split(": ")[1] || "Profile update failed.";
                 setErr(msg);
-                toast.error("Failed to update profile", {
-                  position: "bottom-center",
-                });
+                toast.error("Failed to update profile");
               });
           }}
         >
-
+          {/* Hidden file input */}
           <input
-            required
             type="file"
             ref={FileInput}
-            className="opacity-0"
-            accept="image/*,video/*"
+            className="hidden"
+            accept="image/*"
             onChange={(e) => {
-              setMedia(e.target.files[0]);
-              setFormData({
-                ...FormData,
-                mediaType: e.target.files[0].type.split("/")[0],
-              });
-              setMediaPath(URL.createObjectURL(e.target.files[0]));
+              const file = e.target.files[0];
+              if (!file) return;
+
+              setMedia(file);
+              setFormData((prev) => ({
+                ...prev,
+                mediaPath: file,
+                mediaType: "image",
+              }));
+              setMediaPath(URL.createObjectURL(file)); // Show preview of new image
             }}
           />
 
-          <DashboardLinkButton
-            className={`${Media ? "hidden" : "block"} mx-[8vw]`}
-            icon={faCamera}
-            name={"Upload a picture/video of incident"}
-            onClick={() => FileInput.current.click()}
-            subtitle={"Make sure that everything is clear"}
-          />
+          {/* Upload button if no media yet */}
+          {!MediaPath && (
+            <DashboardLinkButton
+              className="mx-[8vw]"
+              icon={faCamera}
+              name={"Upload profile picture"}
+              onClick={() => FileInput.current.click()}
+              subtitle={"Make sure the image is clear"}
+            />
+          )}
 
-          {Media && (
+          {/* Show image preview */}
+          {MediaPath && (
             <div className="flex flex-col justify-center items-center mx-8 lg:mx-20 py-6">
-              {FormData.mediaType === "image" && (
-                <img
-                  src={MediaPath}
-                  alt="Preview"
-                  className="max-w-full w-auto my-6 h-96 object-scale-down"
-                />
-              )}
-              <Button onClick={() => FileInput.current.click()} variant="outlined">
+              <img
+                src={
+                  MediaPath
+                }
+                alt="Profile Update"
+                className="h-96 object-contain border rounded shadow"
+              />
+              <Button onClick={() => FileInput.current.click()} variant="outlined" className="mt-3">
                 Change Image
               </Button>
             </div>
           )}
 
+          {/* Form Fields */}
           <div>
             <label className="block font-medium">Name</label>
             <input
