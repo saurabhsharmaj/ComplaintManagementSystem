@@ -19,6 +19,8 @@ const CitizenDashboard = () => {
   const [SpinnerVisible, setSpinnerVisible] = useState(false);
   const navigate = useNavigate();
   const [params] = useSearchParams();
+  const [user, setUser] = useState(null);
+
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -39,6 +41,7 @@ const CitizenDashboard = () => {
         return res.json();
       })
       .then((user) => {
+        setUser(user);
         if (user.type === "official") {
           navigate("/official-dashboard");
         } else {
@@ -128,7 +131,7 @@ const CitizenDashboard = () => {
           />
         </div>
         <div className="hidden lg:flex">
-          <ReportedComplaints />
+          <ReportedComplaints  user={user}/>
         </div>
       </div>
     </>

@@ -4,7 +4,7 @@ import ComplaintsCard from "./ComplaintsCard";
 import { API_BASE_URL } from "@/config";
 import { BarLoader, RingLoader } from "react-spinners";
 
-const ReportedComplaints = () => {
+const ReportedComplaints = (user) => {
   const [Complaints, setComplaints] = useState(null);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
@@ -80,7 +80,7 @@ const ReportedComplaints = () => {
         ) : (
           Complaints &&
           Complaints.map((complaint) => {
-            return <ComplaintsCard key={complaint._id} complaint={complaint} />;
+            return <ComplaintsCard key={complaint._id} complaint={complaint} user={user}/>;
           })
         )}
       </div>
