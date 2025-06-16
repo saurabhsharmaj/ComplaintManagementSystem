@@ -5,7 +5,7 @@ import { API_BASE_URL } from "@/config";
 import { BarLoader, RingLoader } from "react-spinners";
 
 const ReportedComplaints = (user) => {
-  const [Complaints, setComplaints] = useState(null);
+  const [complaints, setComplaints] = useState(null);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const token = localStorage.getItem("token");
@@ -74,13 +74,13 @@ const ReportedComplaints = (user) => {
     <div className="lg:border lg:shadow-[3px_4px_4px_rgba(0,0,0,0.26)] rounded-lg lg:border-solid lg:border-black w-full flex flex-col items-center lg:h-[28rem] py-2">
       <h3 className="font-bold my-2">Complaints Reported by You</h3>
       <div className="container px-4 overflow-y-auto">
-        {Complaints && Complaints.length === 0 ? (
+        {complaints && complaints.length === 0 ? (
           <h2>No Complaints Found #</h2>
 
         ) : (
-          Complaints &&
-          Complaints.map((complaint) => {
-            return <ComplaintsCard key={complaint._id} complaint={complaint} user={user}/>;
+          complaints &&
+          complaints.map((complaint) => {
+            return <ComplaintsCard key={complaint._id} complaint={complaint} user={user.user}/>;
           })
         )}
       </div>
