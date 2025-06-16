@@ -29,6 +29,7 @@ const OfficialDashboard = () => {
       navigate("/official-login");
       return;
     }
+
     fetch(`${API_BASE_URL}/user/${userId}`, {
       method: "GET",
       headers: {
@@ -43,7 +44,6 @@ const OfficialDashboard = () => {
         if (user?.type !== "admin") {
           navigate("/citizen-dashboard");
         } else {
-          //console.log( Date.now(), "OfficialDashboard useEffect called");
           fetchComplaints(token).then(handleComplaintsUpdate);
           fetchUsers(token).then(setUsers);
         }
@@ -65,20 +65,26 @@ const OfficialDashboard = () => {
       .catch((err) => console.error("Summary fetch error:", err));
   }, []);
 
+  // ✅ Filter complaints based on selectedStatus and selectedReason
   useEffect(() => {
-    let filterdComplaints = [...complaints];
+    let filtered = [...complaints];
 
     if (selectedStatus) {
-      filterdComplaints = complaints.filter(
+      filtered = filtered.filter(
         (c) => c.status?.toLowerCase() === selectedStatus
       );
     }
 
-    setFilteredComplaints(filteredComplaints);
+    if (selectedReason) {
+      filtered = filtered.filter(
+        (c) => c.reason?.toLowerCase() === selectedReason.toLowerCase()
+      );
+    }
+
+    setFilteredComplaints(filtered);
   }, [selectedStatus, selectedReason, complaints]);
 
   const handleComplaintsUpdate = (updatedComplaints) => {
-    console.log(Date.now(), "OfficialDashboard useEffect called");
     setComplaints(updatedComplaints);
     setFilteredComplaints(updatedComplaints);
     const reasons = [
@@ -90,15 +96,13 @@ const OfficialDashboard = () => {
   };
 
   const getUser = (userId) => {
-    //console.log("Fetching user with ID:", userId);
     const fetchUser = users.find((user) => user._id === userId) || {
       name: "Unknown User",
       mobile: "N/A",
       mediaPath: { buffer: null },
     };
-    //console.log(fetchUser)
     return fetchUser;
-  }
+  };
 
   return (
     <>
@@ -160,7 +164,7 @@ const OfficialDashboard = () => {
           </div>
         )}
 
-        {/* Filter Dropdown */}
+        {/* Filter by Reason */}
         <div className="mb-4 flex flex-wrap items-center gap-2">
           <label htmlFor="reason" className="text-sm font-semibold">
             Filter by Reason:
@@ -183,11 +187,15 @@ const OfficialDashboard = () => {
         {/* Complaint Cards */}
         {complaints.length === 0 ? (
           <div className="w-full h-[60vh] flex justify-center items-center">
-            <RingLoader />
+            <SpinnerModal visible={spinnerVisible} />
           </div>
         ) : (
-          complaints.map((complaint) => (
-            <ComplaintsCard key={complaint._id} complaint={complaint} user={getUser(complaint.reportedBy)} />
+          filteredComplaints.map((complaint) => (
+            <ComplaintsCard
+              key={complaint._id}
+              complaint={complaint}
+              user={getUser(complaint.reportedBy)}
+            />
           ))
         )}
       </div>
