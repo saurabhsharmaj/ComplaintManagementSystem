@@ -9,9 +9,9 @@ import ComplaintsCard from "../components/ComplaintsCard";
 
 const OfficialDashboard = () => {
   const [users, setUsers] = useState([]);
-  const [Complaints, setComplaints] = useState([]);
+  const [complaints, setComplaints] = useState([]);
   const [filteredComplaints, setFilteredComplaints] = useState([]);
-  const [SpinnerVisible, setSpinnerVisible] = useState(false);
+  const [spinnerVisible, setSpinnerVisible] = useState(false);
   const [inProgress, setInProgress] = useState(0);
   const [solved, setSolved] = useState(0);
   const [rejected, setRejected] = useState(0);
@@ -28,7 +28,6 @@ const OfficialDashboard = () => {
       navigate("/official-login");
       return;
     }
-
     fetch(`${API_BASE_URL}/user/${userId}`, {
       method: "GET",
       headers: {
@@ -43,6 +42,7 @@ const OfficialDashboard = () => {
         if (user?.type !== "admin") {
           navigate("/citizen-dashboard");
         } else {
+    console.log( Date.now(), "OfficialDashboard useEffect called");
           fetchComplaints(token).then(handleComplaintsUpdate);
           fetchUsers(token).then(setUsers);
         }
@@ -65,22 +65,23 @@ const OfficialDashboard = () => {
   }, []);
 
   useEffect(() => {
-    let complaints = [...Complaints];
+    let filterdComplaints = [...complaints];
 
     if (selectedStatus) {
-      complaints = complaints.filter(
+      filterdComplaints = complaints.filter(
         (c) => c.status?.toLowerCase() === selectedStatus
       );
     }
 
     if (selectedReason) {
-      complaints = complaints.filter((c) => c.reason === selectedReason);
+      filterdComplaints = complaints.filter((c) => c.reason === selectedReason);
     }
 
-    setFilteredComplaints(complaints);
-  }, [selectedStatus, selectedReason, Complaints]);
+    setFilteredComplaints(filterdComplaints);
+  }, [selectedStatus, selectedReason, complaints]);
 
   const handleComplaintsUpdate = (updatedComplaints) => {
+    console.log( Date.now(), "OfficialDashboard useEffect called");
     setComplaints(updatedComplaints);
     setFilteredComplaints(updatedComplaints);
     const reasons = [
@@ -91,9 +92,20 @@ const OfficialDashboard = () => {
     setUniqueReasons(reasons);
   };
 
+  const getUser = (userId) => {
+    console.log("Fetching user with ID:", userId);
+    const fetchUser =  users.find((user) => user._id === userId) || {
+      name: "Unknown User",
+      mobile: "N/A",
+      mediaPath: { buffer: null },
+    };
+    console.log(fetchUser)
+    return fetchUser;
+  }
+
   return (
     <>
-      <SpinnerModal visible={SpinnerVisible} />
+      <SpinnerModal visible={spinnerVisible} />
       <Navbar />
 
       <div className="container px-4 py-4 overflow-y-auto">
@@ -172,13 +184,13 @@ const OfficialDashboard = () => {
         </div>
 
         {/* Complaint Cards */}
-        {filteredComplaints.length === 0 ? (
+        {complaints.length === 0 ? (
           <div className="w-full h-[60vh] flex justify-center items-center">
             <RingLoader />
           </div>
         ) : (
-          filteredComplaints.map((complaint) => (
-            <ComplaintsCard key={complaint._id} complaint={complaint} />
+          complaints.map((complaint) => (
+            <ComplaintsCard key={complaint._id} complaint={complaint} user={getUser(complaint.reportedBy)}/>
           ))
         )}
       </div>

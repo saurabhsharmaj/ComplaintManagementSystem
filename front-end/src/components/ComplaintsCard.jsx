@@ -6,9 +6,9 @@ import ComplaintDetailModal from "./ComplaintDetailModal";
 import { fetchUserById } from "../utils/mongodb";
 import { Statuses, statusColors } from "../utils/enums";
 
-const ComplaintsCard = ({ complaint }) => {
+const ComplaintsCard = ({ complaint,user }) => {
   const [DialogOpen, setDialogOpen] = useState(false);
-  const [user, setUser] = useState(null);
+  //const [user, setUser] = useState(null);
   const date = new Date(complaint.timestamp);
   const statusKey = Object.keys(Statuses).find(
     (key) => Statuses[key] === complaint.status
@@ -18,11 +18,11 @@ const ComplaintsCard = ({ complaint }) => {
   useEffect(() => {
     const token = localStorage.getItem("token");
     const userId = complaint.reportedBy;
-    if (userId && token) {
-      fetchUserById(userId, token)
-        .then(setUser)
-        .catch((err) => console.error("User fetch error:", err));
-    }
+    // if (userId && token) {
+    //   fetchUserById(userId, token)
+    //     .then(setUser)
+    //     .catch((err) => console.error("User fetch error:", err));
+    // }
   }, [complaint]);
 
   if (!user) return null;
