@@ -1,24 +1,21 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import { VitePWA } from "vite-plugin-pwa";
+import path from "path";
 
-import path from 'path';
-
-
-// https://vitejs.dev/config/
 const manifestForPlugin = {
   registerType: "prompt",
   includeAssets: [
     "logo.png",
-    "logo.png",
-    "maskable_iconx48.png",
-    "maskable_iconx72.png",
-    "maskable_iconx96.png",
-    "maskable_iconx128.png",
-    "maskable_iconx192.png",
-    "maskable_iconx384.png",
-    "maskable_iconx512.png",
-    "maskable_icon.png",
+    "default-avatar.png",
+    "maskable_icon_x48.png",
+    "maskable_icon_x72.png",
+    "maskable_icon_x96.png",
+    "maskable_icon_x128.png",
+    "maskable_icon_x192.png",
+    "maskable_icon_x384.png",
+    "maskable_icon_x512.png",
+    "maskable_icon.png"
   ],
   manifest: {
     name: "MobilEASE - Mobile Efficient Assistance for Traffic",
@@ -26,51 +23,51 @@ const manifestForPlugin = {
     description: "Application to report traffic issues around you",
     icons: [
       {
-        src: "/logo.png",
+        src: "logo.png",
         sizes: "512x512",
         type: "image/png",
       },
       {
-        src: "/maskable_icon_x48.png",
+        src: "maskable_icon_x48.png",
         sizes: "48x48",
         type: "image/png",
         purpose: "maskable",
       },
       {
-        src: "/maskable_icon_x72.png",
+        src: "maskable_icon_x72.png",
         sizes: "72x72",
         type: "image/png",
         purpose: "maskable",
       },
       {
-        src: "/maskable_icon_x96.png",
+        src: "maskable_icon_x96.png",
         sizes: "96x96",
         type: "image/png",
         purpose: "maskable",
       },
       {
-        src: "/maskable_icon_x128.png",
+        src: "maskable_icon_x128.png",
         sizes: "128x128",
         type: "image/png",
         purpose: "maskable",
       },
       {
-        src: "/maskable_icon_x192.png",
+        src: "maskable_icon_x192.png",
         sizes: "192x192",
         type: "image/png",
         purpose: "maskable",
       },
       {
-        src: "/maskable_icon_x384.png",
+        src: "maskable_icon_x384.png",
         sizes: "384x384",
         type: "image/png",
         purpose: "maskable",
       },
       {
-        src: "/maskable_icon_x512.png",
+        src: "maskable_icon_x512.png",
         sizes: "512x512",
         type: "image/png",
-        purpose: "any maskable",
+        purpose: "maskable any",
       },
     ],
     theme_color: "#212121",
@@ -85,12 +82,11 @@ const manifestForPlugin = {
   },
 };
 
-
 export default defineConfig({
-  base: './', // ← important fix
+  base: "/", // use '/' for correct absolute URLs behind reverse proxy like Nginx
   plugins: [react(), VitePWA(manifestForPlugin)],
   build: {
-    outDir: "dist",  // optional if default
+    outDir: "dist",
     target: "es2022",
   },
   resolve: {
@@ -99,4 +95,3 @@ export default defineConfig({
     },
   },
 });
-
