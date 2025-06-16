@@ -41,6 +41,7 @@ const CitizenDashboard = () => {
         return res.json();
       })
       .then((user) => {
+        console.log(user);
         setUser(user);
         if (user.type === "official") {
           navigate("/official-dashboard");
@@ -131,7 +132,7 @@ const CitizenDashboard = () => {
           />
         </div>
         <div className="hidden lg:flex">
-          <ReportedComplaints  user={user}/>
+          <ReportedComplaints user={user} />
         </div>
       </div>
     </>

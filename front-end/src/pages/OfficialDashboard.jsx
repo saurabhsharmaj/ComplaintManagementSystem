@@ -6,6 +6,7 @@ import SpinnerModal from "../components/SpinnerModal";
 import { fetchUsers, fetchComplaints } from "../utils/mongodb";
 import { API_BASE_URL } from "@/config";
 import ComplaintsCard from "../components/ComplaintsCard";
+import DashboardLinkButton from "../components/DashboardLinkButton";
 
 const OfficialDashboard = () => {
   const [users, setUsers] = useState([]);

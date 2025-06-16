@@ -22,7 +22,7 @@ const Navbar = () => {
   const [Official, setOfficial] = useState(false);
   const navigate = useNavigate();
   const token = localStorage.getItem("token");
-      const userId = localStorage.getItem("userId");
+  const userId = localStorage.getItem("userId");
 
   const handleLogout = () => {
     localStorage.removeItem("token");
@@ -63,6 +63,15 @@ const Navbar = () => {
         </Link>
         {user ? (
           <div className="ButtonGroup gap-8 hidden lg:flex">
+
+            <Button
+              component={Link}
+              to={`/report`}
+              variant="outlined"
+            >
+              New Complaint
+            </Button>
+
             <Button
               component={Link}
               to={Official ? "/official-dashboard" : "/citizen-dashboard"}
@@ -70,6 +79,7 @@ const Navbar = () => {
             >
               Dashboard
             </Button>
+
             <Button
               component={Link}
               to="/profile-dashboard"

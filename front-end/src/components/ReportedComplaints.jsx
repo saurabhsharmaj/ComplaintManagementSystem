@@ -4,8 +4,9 @@ import ComplaintsCard from "./ComplaintsCard";
 import { API_BASE_URL } from "@/config";
 import { BarLoader, RingLoader } from "react-spinners";
 
-const ReportedComplaints = (user) => {
+const ReportedComplaints = () => {
   const [Complaints, setComplaints] = useState(null);
+  const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const token = localStorage.getItem("token");
@@ -19,8 +20,9 @@ const ReportedComplaints = (user) => {
       },
     });
     if (!res.ok) throw new Error("Unauthorized"); {
-      const user = await res.json();
-      if (!user || user.type !== "citizen") {
+      const newUser = await res.json();
+      setUser(newUser);
+      if (!newUser || newUser.type !== "citizen") {
         navigate("/citizen-login");
       } else {
         // Fetch complaints for this user
@@ -44,6 +46,7 @@ const ReportedComplaints = (user) => {
 
       }
     }
+
   }
 
   useEffect(() => {
@@ -70,6 +73,7 @@ const ReportedComplaints = (user) => {
     )
   }
 
+
   return (
     <div className="lg:border lg:shadow-[3px_4px_4px_rgba(0,0,0,0.26)] rounded-lg lg:border-solid lg:border-black w-full flex flex-col items-center lg:h-[28rem] py-2">
       <h3 className="font-bold my-2">Complaints Reported by You</h3>
@@ -80,7 +84,7 @@ const ReportedComplaints = (user) => {
         ) : (
           Complaints &&
           Complaints.map((complaint) => {
-            return <ComplaintsCard key={complaint._id} complaint={complaint} user={user}/>;
+            return <ComplaintsCard key={complaint._id} complaint={complaint} user={user} />;
           })
         )}
       </div>

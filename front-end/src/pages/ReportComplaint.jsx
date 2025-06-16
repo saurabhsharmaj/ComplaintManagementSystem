@@ -50,27 +50,27 @@ const ReportComplaint = () => {
   const FileInput = useRef(null);
   const navigate = useNavigate();
   useEffect(() => {
-  const token = localStorage.getItem("token");
-  if (!token) {
-    navigate("/citizen-login");
-    return;
-  }
-  setToken(token);
-  const userId= localStorage.getItem("userId");
-  // Fetch user details
-  fetch(API_BASE_URL+"/user/"+userId, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  }).then((user) => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      navigate("/citizen-login");
+      return;
+    }
+    setToken(token);
+    const userId = localStorage.getItem("userId");
+    // Fetch user details
+    fetch(API_BASE_URL + "/user/" + userId, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }).then((user) => {
 
-        if (!user || !isOfficial(user.uid)) {
+      if (!user || !isOfficial(user.uid)) {
         return navigate("/");
       }
-      setFormData({ ...FormData, reportedBy: userId });        
-      });
+      setFormData({ ...FormData, reportedBy: userId });
+    });
 
-    
+
   }, []);
   return (
     <div className="overflow-x-hidden">
@@ -96,7 +96,7 @@ const ReportComplaint = () => {
         onSubmit={(e) => {
           e.preventDefault();
           setLoaderVisibile(true);
-          createComplaint(FormData, Media,token)
+          createComplaint(FormData, Media, token)
             .then(() => {
               toast.success("Complaint Reported Succesfully");
               setTimeout(() => {
@@ -128,17 +128,19 @@ const ReportComplaint = () => {
           name=""
           id=""
         />
-        <DashboardLinkButton
-          className={`${Media ? "hidden" : "block"} mx-[8vw]` }
+        <div onClick={() => FileInput.current.click()} className="p-4 m-4 bg-slate-300 inline-flex justify-center items-center cursor-pointer text-bold">
+          IMAGE +
+        </div>
+        {/* <DashboardLinkButton
+          className={`${Media ? "hidden" : "block"} mx-[8vw]`}
           icon={faCamera}
           name={"Upload a picture/video of incident"}
           onClick={() => FileInput.current.click()}
           subtitle={"Make sure that everything is clear"}
-        />
+        /> */}
         <div
-          className={`flex flex-col justify-center items-center mx-8 lg:mx-20 py-6 ${
-            Media ? "block" : "hidden"
-          }`}
+          className={`flex flex-col justify-center items-center mx-8 lg:mx-20 py-6 ${Media ? "block" : "hidden"
+            }`}
         >
           <img
             src={Media && FormData.mediaType === "image" ? MediaPath : null}
@@ -189,41 +191,41 @@ const ReportComplaint = () => {
             }}
             value={FormData.reason}
           >
-           <FormControlLabel
-  value="Streetlight Not Working"
-  control={<Radio />}
-  label="Streetlight Not Working"
-/>
-<FormControlLabel
-  value="Dirty Water Flow on Road"
-  control={<Radio />}
-  label="Dirty Water Flow on Road"
-/>
-<FormControlLabel
-  value="Garbage Dumped on Road"
-  control={<Radio />}
-  label="Garbage Dumped on Road"
-/>
-<FormControlLabel
-  value="Open Manhole"
-  control={<Radio />}
-  label="Open Manhole"
-/>
-<FormControlLabel
-  value="Broken Footpath"
-  control={<Radio />}
-  label="Broken Footpath"
-/>
-<FormControlLabel
-  value="Water Leakage"
-  control={<Radio />}
-  label="Water Leakage"
-/>
-<FormControlLabel
-  value="Others"
-  control={<Radio />}
-  label="Others"
-/>
+            <FormControlLabel
+              value="Streetlight Not Working"
+              control={<Radio />}
+              label="Streetlight Not Working"
+            />
+            <FormControlLabel
+              value="Dirty Water Flow on Road"
+              control={<Radio />}
+              label="Dirty Water Flow on Road"
+            />
+            <FormControlLabel
+              value="Garbage Dumped on Road"
+              control={<Radio />}
+              label="Garbage Dumped on Road"
+            />
+            <FormControlLabel
+              value="Open Manhole"
+              control={<Radio />}
+              label="Open Manhole"
+            />
+            <FormControlLabel
+              value="Broken Footpath"
+              control={<Radio />}
+              label="Broken Footpath"
+            />
+            <FormControlLabel
+              value="Water Leakage"
+              control={<Radio />}
+              label="Water Leakage"
+            />
+            <FormControlLabel
+              value="Others"
+              control={<Radio />}
+              label="Others"
+            />
 
           </RadioGroup>
           <p className="my-2">More Information</p>
