@@ -84,14 +84,19 @@ const manifestForPlugin = {
     enabled: true,
   },
 };
+
+
 export default defineConfig({
+  base: './', // ← important fix
   plugins: [react(), VitePWA(manifestForPlugin)],
   build: {
-    target: "es2022", // or at least "es2020" for BigInt support
+    outDir: "dist",  // optional if default
+    target: "es2022",
   },
   resolve: {
     alias: {
-      '@': path.resolve(__dirname, './src')
-    }
-  }
+      "@": path.resolve(__dirname, "./src"),
+    },
+  },
 });
+
