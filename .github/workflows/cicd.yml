@@ -3,10 +3,12 @@ name: Build and Push Docker Image to DockerHub
 on:
   push:
     branches:
+      - rajdeep
       - deployment
   pull_request:
     types: [closed]
     branches:
+      - rajdeep
       - deployment
   release:
     types: [published]
@@ -45,7 +47,7 @@ jobs:
         if: steps.filter.outputs.frontend == 'true'
         run: |
           TAG=${{ github.event.release.tag_name || 'latest' }}
-          docker build --build-arg VITE_API_BASE_URL=https://backend:5000/api  -t rajdeepsingh642/cms-frontend:$TAG ./front-end
+          docker build --build-arg VITE_API_BASE_URL=https://cms.8bit.co.in/api  -t rajdeepsingh642/cms-frontend:$TAG ./front-end
           docker push rajdeepsingh642/cms-frontend:$TAG
   deploy:
     name: Deploy to EC2
@@ -64,7 +66,7 @@ jobs:
           TAG: ${{ github.event.release.tag_name || 'latest' }}
         run: |
           ssh -i application.pem -o StrictHostKeyChecking=no ec2-user@52.203.22.153 << EOF
-         
+
           cd /home/ec2-user/cms
           echo "IMAGE_TAG=${TAG}" > .env
           IMAGE_TAG=${TAG}
@@ -89,9 +91,9 @@ jobs:
                   restart: always
           YAML_EOF
           echo "UmFqZGVlcEAxOTk2" | base64 -d | docker login -u rajdeepsingh642 --password-stdin
-         
+
           if [ "$BACKEND_CHANGED" = "true" ]; then
-        
+
             docker-compose  stop backend
             docker-compose  rm -f backend
             docker rmi cms-backend  || true
