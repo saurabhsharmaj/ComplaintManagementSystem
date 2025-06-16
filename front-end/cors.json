@@ -2,7 +2,8 @@
   {
     "origin": [
       "http://localhost:5173",
-      "http://192.168.1.40:5173"
+      "http://192.168.1.39:5173",
+      "https://cms.8bit.co.in:5173"
     ],
     "method": [
       "GET",
