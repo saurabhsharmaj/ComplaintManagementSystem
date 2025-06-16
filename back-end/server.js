@@ -13,8 +13,8 @@ app.set("trust proxy", 1);
 
 // ✅ CORS: Allow only your frontend domain (recommended)
 app.use(cors({
-  origin: "https://cms.8bit.co.in",
-  credentials: true
+  origin: ['http://localhost:5173', 'https://cms.8bit.co.in'], // allow both dev and prod
+  credentials: true // if you're using cookies or Authorization headers
 }));
 
 app.use(express.json());
