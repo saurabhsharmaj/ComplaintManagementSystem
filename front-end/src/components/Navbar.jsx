@@ -22,6 +22,8 @@ const Navbar = () => {
   const [Official, setOfficial] = useState(false);
   const navigate = useNavigate();
   const token = localStorage.getItem("token");
+      const userId = localStorage.getItem("userId");
+
   const handleLogout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("userId");
@@ -29,8 +31,7 @@ const Navbar = () => {
     navigate("/");
   };
   useEffect(() => {
-    if (token) {
-      const userId = localStorage.getItem("userId");
+    if (userId && token) {
       // Fetch user info from backend using the token
       fetch(API_BASE_URL + "/user/" + userId, {
         headers: {
@@ -50,7 +51,7 @@ const Navbar = () => {
       setUser(null);
       setOfficial(false);
     }
-  }, [user, token]);
+  }, [userId, token]);
   return (
     <>
       <div className="Navbar w-screen flex justify-between items-center px-4 py-2 lg:py-4 lg:px-8">
