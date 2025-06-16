@@ -4,9 +4,10 @@ import ComplaintsCard from "./ComplaintsCard";
 import { API_BASE_URL } from "@/config";
 import { BarLoader, RingLoader } from "react-spinners";
 
-const ReportedComplaints = (user) => {
+const ReportedComplaints = () => {
   const [complaints, setComplaints] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [user, setUser] = useState(null);
   const navigate = useNavigate();
   const token = localStorage.getItem("token");
   const userId = localStorage.getItem("userId");
@@ -83,7 +84,7 @@ const ReportedComplaints = (user) => {
         ) : (
           complaints &&
           complaints.map((complaint) => {
-            return <ComplaintsCard key={complaint._id} complaint={complaint} user={user.user} />;
+            return <ComplaintsCard key={complaint._id} complaint={complaint} user={user} />;
           })
         )}
       </div>
@@ -94,4 +95,4 @@ const ReportedComplaints = (user) => {
 export default ReportedComplaints;
 
 
-//okkk
+//o

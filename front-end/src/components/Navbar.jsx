@@ -142,6 +142,10 @@ const Navbar = () => {
                 Dashboard
               </Link>
               <Link
+                to={"/report"} >
+                New Complaint
+              </Link>
+              <Link
                 to={"/profile-dashboard"}
               >
                 Profile

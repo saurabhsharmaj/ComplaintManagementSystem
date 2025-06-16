@@ -24,29 +24,30 @@ import { API_BASE_URL } from "@/config";
 const ComplaintDetailModal = ({ setDialogOpen, complaint }) => {
   const [Official, setOfficial] = useState(false);
   const [comments, setComments] = useState(complaint.comments || []);
-  const [token, setToken] = useState("");
   const [CommentBoxDisabled, setCommentBoxDisabled] = useState(true);
   const [CommentFValue, setCommentFValue] = useState("");
+  const token = localStorage.getItem("token");
+  const userId = localStorage.getItem("userId");
+  console.log(complaint);
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
-    const userId = localStorage.getItem("userId");
-    setToken(token);
-
-    // Fetch user
-    fetch(`${API_BASE_URL}/user/${userId}`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    })
-      .then((res) => {
-        if (!res.ok) throw new Error("Unauthorized");
-        return res.json();
+    if (token && userId) {
+      // Fetch user
+      fetch(`${API_BASE_URL}/user/${userId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
       })
-      .then((user) => {
-        setOfficial(user.type === "admin");
-      });
-  }, []);
+        .then((res) => {
+          if (!res.ok) throw new Error("Unauthorized");
+          return res.json();
+        })
+        .then((user) => {
+          setOfficial(user.type === "admin");
+        });
+    }
+
+  }, [token, userId]);
 
   const TimeStamp = new Date(complaint.timestamp);
   const date = TimeStamp.toLocaleDateString();

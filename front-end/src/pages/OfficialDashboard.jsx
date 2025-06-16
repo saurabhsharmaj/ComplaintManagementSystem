@@ -74,10 +74,6 @@ const OfficialDashboard = () => {
       );
     }
 
-    if (selectedReason) {
-      filteredComplaints = complaints.filter((c) => c.reason === selectedReason);
-    }
-
     setFilteredComplaints(filteredComplaints);
   }, [selectedStatus, selectedReason, complaints]);
 

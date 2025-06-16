@@ -30,7 +30,7 @@ const getComplaintsByUser = async (req, res) => {
 };
 
 const getAllComplaints = async (req, res) => {
-  const complaints = await Complaint.find().select('-mediaPath.buffer').lean();
+  const complaints = await Complaint.find();
   res.json(complaints);
 };
 
