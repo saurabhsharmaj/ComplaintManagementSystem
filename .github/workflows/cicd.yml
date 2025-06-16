@@ -3,7 +3,7 @@ name: Build and Push Docker Image to DockerHub
 on:
   push:
     branches:
-      - deployment
+      - rajdeep
   pull_request:
     types: [closed]
     branches:
@@ -63,7 +63,7 @@ jobs:
           FRONTEND_CHANGED: ${{ needs.build.outputs.frontend_changed }}
           TAG: ${{ github.event.release.tag_name || 'latest' }}
         run: |
-          ssh -i application.pem -o StrictHostKeyChecking=no ec2-user@34.203.228.111 << EOF
+          ssh -i application.pem -o StrictHostKeyChecking=no ec2-user@52.203.22.153 << EOF
          
           cd /home/ec2-user/cms
           echo "IMAGE_TAG=${TAG}" > .env
