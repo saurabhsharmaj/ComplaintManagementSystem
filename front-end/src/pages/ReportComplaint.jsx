@@ -1,5 +1,4 @@
 import styled from "@emotion/styled";
-import { faCamera } from "@fortawesome/free-solid-svg-icons";
 import { LocationSearching } from "@mui/icons-material";
 import {
   Box,
@@ -14,7 +13,6 @@ import MuiTextField from "@mui/material/TextField";
 import React, { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
-import DashboardLinkButton from "../components/DashboardLinkButton";
 import Navbar from "../components/Navbar";
 import SpinnerModal from "../components/SpinnerModal";
 import { createComplaint, isOfficial } from "../utils/mongodb";
@@ -101,31 +99,48 @@ const ReportComplaint = () => {
               }, 3000);
             })
             .catch((err) => {
-              toast.error(err.message);
+              toast.error(err.message || "Failed to submit complaint");
             })
             .finally(() => {
               setLoaderVisibile(false);
             });
         }}
       >
+        {/* Hidden File Input for media */}
         <input
           required
           type="file"
           ref={FileInput}
           className="opacity-0"
-          accept="image/*, video/*"
+          accept="image/*,video/*"
+          capture="environment" // Enables live capture via back camera on mobile
           onChange={(e) => {
             const file = e.target.files[0];
             if (!file) return;
+
+            const fileType = file.type.split("/")[0];
+            if (!["image", "video"].includes(fileType)) {
+              toast.error("Invalid file type selected.");
+              return;
+            }
+
             setMedia(file);
-            setFormData({
-              ...FormData,
-              mediaType: file.type.split("/")[0],
-            });
-            setMediaPath(URL.createObjectURL(file));
+            setFormData((prev) => ({
+              ...prev,
+              mediaType: fileType,
+            }));
+
+            try {
+              const objectURL = URL.createObjectURL(file);
+              setMediaPath(objectURL);
+            } catch (error) {
+              toast.error("Could not process selected file.");
+              console.error(error);
+            }
           }}
         />
 
+        {/* Upload Trigger */}
         <div
           onClick={() => FileInput.current.click()}
           className="p-4 m-4 bg-slate-300 inline-flex justify-center items-center cursor-pointer font-bold"
@@ -133,29 +148,30 @@ const ReportComplaint = () => {
           IMAGE +
         </div>
 
-        <div
-          className={`flex flex-col justify-center items-center mx-8 lg:mx-20 py-6 ${Media ? "block" : "hidden"
-            }`}
-        >
-          {FormData.mediaType === "image" && (
-            <img
-              src={MediaPath}
-              alt="Selected"
-              className="max-w-full w-auto my-6 h-96 object-scale-down"
-            />
-          )}
-          {FormData.mediaType === "video" && (
-            <video
-              controls
-              src={MediaPath}
-              className="max-w-full w-auto my-6 h-96 object-scale-down"
-            ></video>
-          )}
-          <Button onClick={() => FileInput.current.click()} variant="outlined">
-            Change Media
-          </Button>
-        </div>
+        {/* Media Preview */}
+        {Media && (
+          <div className="flex flex-col justify-center items-center mx-8 lg:mx-20 py-6">
+            {FormData.mediaType === "image" && (
+              <img
+                src={MediaPath}
+                alt="Selected"
+                className="max-w-full w-auto my-6 h-96 object-scale-down"
+              />
+            )}
+            {FormData.mediaType === "video" && (
+              <video
+                controls
+                src={MediaPath}
+                className="max-w-full w-auto my-6 h-96 object-scale-down"
+              />
+            )}
+            <Button onClick={() => FileInput.current.click()} variant="outlined">
+              Change Media
+            </Button>
+          </div>
+        )}
 
+        {/* Form Fields */}
         <Box ml="8vw">
           <TextField
             variant="outlined"
