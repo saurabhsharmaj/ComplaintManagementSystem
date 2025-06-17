@@ -1,5 +1,14 @@
 import React, { useState, useRef } from 'react';
-import { Button, Box, TextField, FormControlLabel, Checkbox, RadioGroup, Radio, ButtonBase } from '@mui/material';
+import {
+  Button,
+  Box,
+  TextField,
+  FormControlLabel,
+  Checkbox,
+  RadioGroup,
+  Radio,
+  ButtonBase,
+} from '@mui/material';
 import { LocationSearching } from '@mui/icons-material';
 import { ToastContainer, toast } from 'react-toastify';
 import { useNavigate } from 'react-router-dom';
@@ -12,7 +21,7 @@ const ReportComplaint = () => {
   const [formData, setFormData] = useState({
     location: {
       type: 'Point',
-      coordinates: [0, 0], // Default coordinates
+      coordinates: [0, 0],
       name: '',
     },
     reason: '',
@@ -22,6 +31,7 @@ const ReportComplaint = () => {
     status: Statuses.inProgress,
     mediaPath: '',
   });
+
   const [media, setMedia] = useState(null);
   const [mediaPath, setMediaPath] = useState('');
   const [loaderVisible, setLoaderVisible] = useState(false);
@@ -71,14 +81,34 @@ const ReportComplaint = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+
+    // Manual validation
+    if (!media) {
+      toast.error('Please upload an image or video.');
+      return;
+    }
+
+    if (!formData.location.name) {
+      toast.error('Please select your location.');
+      return;
+    }
+
+    if (!formData.reason) {
+      toast.error('Please select a reason.');
+      return;
+    }
+
+    if (!formData.additionalInfo.trim()) {
+      toast.error('Please provide additional information.');
+      return;
+    }
+
     setLoaderVisible(true);
 
     createComplaint(formData, media)
       .then(() => {
         toast.success('Complaint Reported Successfully');
-        setTimeout(() => {
-          navigate('/citizen-dashboard');
-        }, 3000);
+        setTimeout(() => navigate('/citizen-dashboard'), 3000);
       })
       .catch((err) => {
         toast.error(err.message || 'Failed to submit complaint');
@@ -96,14 +126,13 @@ const ReportComplaint = () => {
         Report a Complaint
       </h2>
 
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={handleSubmit} noValidate>
         <input
-          required
           type="file"
           ref={fileInput}
-          className="opacity-0"
           accept="image/*,video/*"
           capture="environment"
+          style={{ display: 'none' }}
           onChange={handleFileChange}
         />
 
@@ -111,7 +140,7 @@ const ReportComplaint = () => {
           onClick={() => fileInput.current.click()}
           className="p-4 m-4 bg-slate-300 inline-flex justify-center items-center cursor-pointer font-bold"
         >
-          IMAGE +
+          Upload Image/Video +
         </div>
 
         {media && (
@@ -130,10 +159,10 @@ const ReportComplaint = () => {
 
         <Box ml="8vw">
           <TextField
+            fullWidth
             variant="outlined"
             label="Location"
             value={formData.location.name}
-            required
             InputProps={{
               readOnly: true,
               endAdornment: (
@@ -161,21 +190,19 @@ const ReportComplaint = () => {
           <p className="my-2">More Information</p>
           <TextField
             type="text"
+            fullWidth
             required
             multiline
             value={formData.additionalInfo}
             onChange={(e) => setFormData((prev) => ({ ...prev, additionalInfo: e.target.value }))}
             rows={5}
             placeholder="Provide more information about the incident"
-            inputProps={{
-              pattern: ".*",
-            }}
           />
 
           <FormControlLabel
             required
             control={<Checkbox />}
-            label="By clicking this checkbox, I understand that reporting fake complaints against anyone may lead to legal actions against me."
+            label="By clicking this checkbox, I understand that reporting fake complaints may lead to legal action."
           />
         </Box>
 
