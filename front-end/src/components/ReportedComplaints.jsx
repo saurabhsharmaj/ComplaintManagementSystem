@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import ComplaintsCard from "./ComplaintsCard";
 import { API_BASE_URL } from "@/config";
-import { RingLoader } from "react-spinners";
+import SpinnerModal from "./SpinnerModal"; // ✅ Use your modal spinner component
 
 const ReportedComplaints = () => {
   const [complaints, setComplaints] = useState(null);
@@ -70,33 +70,32 @@ const ReportedComplaints = () => {
     setComplaints(updatedComplaints);
   };
 
-  if (loading) {
-    return (
-      <div className="w-full h-[60vh] flex justify-center items-center">
-        <RingLoader />
-      </div>
-    );
-  }
-
   return (
     <div className="lg:border lg:shadow-[3px_4px_4px_rgba(0,0,0,0.26)] rounded-lg lg:border-solid lg:border-black w-full flex flex-col items-center lg:h-[28rem] py-2">
       <h3 className="font-bold my-2">Complaints Reported by You</h3>
-      <div className="container px-4 overflow-y-auto">
-        {complaints && complaints.length === 0 ? (
-          <h2>No Complaints Found #</h2>
-        ) : (
-          complaints &&
-          complaints.map((complaint) => (
-            <ComplaintsCard key={complaint._id} complaint={complaint} user={user} />
-          ))
-        )}
-      </div>
+
+      {/* Spinner while loading */}
+      <SpinnerModal visible={loading} />
+
+      {/* Complaint List */}
+      {!loading && (
+        <div className="container px-4 overflow-y-auto">
+          {complaints && complaints.length === 0 ? (
+            <h2>No Complaints Found #</h2>
+          ) : (
+            complaints &&
+            complaints.map((complaint) => (
+              <ComplaintsCard
+                key={complaint._id}
+                complaint={complaint}
+                user={user}
+              />
+            ))
+          )}
+        </div>
+      )}
     </div>
   );
 };
 
 export default ReportedComplaints;
-
-
-
-//ok

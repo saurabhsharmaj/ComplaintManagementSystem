@@ -1,4 +1,3 @@
-import { RingLoader } from "react-spinners";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
@@ -6,13 +5,12 @@ import SpinnerModal from "../components/SpinnerModal";
 import { fetchUsers, fetchComplaints } from "../utils/mongodb";
 import { API_BASE_URL } from "@/config";
 import ComplaintsCard from "../components/ComplaintsCard";
-import DashboardLinkButton from "../components/DashboardLinkButton";
 
 const OfficialDashboard = () => {
   const [users, setUsers] = useState([]);
   const [complaints, setComplaints] = useState([]);
   const [filteredComplaints, setFilteredComplaints] = useState([]);
-  const [spinnerVisible, setSpinnerVisible] = useState(false);
+  const [spinnerVisible, setSpinnerVisible] = useState(true); // Spinner starts visible
   const [inProgress, setInProgress] = useState(0);
   const [solved, setSolved] = useState(0);
   const [rejected, setRejected] = useState(0);
@@ -30,6 +28,8 @@ const OfficialDashboard = () => {
       return;
     }
 
+    setSpinnerVisible(true); // Start spinner
+
     fetch(`${API_BASE_URL}/user/${userId}`, {
       method: "GET",
       headers: {
@@ -44,8 +44,13 @@ const OfficialDashboard = () => {
         if (user?.type !== "admin") {
           navigate("/citizen-dashboard");
         } else {
-          fetchComplaints(token).then(handleComplaintsUpdate);
-          fetchUsers(token).then(setUsers);
+          Promise.all([
+            fetchComplaints(token).then((data) => {
+              handleComplaintsUpdate(data);
+            }),
+            fetchUsers(token).then(setUsers),
+          ])
+            .finally(() => setSpinnerVisible(false)); // Stop spinner when both are done
         }
       })
       .catch((err) => {
@@ -65,7 +70,6 @@ const OfficialDashboard = () => {
       .catch((err) => console.error("Summary fetch error:", err));
   }, []);
 
-  // ✅ Filter complaints based on selectedStatus and selectedReason
   useEffect(() => {
     let filtered = [...complaints];
 
@@ -96,12 +100,11 @@ const OfficialDashboard = () => {
   };
 
   const getUser = (userId) => {
-    const fetchUser = users.find((user) => user._id === userId) || {
+    return users.find((user) => user._id === userId) || {
       name: "Unknown User",
       mobile: "N/A",
       mediaPath: { buffer: null },
     };
-    return fetchUser;
   };
 
   return (
@@ -134,8 +137,7 @@ const OfficialDashboard = () => {
             return (
               <div
                 key={status.value}
-                className={`flex-1 min-w-[120px] ${bgColor} ${textColor} p-4 rounded-lg shadow text-center cursor-pointer transition ${hoverColor} ring-1 ring-inset ${isActive ? "ring-black/50" : "ring-transparent"
-                  }`}
+                className={`flex-1 min-w-[120px] ${bgColor} ${textColor} p-4 rounded-lg shadow text-center cursor-pointer transition ${hoverColor} ring-1 ring-inset ${isActive ? "ring-black/50" : "ring-transparent"}`}
                 onClick={() =>
                   setSelectedStatus((prev) =>
                     prev === status.value ? "" : status.value
@@ -184,12 +186,12 @@ const OfficialDashboard = () => {
           </select>
         </div>
 
-        {/* Complaint Cards */}
-        {complaints.length === 0 ? (
+        {/* Complaint Cards or Spinner */}
+        {spinnerVisible ? (
           <div className="w-full h-[60vh] flex justify-center items-center">
-            <SpinnerModal visible={spinnerVisible} />
+            {/* <SpinnerModal visible={spinnerVisible} /> */}
           </div>
-        ) : (
+        ) : filteredComplaints.length > 0 ? (
           filteredComplaints.map((complaint) => (
             <ComplaintsCard
               key={complaint._id}
@@ -197,6 +199,10 @@ const OfficialDashboard = () => {
               user={getUser(complaint.reportedBy)}
             />
           ))
+        ) : (
+          <div className="text-center text-gray-500 mt-8">
+            No complaints to display.
+          </div>
         )}
       </div>
     </>
