@@ -13,12 +13,25 @@ const {
   getStatusSummary,
 } = require("../controllers/complaint.controller");
 
-router.post("/complaint", verifyToken, upload.single("media"), createComplaint);
-router.get("/complaints/user/:id", verifyToken, getComplaintsByUser);
-router.get("/complaints", verifyToken, getAllComplaints);
-router.post("/complaint/:id/comment", verifyToken, addComment);
-router.post("/complaint/:id/solved", verifyToken, markSolved);
-router.post("/complaint/:id/rejected", verifyToken, markRejected);
-router.get("/complaints/status-summary", verifyToken, getStatusSummary);
+// POST /complaints              → create new
+router.post("/", verifyToken, upload.single("media"), createComplaint);
+
+// GET /complaints/user/:id      → get user's complaints
+router.get("/user/:id", verifyToken, getComplaintsByUser);
+
+// GET /complaints               → get all
+router.get("/", verifyToken, getAllComplaints);
+
+// POST /complaints/:id/comment  → add comment
+router.post("/:id/comment", verifyToken, addComment);
+
+// POST /complaints/:id/solved   → mark as solved
+router.post("/:id/solved", verifyToken, markSolved);
+
+// POST /complaints/:id/rejected → mark as rejected
+router.post("/:id/rejected", verifyToken, markRejected);
+
+// GET /complaints/status-summary → status breakdown
+router.get("/status-summary", verifyToken, getStatusSummary);
 
 module.exports = router;

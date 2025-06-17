@@ -2,6 +2,7 @@ const router = require("express").Router();
 const multer = require("multer");
 const upload = multer({ storage: multer.memoryStorage() });
 const verifyToken = require("../middleware/auth.middleware");
+
 const {
   registerUser,
   loginUser,
@@ -12,13 +13,16 @@ const {
   getCurrentUser,
 } = require("../controllers/user.controller");
 
+// Public routes
 router.post("/register", registerUser);
 router.post("/login", loginUser);
-router.post("/user/:id", verifyToken, upload.single("media"), updateUser);
-router.get("/users", verifyToken, getAllUsers);
-router.get("/user/:id", verifyToken, getUserById);
-router.get("/users/verifyToken/:id", verifyToken, getUserById);
-router.get("/user/isOfficial/:id", verifyToken, isOfficial);
-router.get("/user/currentUser", verifyToken, getCurrentUser);
+
+// Protected routes
+router.post("/update/:id", verifyToken, upload.single("media"), updateUser);
+router.get("/", verifyToken, getAllUsers);
+router.get("/:id", verifyToken, getUserById);
+router.get("/verifyToken/:id", verifyToken, getUserById);
+router.get("/isOfficial/:id", verifyToken, isOfficial);
+router.get("/currentUser", verifyToken, getCurrentUser);
 
 module.exports = router;
