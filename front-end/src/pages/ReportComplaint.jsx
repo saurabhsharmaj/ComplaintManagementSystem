@@ -8,7 +8,7 @@ import {
   Checkbox,
   FormControlLabel,
   Radio,
-  RadioGroup
+  RadioGroup,
 } from "@mui/material";
 import MuiTextField from "@mui/material/TextField";
 import React, { useEffect, useRef, useState } from "react";
@@ -22,12 +22,13 @@ import { identifyLocation } from "../utils/MiscFunctions";
 import { Statuses } from "../utils/enums";
 import { API_BASE_URL } from "@/config";
 
-const TextField = styled(MuiTextField)((props) => ({
+const TextField = styled(MuiTextField)(() => ({
   width: "80%",
-  [`& fieldset`]: {
+  "& fieldset": {
     borderRadius: "15px",
   },
 }));
+
 const ReportComplaint = () => {
   const [Media, setMedia] = useState();
   const [MediaPath, setMediaPath] = useState("");
@@ -49,6 +50,7 @@ const ReportComplaint = () => {
   const [LoaderVisibile, setLoaderVisibile] = useState(false);
   const FileInput = useRef(null);
   const navigate = useNavigate();
+
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (!token) {
@@ -57,21 +59,21 @@ const ReportComplaint = () => {
     }
     setToken(token);
     const userId = localStorage.getItem("userId");
-    // Fetch user details
-    fetch(API_BASE_URL + "/user/" + userId, {
+
+    fetch(`${API_BASE_URL}/user/${userId}`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
-    }).then((user) => {
-
-      if (!user || !isOfficial(user.uid)) {
-        return navigate("/");
-      }
-      setFormData({ ...FormData, reportedBy: userId });
-    });
-
-
+    })
+      .then((res) => res.json())
+      .then((user) => {
+        if (!user || !isOfficial(user.uid)) {
+          return navigate("/");
+        }
+        setFormData((prev) => ({ ...prev, reportedBy: userId }));
+      });
   }, []);
+
   return (
     <div className="overflow-x-hidden">
       <SpinnerModal visible={LoaderVisibile} />
@@ -80,15 +82,10 @@ const ReportComplaint = () => {
         position="bottom-center"
         autoClose={5000}
         hideProgressBar
-        newestOnTop={false}
-        closeOnClick
-        rtl={false}
-        pauseOnFocusLoss
-        draggable
         pauseOnHover
         theme="light"
       />
-      <h2 className=" lg:mt-10 leading-normal font-bold text-center text-xl lg:text-[2rem] my-6 lg:text-left lg:mx-20">
+      <h2 className="lg:mt-10 leading-normal font-bold text-center text-xl lg:text-[2rem] my-6 lg:text-left lg:mx-20">
         Report a Complaint
       </h2>
 
@@ -98,16 +95,16 @@ const ReportComplaint = () => {
           setLoaderVisibile(true);
           createComplaint(FormData, Media, token)
             .then(() => {
-              toast.success("Complaint Reported Succesfully");
+              toast.success("Complaint Reported Successfully");
               setTimeout(() => {
                 navigate("/citizen-dashboard");
               }, 3000);
             })
-            .finally(() => {
-              setLoaderVisibile(false);
-            })
             .catch((err) => {
               toast.error(err.message);
+            })
+            .finally(() => {
+              setLoaderVisibile(false);
             });
         }}
       >
@@ -118,65 +115,63 @@ const ReportComplaint = () => {
           className="opacity-0"
           accept="image/*, video/*"
           onChange={(e) => {
-            setMedia(e.target.files[0]);
+            const file = e.target.files[0];
+            if (!file) return;
+            setMedia(file);
             setFormData({
               ...FormData,
-              mediaType: e.target.files[0].type.split("/")[0],
+              mediaType: file.type.split("/")[0],
             });
-            setMediaPath(URL.createObjectURL(e.target.files[0]));
+            setMediaPath(URL.createObjectURL(file));
           }}
-          name=""
-          id=""
         />
-        <div onClick={() => FileInput.current.click()} className="p-4 m-4 bg-slate-300 inline-flex justify-center items-center cursor-pointer text-bold">
+
+        <div
+          onClick={() => FileInput.current.click()}
+          className="p-4 m-4 bg-slate-300 inline-flex justify-center items-center cursor-pointer font-bold"
+        >
           IMAGE +
         </div>
-        {/* <DashboardLinkButton
-          className={`${Media ? "hidden" : "block"} mx-[8vw]`}
-          icon={faCamera}
-          name={"Upload a picture/video of incident"}
-          onClick={() => FileInput.current.click()}
-          subtitle={"Make sure that everything is clear"}
-        /> */}
+
         <div
           className={`flex flex-col justify-center items-center mx-8 lg:mx-20 py-6 ${Media ? "block" : "hidden"
             }`}
         >
-          <img
-            src={Media && FormData.mediaType === "image" ? MediaPath : null}
-            alt=""
-            className={`max-w-full w-auto my-6 h-96 object-scale-down
-          ${Media && FormData.mediaType == "image" ? "block" : "hidden"}
-          `}
-          />
-          <video
-            controls
-            src={Media && FormData.mediaType === "video" ? MediaPath : null}
-            className={`max-w-full w-auto my-6 h-96 object-scale-down
-          ${Media && FormData.mediaType == "video" ? "block" : "hidden"}
-          `}
-          ></video>
-          <Button
-            onClick={() => FileInput.current.click()}
-            hidden={Media ? false : true}
-            variant="outlined"
-          >
-            Change Image
+          {FormData.mediaType === "image" && (
+            <img
+              src={MediaPath}
+              alt="Selected"
+              className="max-w-full w-auto my-6 h-96 object-scale-down"
+            />
+          )}
+          {FormData.mediaType === "video" && (
+            <video
+              controls
+              src={MediaPath}
+              className="max-w-full w-auto my-6 h-96 object-scale-down"
+            ></video>
+          )}
+          <Button onClick={() => FileInput.current.click()} variant="outlined">
+            Change Media
           </Button>
         </div>
-        <Box ml={'8vw'}>
+
+        <Box ml="8vw">
           <TextField
             variant="outlined"
             label="Location"
             value={FormData.location.name}
-            //required
-            contentEditable={false}
+            required
             InputProps={{
+              readOnly: true,
               endAdornment: (
                 <ButtonBase
                   onClick={async () => {
-                    let locationRes = await identifyLocation();
-                    setFormData({ ...FormData, location: locationRes });
+                    const locationRes = await identifyLocation();
+                    setFormData((prev) => ({
+                      ...prev,
+                      location: locationRes,
+                    }));
                   }}
                 >
                   <LocationSearching />
@@ -184,11 +179,12 @@ const ReportComplaint = () => {
               ),
             }}
           />
+
           <p className="mt-6">Reason:</p>
           <RadioGroup
-            onChange={(e) => {
-              setFormData({ ...FormData, reason: e.target.value });
-            }}
+            onChange={(e) =>
+              setFormData((prev) => ({ ...prev, reason: e.target.value }))
+            }
             value={FormData.reason}
           >
             <FormControlLabel
@@ -226,26 +222,30 @@ const ReportComplaint = () => {
               control={<Radio />}
               label="Others"
             />
-
           </RadioGroup>
+
           <p className="my-2">More Information</p>
           <TextField
             required
             multiline
             value={FormData.additionalInfo}
-            onChange={(e) => {
-              setFormData({ ...FormData, additionalInfo: e.target.value });
-            }}
+            onChange={(e) =>
+              setFormData((prev) => ({
+                ...prev,
+                additionalInfo: e.target.value,
+              }))
+            }
             rows={5}
             placeholder="Provide more information about the incident"
           />
+
           <FormControlLabel
             required
-            value="terms-accepted"
             control={<Checkbox />}
-            label="By clicking this checkbox, I understood that reporting fake complaints against anyone will lead to legal actions against me."
+            label="By clicking this checkbox, I understand that reporting fake complaints against anyone may lead to legal actions against me."
           />
         </Box>
+
         <div className="flex justify-center my-8 px-40 lg:px-96">
           <Button variant="contained" fullWidth type="submit">
             Submit
