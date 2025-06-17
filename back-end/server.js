@@ -2,8 +2,8 @@ const express = require("express");
 const cors = require("cors");
 const connectDB = require("./db");
 const s3 = require("./routes/s3.route");
-const userRoutes = require("./routes/user.route");
-const complaintRoutes = require("./routes/complaint.route");
+const userRoutes = require("./routes/user.route.js");
+const complaintRoutes = require("./routes/complaint.route.js");
 require("dotenv").config();
 
 const app = express();

@@ -1,4 +1,4 @@
-const router = require("express").Router();
+import { Router } from "express";
 const multer = require("multer");
 const upload = multer({ storage: multer.memoryStorage() });
 const verifyToken = require("../middleware/auth.middleware");
@@ -12,6 +12,10 @@ const {
   markRejected,
   getStatusSummary,
 } = require("../controllers/complaint.controller");
+
+const router = Router();
+
+
 
 router.post("/complaint", verifyToken, upload.single("media"), createComplaint);
 router.get("/complaints/user/:id", verifyToken, getComplaintsByUser);

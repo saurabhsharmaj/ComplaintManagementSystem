@@ -1,28 +1,37 @@
 const Complaint = require("../models/complaint.model");
 
+
 const createComplaint = async (req, res) => {
   try {
-    const { reason, additionalInfo, status, mediaType, location } = req.body;
-    const parsedLocation = JSON.parse(location);
+    const { reason, additionalInfo, status, reportedBy, location, mediaType } = req.body;
 
-    const complaint = new Complaint({
-      location: parsedLocation,
-      mediaType,
+    const complaintData = {
       reason,
       additionalInfo,
       status,
-      reportedBy: req.body.reportedBy || req.userId,
-      timestamp: Date.now(),
-      mediaPath: req.file,
-      comments: [],
-    });
+      reportedBy,
+      location: {
+        type: 'Point',
+        coordinates: location.coordinates,
+        name: location.name,
+      },
+      mediaType,
+    };
 
+    if (req.file) {
+      complaintData.mediaPath = req.file.path;
+    }
+
+    const complaint = new Complaint(complaintData);
     await complaint.save();
-    res.json(complaint);
-  } catch (err) {
-    res.status(500).json({ error: "Something went wrong" });
+
+    res.status(201).json({ message: 'Complaint reported successfully', complaint });
+  } catch (error) {
+    console.error('Error creating complaint:', error);
+    res.status(500).json({ message: 'Failed to create complaint', error });
   }
 };
+
 
 const getComplaintsByUser = async (req, res) => {
   const complaints = await Complaint.find({ reportedBy: req.params.id });
