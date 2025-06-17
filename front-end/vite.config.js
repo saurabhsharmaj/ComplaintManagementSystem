@@ -1,15 +1,11 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import { VitePWA } from "vite-plugin-pwa";
+import path from "path";
 
-import path from 'path';
-
-
-// https://vitejs.dev/config/
 const manifestForPlugin = {
   registerType: "prompt",
   includeAssets: [
-    "logo.png",
     "logo.png",
     "maskable_iconx48.png",
     "maskable_iconx72.png",
@@ -85,12 +81,12 @@ const manifestForPlugin = {
   },
 };
 
-
 export default defineConfig({
-  base: './', // ← important fix
+  // DO NOT use './' — use '/' for clean absolute paths in Nginx
+  base: '/',
   plugins: [react(), VitePWA(manifestForPlugin)],
   build: {
-    outDir: "dist",  // optional if default
+    outDir: "dist",
     target: "es2022",
   },
   resolve: {
@@ -99,4 +95,3 @@ export default defineConfig({
     },
   },
 });
-

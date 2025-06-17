@@ -231,7 +231,7 @@ const ReportComplaint = () => {
           <p className="my-2">More Information</p>
           <TextField
             required
-
+            multiline
             value={FormData.additionalInfo}
             onChange={(e) => {
               setFormData({ ...FormData, additionalInfo: e.target.value });
