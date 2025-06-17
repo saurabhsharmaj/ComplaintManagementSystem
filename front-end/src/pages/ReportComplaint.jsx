@@ -1,5 +1,14 @@
 import React, { useState, useRef } from 'react';
-import { Button, Box, TextField, FormControlLabel, Checkbox, RadioGroup, Radio, ButtonBase } from '@mui/material';
+import {
+  Button,
+  Box,
+  TextField,
+  FormControlLabel,
+  Checkbox,
+  RadioGroup,
+  Radio,
+  ButtonBase,
+} from '@mui/material';
 import { LocationSearching } from '@mui/icons-material';
 import { ToastContainer, toast } from 'react-toastify';
 import { useNavigate } from 'react-router-dom';
@@ -12,7 +21,7 @@ const ReportComplaint = () => {
   const [formData, setFormData] = useState({
     location: {
       type: 'Point',
-      coordinates: [0, 0], // Default coordinates
+      coordinates: [0, 0],
       name: '',
     },
     reason: '',
@@ -22,6 +31,7 @@ const ReportComplaint = () => {
     status: Statuses.inProgress,
     mediaPath: '',
   });
+
   const [media, setMedia] = useState(null);
   const [mediaPath, setMediaPath] = useState('');
   const [loaderVisible, setLoaderVisible] = useState(false);
@@ -45,7 +55,7 @@ const ReportComplaint = () => {
   };
 
   const handleFileChange = (e) => {
-    const file = e.target.files[0];
+    const file = e.target.files?.[0];
     if (!file) return;
 
     const fileType = file.type.split('/')[0];
@@ -69,8 +79,24 @@ const ReportComplaint = () => {
     }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+
+    if (!formData.location.name) {
+      toast.error('Please select a location.');
+      return;
+    }
+
+    if (!formData.reason) {
+      toast.error('Please select a reason.');
+      return;
+    }
+
+    if (!formData.additionalInfo.trim()) {
+      toast.error('Please provide more information.');
+      return;
+    }
+
     setLoaderVisible(true);
 
     createComplaint(formData, media)
@@ -108,7 +134,7 @@ const ReportComplaint = () => {
         />
 
         <div
-          onClick={() => fileInput.current.click()}
+          onClick={() => fileInput.current?.click()}
           className="p-4 m-4 bg-slate-300 inline-flex justify-center items-center cursor-pointer font-bold"
         >
           IMAGE +
@@ -122,18 +148,21 @@ const ReportComplaint = () => {
             {formData.mediaType === 'video' && (
               <video controls src={mediaPath} className="max-w-full w-auto my-6 h-96 object-scale-down" />
             )}
-            <Button onClick={() => fileInput.current.click()} variant="outlined">
+            <Button onClick={() => fileInput.current?.click()} variant="outlined">
               Change Media
             </Button>
           </div>
         )}
 
-        <Box ml="8vw">
+        <Box ml="8vw" mr="8vw">
           <TextField
             variant="outlined"
             label="Location"
             value={formData.location.name}
             required
+            inputProps={{ pattern: '.*' }}
+            fullWidth
+            margin="normal"
             InputProps={{
               readOnly: true,
               endAdornment: (
@@ -144,7 +173,7 @@ const ReportComplaint = () => {
             }}
           />
 
-          <p className="mt-6">Reason:</p>
+          <p className="mt-6 font-semibold">Reason:</p>
           <RadioGroup
             onChange={(e) => setFormData((prev) => ({ ...prev, reason: e.target.value }))}
             value={formData.reason}
@@ -158,13 +187,14 @@ const ReportComplaint = () => {
             <FormControlLabel value="Others" control={<Radio />} label="Others" />
           </RadioGroup>
 
-          <p className="my-2">More Information</p>
+          <p className="my-2 font-semibold">More Information</p>
           <TextField
             required
+            fullWidth
             multiline
+            rows={5}
             value={formData.additionalInfo}
             onChange={(e) => setFormData((prev) => ({ ...prev, additionalInfo: e.target.value }))}
-            rows={5}
             placeholder="Provide more information about the incident"
           />
 
@@ -172,10 +202,11 @@ const ReportComplaint = () => {
             required
             control={<Checkbox />}
             label="By clicking this checkbox, I understand that reporting fake complaints against anyone may lead to legal actions against me."
+            className="my-4"
           />
         </Box>
 
-        <div className="flex justify-center my-8 px-40 lg:px-96">
+        <div className="flex justify-center my-8 px-6 lg:px-96">
           <Button variant="contained" fullWidth type="submit">
             Submit
           </Button>
