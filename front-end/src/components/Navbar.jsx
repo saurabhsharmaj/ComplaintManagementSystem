@@ -4,7 +4,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import MuiButton from "@mui/material/Button";
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import Logo from "../assets/logo1.jpg"
+import Logo from "../assets/logo1.png"
 import { API_BASE_URL } from "@/config";
 
 export const Button = styled(MuiButton)((props) => ({
