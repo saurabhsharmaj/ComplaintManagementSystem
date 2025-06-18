@@ -4,7 +4,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import MuiButton from "@mui/material/Button";
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import Logo from "/src/assets/logo.png";
+import Logo from "../assets/logo1.jpg"
 import { API_BASE_URL } from "@/config";
 
 export const Button = styled(MuiButton)((props) => ({
@@ -151,6 +151,12 @@ const Navbar = () => {
                 Profile
               </Link>
               <Link onClick={handleLogout}>Logout</Link>{" "}
+
+              <Link
+                to={"https://8bit.co.in/"}
+              >
+                Developed By : 8bit System Private Limited
+              </Link>
             </>
           ) : (
             <>

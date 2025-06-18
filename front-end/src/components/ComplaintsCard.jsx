@@ -6,7 +6,7 @@ import ComplaintDetailModal from "./ComplaintDetailModal";
 import imageCompression from "browser-image-compression";
 import { Statuses, statusColors } from "../utils/enums";
 
-const ComplaintsCard = ({ complaint, user }) => {
+const ComplaintsCard = ({ complaint, user, index }) => {
   const [DialogOpen, setDialogOpen] = useState(false);
   const [compressedImage, setCompressedImage] = useState(null);
   const date = new Date(complaint.timestamp);
@@ -20,15 +20,13 @@ const ComplaintsCard = ({ complaint, user }) => {
     const compressImage = async () => {
       if (user?.mediaPath?.buffer) {
         try {
-          // Decode base64 buffer to binary
           const binary = atob(user.mediaPath.buffer);
           const array = Uint8Array.from(binary, (char) => char.charCodeAt(0));
           const blob = new Blob([array], { type: "image/png" });
 
-          // Compress the image
           const options = {
-            maxSizeMB: 0.1, // < 100KB
-            maxWidthOrHeight: 300, // Resize to smaller dimensions
+            maxSizeMB: 0.1,
+            maxWidthOrHeight: 300,
             useWebWorker: true,
           };
 
@@ -65,6 +63,9 @@ const ComplaintsCard = ({ complaint, user }) => {
       >
         <div className="flex items-center gap-8">
           <div className="flex flex-col items-center">
+            <span className="text-sm font-bold mb-1">
+              SVVS#{index + 1}
+            </span>
             <img
               src={compressedImage || "/default-avatar.png"}
               alt="User"
@@ -72,12 +73,11 @@ const ComplaintsCard = ({ complaint, user }) => {
             />
             <p className="font-bold text-sm mt-2">{user.name}</p>
           </div>
+
           <div>
             <span>Reported Date: {date.toLocaleDateString("en-IN")}</span>
             <p className="text-xs text-gray-600">{user.mobile}</p>
-            <p className="font-semibold">
-              <span className="text-gray-800">{complaint.reason}</span>
-            </p>
+            <p className="font-semibold text-gray-800">{complaint.reason}</p>
             <div className="flex items-center gap-2">
               <FontAwesomeIcon icon={faMapMarkerAlt} />
               <span>{complaint.location?.name}</span>
@@ -86,14 +86,19 @@ const ComplaintsCard = ({ complaint, user }) => {
         </div>
 
         <div className="flex flex-col justify-between text-sm">
-          <span
-            className="cursor-pointer font-semibold text-blue-600 hover:underline flex justify-end"
-            onClick={() => setDialogOpen(true)}
-          >
-            Detailed View
-          </span>
+          <div className="flex flex-row gap-5">
+
+            {/* <span className="text-sm font-bold mb-1">
+              SVVS#{index + 1}
+            </span> */}
+            <span
+              className="cursor-pointer font-semibold text-blue-600 hover:underline flex justify-end"
+              onClick={() => setDialogOpen(true)}
+            >
+              Detailed View
+            </span>
+          </div>
           <div className="font-bold flex items-center gap-1">
-            Status:
             <span style={{ color: statusColor }}>{complaint.status}</span>
           </div>
         </div>
