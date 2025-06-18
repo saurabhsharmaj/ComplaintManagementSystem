@@ -99,9 +99,9 @@ const ReportComplaint = () => {
           createComplaint(FormData, Media, token)
             .then(() => {
               toast.success("Complaint Reported Succesfully");
-              // setTimeout(() => {
-              //   // navigate("/citizen-dashboard");
-              // }, 3000);
+              setTimeout(() => {
+                navigate("/citizen-dashboard");
+              }, 90000);
             })
             .finally(() => {
               setLoaderVisibile(false);
