@@ -41,12 +41,12 @@ const complaintSchema = new Schema({
     trim: true
   },
   comments: [
-  {
-    author: { type: String, required: true, trim: true }, // could be userId or name
-    text: { type: String, required: true },
-    timestamp: { type: Date, default: Date.now }
-  }
-]
+    {
+      author: { type: String, required: true, trim: true }, // could be userId or name
+      text: { type: String, required: true },
+      timestamp: { type: Date, default: Date.now }
+    }
+  ]
 }, {
   timestamps: true // adds createdAt and updatedAt
 });
