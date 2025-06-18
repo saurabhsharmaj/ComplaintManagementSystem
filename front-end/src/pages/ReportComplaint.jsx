@@ -52,7 +52,7 @@ const ReportComplaint = () => {
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (!token) {
-      navigate("/citizen-login");
+      // navigate("/citizen-login");
       return;
     }
     setToken(token);
@@ -99,9 +99,9 @@ const ReportComplaint = () => {
           createComplaint(FormData, Media, token)
             .then(() => {
               toast.success("Complaint Reported Succesfully");
-              setTimeout(() => {
-                navigate("/citizen-dashboard");
-              }, 3000);
+              // setTimeout(() => {
+              //   // navigate("/citizen-dashboard");
+              // }, 3000);
             })
             .finally(() => {
               setLoaderVisibile(false);
