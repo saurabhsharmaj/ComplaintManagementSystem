@@ -66,6 +66,7 @@ const Navbar = () => {
 
             <Button
               component={Link}
+              user={user}
               to={`/report`}
               variant="outlined"
             >

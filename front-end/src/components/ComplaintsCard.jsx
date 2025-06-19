@@ -64,7 +64,7 @@ const ComplaintsCard = ({ complaint, user, index }) => {
         <div className="flex items-center gap-8">
           <div className="flex flex-col items-center">
             <span className="text-sm font-bold mb-1">
-              SVVS#{index + 1}
+              {complaint.code}
             </span>
             <img
               src={compressedImage || "/default-avatar.png"}
@@ -88,9 +88,7 @@ const ComplaintsCard = ({ complaint, user, index }) => {
         <div className="flex flex-col justify-between text-sm">
           <div className="flex flex-row gap-5">
 
-            {/* <span className="text-sm font-bold mb-1">
-              SVVS#{index + 1}
-            </span> */}
+           
             <span
               className="cursor-pointer font-semibold text-blue-600 hover:underline flex justify-end"
               onClick={() => setDialogOpen(true)}
