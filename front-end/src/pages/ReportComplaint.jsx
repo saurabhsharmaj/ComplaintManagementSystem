@@ -69,6 +69,24 @@ const ReportComplaint = () => {
     });
   }, []);
 
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    // Check file size (100 KB = 102400 bytes)
+    if (file.size > 102400) {
+      toast.error("Image size must be less than 100 KB");
+      return;
+    }
+
+    setMedia(file);
+    setFormData({
+      ...FormData,
+      mediaType: file.type.split("/")[0],
+    });
+    setMediaPath(URL.createObjectURL(file));
+  };
+
   return (
     <div className="overflow-x-hidden">
       <SpinnerModal visible={LoaderVisibile} />
@@ -113,14 +131,7 @@ const ReportComplaint = () => {
           ref={FileInput}
           className="opacity-0"
           accept="image/*, video/*"
-          onChange={(e) => {
-            setMedia(e.target.files[0]);
-            setFormData({
-              ...FormData,
-              mediaType: e.target.files[0].type.split("/")[0],
-            });
-            setMediaPath(URL.createObjectURL(e.target.files[0]));
-          }}
+          onChange={handleFileChange}
         />
         <div
           onClick={() => FileInput.current.click()}
@@ -130,20 +141,23 @@ const ReportComplaint = () => {
         </div>
 
         <div
-          className={`flex flex-col justify-center items-center mx-8 lg:mx-20 py-6 ${Media ? "block" : "hidden"
-            }`}
+          className={`flex flex-col justify-center items-center mx-8 lg:mx-20 py-6 ${
+            Media ? "block" : "hidden"
+          }`}
         >
           <img
             src={Media && FormData.mediaType === "image" ? MediaPath : null}
             alt=""
-            className={`max-w-full w-auto my-6 h-96 object-scale-down ${Media && FormData.mediaType === "image" ? "block" : "hidden"
-              }`}
+            className={`max-w-full w-auto my-6 h-96 object-scale-down ${
+              Media && FormData.mediaType === "image" ? "block" : "hidden"
+            }`}
           />
           <video
             controls
             src={Media && FormData.mediaType === "video" ? MediaPath : null}
-            className={`max-w-full w-auto my-6 h-96 object-scale-down ${Media && FormData.mediaType === "video" ? "block" : "hidden"
-              }`}
+            className={`max-w-full w-auto my-6 h-96 object-scale-down ${
+              Media && FormData.mediaType === "video" ? "block" : "hidden"
+            }`}
           ></video>
           <Button
             onClick={() => FileInput.current.click()}
@@ -214,7 +228,11 @@ const ReportComplaint = () => {
               control={<Radio />}
               label="Water Leakage"
             />
-            <FormControlLabel value="Others" control={<Radio />} label="Others" />
+            <FormControlLabel
+              value="Others"
+              control={<Radio />}
+              label="Others"
+            />
           </RadioGroup>
 
           <p className="my-2">More Information</p>
