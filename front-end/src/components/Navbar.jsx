@@ -66,8 +66,12 @@ const Navbar = () => {
 
             <Button
               component={Link}
-              user={user}
-              to={`/report`}
+             
+              to={{
+                      pathname: `/report`,
+                      state: { user }, // ✅ Pass user in state
+                    }}
+              state={{ user }} 
               variant="outlined"
             >
               New Complaint

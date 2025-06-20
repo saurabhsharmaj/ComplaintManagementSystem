@@ -11,7 +11,7 @@ import {
 } from "@mui/material";
 import MuiTextField from "@mui/material/TextField";
 import { useEffect, useRef, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
 import Navbar from "../components/Navbar";
 import SpinnerModal from "../components/SpinnerModal";
@@ -74,7 +74,9 @@ const compressImage = async (file, maxSizeKB = 100) => {
   });
 };
  
-const ReportComplaint = (user) => {
+const ReportComplaint = () => {
+  const location = useLocation();
+  const user = location.state?.user;
   const [Media, setMedia] = useState(null);
   const [MediaPath, setMediaPath] = useState("");
   const [token, setToken] = useState("");
