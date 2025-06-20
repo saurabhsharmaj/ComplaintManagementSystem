@@ -47,7 +47,7 @@ jobs:
         if: steps.filter.outputs.frontend == 'true'
         run: |
           TAG=${{ github.event.release.tag_name || 'latest' }}
-          docker build --build-arg VITE_API_BASE_URL=https://cms.8bit.co.in/api  -t rajdeepsingh642/cms-frontend:$TAG ./front-end
+          docker build --build-arg VITE_API_BASE_URL=/api  -t rajdeepsingh642/cms-frontend:$TAG ./front-end
           docker push rajdeepsingh642/cms-frontend:$TAG
   deploy:
     name: Deploy to EC2
@@ -79,13 +79,13 @@ jobs:
                     - "5000:5000"
                   environment:
                        - MONGO_URI=mongodb+srv://ersaurabhsharmamca:SUXVZQUyUW5X2qI3@gatepass-db.alvtd.mongodb.net/complaint-management-db?retryWrites=true&w=majority&appName=complaint-management-db
+                       - JWT_SECRET=mycustomjwtsecretkey                
                   restart: always
                 frontend:
                   image: rajdeepsingh642/cms-frontend
                   ports:
                        - "3010:80" 
-                  environment:
-                           - VITE_API_BASE_URL=https://cms.8bit.co.in/api
+                  
                   depends_on:
                     - backend
                   restart: always
