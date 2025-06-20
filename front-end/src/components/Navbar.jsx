@@ -147,7 +147,12 @@ const Navbar = () => {
                 Dashboard
               </Link>
               <Link
-                to={"/report"} >
+                to={{
+                      pathname: `/report`,
+                      state: { user }, // ✅ Pass user in state
+                    }}
+              state={{ user }} 
+                >
                 New Complaint
               </Link>
               <Link

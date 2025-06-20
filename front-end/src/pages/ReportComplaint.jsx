@@ -107,7 +107,7 @@ const ReportComplaint = () => {
  
     
         if (!user || user.type !== "admin") {
-          return navigate("/");
+          return navigate("/report");
         }
         localStorage.setItem("userType", user.type); // "admin" or "citizen"
         setFormData((prev) => ({ ...prev, reportedBy: userId }));

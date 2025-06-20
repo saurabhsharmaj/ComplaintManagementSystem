@@ -3,45 +3,16 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Dialog } from "@mui/material";
 import { useEffect, useState } from "react";
 import ComplaintDetailModal from "./ComplaintDetailModal";
-import imageCompression from "browser-image-compression";
 import { Statuses, statusColors } from "../utils/enums";
 
 const ComplaintsCard = ({ complaint, user, index }) => {
   const [DialogOpen, setDialogOpen] = useState(false);
-  const [compressedImage, setCompressedImage] = useState(null);
   const date = new Date(complaint.timestamp);
 
   const statusKey = Object.keys(Statuses).find(
     (key) => Statuses[key] === complaint.status
   );
   const statusColor = statusColors[statusKey] || "#333";
-
-  useEffect(() => {
-    const compressImage = async () => {
-      if (user?.mediaPath?.buffer) {
-        try {
-          const binary = atob(user.mediaPath.buffer);
-          const array = Uint8Array.from(binary, (char) => char.charCodeAt(0));
-          const blob = new Blob([array], { type: "image/png" });
-
-          const options = {
-            maxSizeMB: 0.1,
-            maxWidthOrHeight: 300,
-            useWebWorker: true,
-          };
-
-          const compressedBlob = await imageCompression(blob, options);
-          const base64 = await imageCompression.getDataUrlFromFile(compressedBlob);
-
-          setCompressedImage(base64);
-        } catch (err) {
-          console.error("Image compression failed:", err);
-        }
-      }
-    };
-
-    compressImage();
-  }, [user]);
 
   if (!user) return null;
 
@@ -67,7 +38,7 @@ const ComplaintsCard = ({ complaint, user, index }) => {
               {complaint.code}
             </span>
             <img
-              src={compressedImage || "/default-avatar.png"}
+              src={`data:image/jpeg;base64,${user.mediaPath.buffer}` || "/default-avatar.png"}
               alt="User"
               className="w-28 h-28 rounded-sm object-cover"
             />
