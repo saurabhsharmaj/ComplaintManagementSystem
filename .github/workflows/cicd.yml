@@ -3,7 +3,7 @@ name: Build and Push Docker Image to DockerHub
 on:
   push:
     branches:
-      - rajdeep
+      - tester
       - deployment
   pull_request:
     types: [closed]
@@ -83,7 +83,7 @@ jobs:
                 frontend:
                   image: rajdeepsingh642/cms-frontend
                   ports:
-                       - "80:80" 
+                       - "3010:80" 
                   
                   depends_on:
                     - backend
