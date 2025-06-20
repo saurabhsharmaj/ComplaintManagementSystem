@@ -1,38 +1,18 @@
-# # Stage 1 - Build
-# FROM node:18-alpine as build
-# WORKDIR /app
-# COPY . .
-# RUN npm install --force
-# ARG VITE_API_BASE_URL
-# ENV VITE_API_BASE_URL=$VITE_API_BASE_URL
-# RUN npm run build 
+# Step 1: Accept build arg
+ARG VITE_API_BASE_URL
 
-# # Stage 2 - Serve with nginx
-# FROM nginx:alpine
-# COPY --from=build /app/dist /usr/share/nginx/html
-# EXPOSE 80
-# CMD ["nginx", "-g", "daemon off;"]
-# Stage 1 - Build
-# Stage 1 - Build
-FROM node:18-alpine as build
+FROM node:18-alpine AS build
 WORKDIR /app
 
-# Copy everything including .env.production
+# Step 2: Build with env from build arg
 COPY . .
-
-RUN npm install --force
-
-# If your file is named .env.production, you can rename or copy it
-RUN cp .env.production .env
-
+ARG VITE_API_BASE_URL
+ENV VITE_API_BASE_URL=$VITE_API_BASE_URL
+RUN echo "VITE_API_BASE_URL=$VITE_API_BASE_URL" > .env
+RUN npm install  --force 
 RUN npm run build
 
-# Stage 2 - Serve with nginx
+# Step 3: Serve with Nginx
 FROM nginx:alpine
 COPY --from=build /app/dist /usr/share/nginx/html
-EXPOSE 80
-CMD ["nginx", "-g", "daemon off;"]
-
-
-
-
+COPY nginx.conf /etc/nginx/conf.d/default.conf

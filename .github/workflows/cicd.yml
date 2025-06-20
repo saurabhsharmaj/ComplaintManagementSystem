@@ -47,7 +47,7 @@ jobs:
         if: steps.filter.outputs.frontend == 'true'
         run: |
           TAG=${{ github.event.release.tag_name || 'latest' }}
-          docker build --build-arg VITE_API_BASE_URL=https://cms.8bit.co.in/api  -t rajdeepsingh642/cms-frontend:$TAG ./front-end
+          docker build --build-arg VITE_API_BASE_URL=/api   -t rajdeepsingh642/cms-frontend:$TAG ./front-end
           docker push rajdeepsingh642/cms-frontend:$TAG
   deploy:
     name: Deploy to EC2
@@ -83,9 +83,8 @@ jobs:
                 frontend:
                   image: rajdeepsingh642/cms-frontend
                   ports:
-                       - "3010:80" 
-                  environment:
-                           - VITE_API_BASE_URL=https://cms.8bit.co.in/api
+                       - "80:80" 
+                  
                   depends_on:
                     - backend
                   restart: always
