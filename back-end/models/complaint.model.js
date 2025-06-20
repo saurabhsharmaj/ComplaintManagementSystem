@@ -2,6 +2,12 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
 const complaintSchema = new Schema({
+  code: {
+    type: String,
+    required: true,
+    unique: true,
+    trim: true
+  },
   location: {
     name: { type: String, required: false, trim: true },
     lat: { type: String, required: false },
