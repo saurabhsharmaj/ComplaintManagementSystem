@@ -5,6 +5,7 @@ import SpinnerModal from "../components/SpinnerModal";
 import { fetchUsers, fetchComplaints } from "../utils/mongodb";
 import { API_BASE_URL } from "@/config";
 import ComplaintsCard from "../components/ComplaintsCard";
+import { useTranslation } from "react-i18next";
 
 const OfficialDashboard = () => {
   const [users, setUsers] = useState([]);
@@ -21,6 +22,7 @@ const OfficialDashboard = () => {
   const [uniqueReasons, setUniqueReasons] = useState([]);
   const navigate = useNavigate();
 
+   const { t } = useTranslation();
   useEffect(() => {
     const token = localStorage.getItem("token");
     const userId = localStorage.getItem("userId");
@@ -177,7 +179,7 @@ const OfficialDashboard = () => {
                   )
                 }
               >
-                <h3 className="text-sm font-bold">{status.label}</h3>
+                <h3 className="text-sm font-bold">{t(status.label)}</h3>
                 <p className="text-xl">{count}</p>
               </div>
             );
