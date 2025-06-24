@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import SpinnerModal from "../components/SpinnerModal";
@@ -71,6 +71,16 @@ const OfficialDashboard = () => {
       .catch((err) => console.error("Summary fetch error:", err));
   }, []);
 
+  const getUser = useCallback(
+    (userId) =>
+      users.find((user) => user._id === userId) || {
+        name: "Unknown User",
+        mobile: "N/A",
+        mediaPath: { buffer: null },
+      },
+    [users]
+  );
+
   useEffect(() => {
     let filtered = [...complaints];
 
@@ -93,13 +103,13 @@ const OfficialDashboard = () => {
     }
 
     if (searchIndex) {
-      filtered = filtered.filter((_, idx) =>
-        `SVVS#${idx + 1}`.toLowerCase().includes(searchIndex.toLowerCase())
+      filtered = filtered.filter((c) =>
+        c.code?.toLowerCase().includes(searchIndex.toLowerCase())
       );
     }
 
     setFilteredComplaints(filtered);
-  }, [selectedStatus, selectedReason, searchName, searchIndex, complaints]);
+  }, [selectedStatus, selectedReason, searchName, searchIndex, complaints, getUser]);
 
   const handleComplaintsUpdate = (updatedComplaints) => {
     const sorted = [...updatedComplaints].sort(
@@ -109,19 +119,9 @@ const OfficialDashboard = () => {
     setFilteredComplaints(sorted);
 
     const reasons = [
-      ...new Set(
-        sorted.map((c) => c.reason?.trim()).filter(Boolean)
-      ),
+      ...new Set(sorted.map((c) => c.reason?.trim()).filter(Boolean)),
     ];
-    setUniqueReasons(reasons);
-  };
-
-  const getUser = (userId) => {
-    return users.find((user) => user._id === userId) || {
-      name: "Unknown User",
-      mobile: "N/A",
-      mediaPath: { buffer: null },
-    };
+    setUniqueReasons(reasons.sort((a, b) => a.localeCompare(b)));
   };
 
   const statusStyles = {
@@ -152,40 +152,78 @@ const OfficialDashboard = () => {
 
       <div className="container px-4 py-4 overflow-y-auto">
         <div className="flex justify-center sm:justify-between gap-1 mb-6 px-2">
-          {[
-            { label: "InProgress", value: "in-progress" },
-            { label: "Solved", value: "solved" },
-            { label: "Rejected", value: "rejected" },
-          ].map((status) => {
-            const isActive = selectedStatus === status.value;
-            const style = statusStyles[status.value];
+          {["in-progress", "solved", "rejected"].map((status) => {
+            const isActive = selectedStatus === status;
+            const style = statusStyles[status];
 
             const count =
-              status.value === "in-progress"
+              status === "in-progress"
                 ? inProgress
-                : status.value === "solved"
-                  ? solved
-                  : rejected;
+                : status === "solved"
+                ? solved
+                : rejected;
 
             return (
               <div
-                key={status.value}
+                key={status}
                 className={`flex-1 min-w-[120px] ${isActive ? style.activeBg : style.bg} ${style.text} ${style.hover} p-4 rounded-lg shadow text-center cursor-pointer transition ring-1 ring-inset ${isActive ? "ring-black/50" : "ring-transparent"}`}
                 onClick={() =>
                   setSelectedStatus((prev) =>
-                    prev === status.value ? "" : status.value
+                    prev === status ? "" : status
                   )
                 }
               >
-                <h3 className="text-sm font-bold">{status.label}</h3>
+                <h3 className="text-sm font-bold">{status.replace("-", " ")}</h3>
                 <p className="text-xl">{count}</p>
               </div>
             );
           })}
         </div>
 
+        <div className="flex items-center gap-2 px-2 font-semibold text-sm text-gray-700">
+          <svg
+            className="w-5 h-5 text-gray-500"
+            fill="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path d="M3 4h18v2H3zm4 7h10v2H7zm2 7h6v2H9z" />
+          </svg>
+          Filters
+        </div>
+
+        <div className="flex flex-wrap gap-4 items-center px-2 mt-2">
+          <select
+            className="border border-gray-300 rounded-md px-3 py-2 text-sm w-full sm:w-48"
+            value={selectedReason}
+            onChange={(e) => setSelectedReason(e.target.value)}
+          >
+            <option value="">Reason</option>
+            {uniqueReasons.map((reason, idx) => (
+              <option key={idx} value={reason}>
+                {reason}
+              </option>
+            ))}
+          </select>
+
+          <input
+            type="text"
+            placeholder="Name"
+            className="border border-gray-300 rounded-md px-3 py-2 text-sm w-full sm:w-48"
+            value={searchName}
+            onChange={(e) => setSearchName(e.target.value)}
+          />
+
+          <input
+            type="text"
+            placeholder="Index / Code"
+            className="border border-gray-300 rounded-md px-3 py-2 text-sm w-full sm:w-48"
+            value={searchIndex}
+            onChange={(e) => setSearchIndex(e.target.value)}
+          />
+        </div>
+
         {(selectedReason || selectedStatus || searchName || searchIndex) && (
-          <div className="mb-2 text-right">
+          <div className="text-right px-2 mt-2">
             <button
               className="text-sm bg-gray-200 px-3 py-1 rounded hover:bg-gray-300 transition"
               onClick={() => {
@@ -200,70 +238,18 @@ const OfficialDashboard = () => {
           </div>
         )}
 
-        <div className="mb-4 flex flex-col sm:flex-row sm:flex-wrap gap-4 sm:items-center">
-          {/* Filter by Reason */}
-          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 w-full sm:w-auto">
-            <label htmlFor="reason" className="text-sm font-semibold">
-              Filter by Reason:
-            </label>
-            <select
-              id="reason"
-              className="border border-gray-300 rounded-md px-3 py-1 text-sm w-full sm:w-auto"
-              value={selectedReason}
-              onChange={(e) => setSelectedReason(e.target.value)}
-            >
-              <option value="">All Reasons</option>
-              {uniqueReasons.map((reason, idx) => (
-                <option key={idx} value={reason}>
-                  {reason}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          {/* Search Filters */}
-          <div className="flex flex-col sm:flex-row sm:flex-wrap gap-4 w-full">
-            {/* Name Filter */}
-            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 w-full sm:w-auto">
-              <label htmlFor="nameFilter" className="text-sm font-semibold">
-                Search by Name:
-              </label>
-              <input
-                id="nameFilter"
-                type="text"
-                value={searchName}
-                onChange={(e) => setSearchName(e.target.value)}
-                className="border border-gray-300 rounded-md px-3 py-1 text-sm w-full sm:w-auto"
-                placeholder="e.g., Sohil"
-              />
-            </div>
-
-            {/* Index Filter */}
-            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 w-full sm:w-auto">
-              <label htmlFor="indexFilter" className="text-sm font-semibold">
-                Search by Index:
-              </label>
-              <input
-                id="indexFilter"
-                type="text"
-                value={searchIndex}
-                onChange={(e) => setSearchIndex(e.target.value)}
-                className="border border-gray-300 rounded-md px-3 py-1 text-sm w-full sm:w-auto"
-                placeholder="e.g., SVVS#3"
-              />
-            </div>
-          </div>
-        </div>
-
-
         {spinnerVisible ? (
-          <div className="w-full h-[60vh] flex justify-center items-center" />
+          <div className="w-full h-[60vh] flex justify-center items-center">
+            <span className="text-gray-500">Loading...</span>
+          </div>
         ) : filteredComplaints.length > 0 ? (
           filteredComplaints.map((complaint, index) => (
             <ComplaintsCard
               key={complaint._id}
               complaint={complaint}
               user={getUser(complaint.reportedBy)}
+              // userType="admin"
+              userType={users?.type}
               index={index}
             />
           ))

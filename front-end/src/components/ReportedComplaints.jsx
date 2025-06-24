@@ -89,6 +89,8 @@ const ReportedComplaints = () => {
                 key={complaint._id}
                 complaint={complaint}
                 user={user}
+                // userType="admin"
+                userType={user?.type}
               />
             ))
           )}
