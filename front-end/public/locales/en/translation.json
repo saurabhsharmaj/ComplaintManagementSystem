@@ -1,0 +1,10 @@
+{
+  "welcome": "Welcome",
+  "greeting": "Hello, {{name}}!",
+  "shiv vihar vikas samiti": "Shiv Vihar Vikas Samiti",
+  "InProgress":"InProgress",
+  "Solved":"Solved",
+  "Rejected":"Rejected",
+  "New Complaint":"New Complaint",
+  "Dashboard": "Dashboard"
+}
