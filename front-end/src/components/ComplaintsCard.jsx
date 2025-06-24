@@ -38,7 +38,11 @@ const ComplaintsCard = ({ complaint, user, index }) => {
               {complaint.code}
             </span>
             <img
-              src={`data:image/jpeg;base64,${user.mediaPath.buffer}` || "/default-avatar.png"}
+              src={
+                    user?.mediaPath?.buffer
+                      ? `data:image/jpeg;base64,${user.mediaPath.buffer}`
+                      : "/default-avatar.png"
+                  }
               alt="User"
               className="w-28 h-28 rounded-sm object-cover"
             />
