@@ -96,7 +96,7 @@ const ComplaintsCard = ({ complaint, user, userType }) => {
               className="cursor-pointer font-semibold text-blue-600 hover:underline flex justify-end"
               onClick={() => setDialogOpen(true)}
             >
-              Detailed View
+              {t("Detailed View")}
             </span>
           </div>
           <div className="font-bold flex items-center gap-1">

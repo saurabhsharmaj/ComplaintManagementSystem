@@ -2,16 +2,20 @@ import { useEffect, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import SpinnerModal from "../components/SpinnerModal";
-import { fetchUsers, fetchComplaints } from "../utils/mongodb";
-import { API_BASE_URL } from "@/config";
 import ComplaintsCard from "../components/ComplaintsCard";
+import { API_BASE_URL } from "@/config";
 import { useTranslation } from "react-i18next";
+
+const PAGE_SIZE = 10;
 
 const OfficialDashboard = () => {
   const [users, setUsers] = useState([]);
   const [complaints, setComplaints] = useState([]);
   const [filteredComplaints, setFilteredComplaints] = useState([]);
+  const [visibleComplaints, setVisibleComplaints] = useState([]);
+  const [page, setPage] = useState(1);
   const [spinnerVisible, setSpinnerVisible] = useState(true);
+  const [isTailLoading, setIsTailLoading] = useState(false);
   const [inProgress, setInProgress] = useState(0);
   const [solved, setSolved] = useState(0);
   const [rejected, setRejected] = useState(0);
@@ -20,13 +24,15 @@ const OfficialDashboard = () => {
   const [searchName, setSearchName] = useState("");
   const [searchIndex, setSearchIndex] = useState("");
   const [uniqueReasons, setUniqueReasons] = useState([]);
+
   const navigate = useNavigate();
   const { t } = useTranslation();
 
-  useEffect(() => {
-    const token = localStorage.getItem("token");
-    const userId = localStorage.getItem("userId");
+  const token = localStorage.getItem("token");
+  const userId = localStorage.getItem("userId");
 
+  // Fetch complaints & users
+  useEffect(() => {
     if (!token || !userId) {
       navigate("/official-login");
       return;
@@ -35,10 +41,7 @@ const OfficialDashboard = () => {
     setSpinnerVisible(true);
 
     fetch(`${API_BASE_URL}/user/${userId}`, {
-      method: "GET",
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
+      headers: { Authorization: `Bearer ${token}` },
     })
       .then((res) => {
         if (!res.ok) throw new Error("Unauthorized");
@@ -49,30 +52,33 @@ const OfficialDashboard = () => {
           navigate("/citizen-dashboard");
         } else {
           Promise.all([
-            fetchComplaints(token).then((data) => {
-              handleComplaintsUpdate(data);
-            }),
-            fetchUsers(token).then(setUsers),
-          ]).finally(() => setSpinnerVisible(false));
+            fetch(`${API_BASE_URL}/complaints`, {
+              headers: { Authorization: `Bearer ${token}` },
+            }).then((res) => res.json()),
+            fetch(`${API_BASE_URL}/users`, {
+              headers: { Authorization: `Bearer ${token}` },
+            }).then((res) => res.json()),
+            fetch(`${API_BASE_URL}/complaints/status-summary`, {
+              headers: { Authorization: `Bearer ${token}` },
+            }).then((res) => res.json()),
+          ]).then(([complaintsData, usersData, statusSummary]) => {
+            const sorted = complaintsData.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+            setComplaints(sorted);
+            setFilteredComplaints(sorted);
+            setVisibleComplaints(sorted.slice(0, PAGE_SIZE));
+            setUsers(usersData);
+            setInProgress(statusSummary.inProgress || 0);
+            setSolved(statusSummary.solved || 0);
+            setRejected(statusSummary.rejected || 0);
+            const reasons = [...new Set(sorted.map((c) => c.reason?.trim()).filter(Boolean))];
+            setUniqueReasons(reasons.sort((a, b) => a.localeCompare(b)));
+          }).finally(() => setSpinnerVisible(false));
         }
       })
-      .catch((err) => {
-        console.error("User fetch error:", err);
-        navigate("/official-login");
-      });
-
-    fetch(`${API_BASE_URL}/complaints/status-summary`, {
-      headers: { Authorization: `Bearer ${token}` },
-    })
-      .then((res) => res.json())
-      .then((res) => {
-        setInProgress(res.inProgress || 0);
-        setSolved(res.solved || 0);
-        setRejected(res.rejected || 0);
-      })
-      .catch((err) => console.error("Summary fetch error:", err));
+      .catch(() => navigate("/official-login"));
   }, []);
 
+  // Filter complaints
   const getUser = useCallback(
     (userId) =>
       users.find((user) => user._id === userId) || {
@@ -111,19 +117,19 @@ const OfficialDashboard = () => {
     }
 
     setFilteredComplaints(filtered);
+    setPage(1);
+    setVisibleComplaints(filtered.slice(0, PAGE_SIZE));
   }, [selectedStatus, selectedReason, searchName, searchIndex, complaints, getUser]);
 
-  const handleComplaintsUpdate = (updatedComplaints) => {
-    const sorted = [...updatedComplaints].sort(
-      (a, b) => new Date(b.timestamp) - new Date(a.timestamp)
-    );
-    setComplaints(sorted);
-    setFilteredComplaints(sorted);
-
-    const reasons = [
-      ...new Set(sorted.map((c) => c.reason?.trim()).filter(Boolean)),
-    ];
-    setUniqueReasons(reasons.sort((a, b) => a.localeCompare(b)));
+  const handleLoadMore = () => {
+    setIsTailLoading(true);
+    setTimeout(() => {
+      const nextPage = page + 1;
+      const nextData = filteredComplaints.slice(0, nextPage * PAGE_SIZE);
+      setVisibleComplaints(nextData);
+      setPage(nextPage);
+      setIsTailLoading(false);
+    }, 1000); // ⏱️ simulate loading
   };
 
   const statusStyles = {
@@ -159,11 +165,11 @@ const OfficialDashboard = () => {
       <Navbar />
 
       <div className="container px-4 py-4 overflow-y-auto">
+        {/* Status Summary */}
         <div className="flex justify-center sm:justify-between gap-1 mb-6 px-2">
           {["in-progress", "solved", "rejected"].map((status) => {
             const isActive = selectedStatus === status;
             const style = statusStyles[status];
-
             const count =
               status === "in-progress"
                 ? inProgress
@@ -188,13 +194,7 @@ const OfficialDashboard = () => {
           })}
         </div>
 
-        <div className="flex items-center gap-2 px-2 font-semibold text-sm text-gray-700">
-          <svg className="w-5 h-5 text-gray-500" fill="currentColor" viewBox="0 0 24 24">
-            <path d="M3 4h18v2H3zm4 7h10v2H7zm2 7h6v2H9z" />
-          </svg>
-          {t("Filters")}
-        </div>
-
+        {/* Filters */}
         <div className="flex flex-wrap gap-4 items-center px-2 mt-2">
           <select
             className="border border-gray-300 rounded-md px-3 py-2 text-sm w-full sm:w-48"
@@ -226,39 +226,30 @@ const OfficialDashboard = () => {
           />
         </div>
 
-        {(selectedReason || selectedStatus || searchName || searchIndex) && (
-          <div className="text-right px-2 mt-2">
-            <button
-              className="text-sm bg-gray-200 px-3 py-1 rounded hover:bg-gray-300 transition"
-              onClick={() => {
-                setSelectedReason("");
-                setSelectedStatus("");
-                setSearchName("");
-                setSearchIndex("");
-              }}
-            >
-              {t("ClearFilters")}
-            </button>
-          </div>
-        )}
-
-        {spinnerVisible ? (
-          <div className="w-full h-[60vh] flex justify-center items-center">
-            <span className="text-gray-500">{t("Loading")}</span>
-          </div>
-        ) : filteredComplaints.length > 0 ? (
-          filteredComplaints.map((complaint, index) => (
-            <ComplaintsCard
-              key={complaint._id}
+        {/* Complaints */}
+        {visibleComplaints.map((complaint, index) => (
+          <ComplaintsCard
+            key={complaint._id}
               complaint={complaint}
               user={getUser(complaint.reportedBy)}
               userType={users?.type}
               index={index}
-            />
-          ))
-        ) : (
-          <div className="text-center text-gray-500 mt-8">
-            {t("NoComplaints")}
+          />
+        ))}
+
+        {/* Load More */}
+        {visibleComplaints.length < filteredComplaints.length && (
+          <div className="flex justify-center mt-4">
+            {isTailLoading ? (
+              <div className="w-8 h-8 border-4 border-gray-300 border-t-blue-500 rounded-full animate-spin" />
+            ) : (
+              <button
+                onClick={handleLoadMore}
+                className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+              >
+                Load More
+              </button>
+            )}
           </div>
         )}
       </div>

@@ -126,10 +126,10 @@ const Navbar = () => {
         ) : (
           <div className="ButtonGroup gap-8 hidden lg:flex">
             <Button component={Link} to={"/official-login"} variant="outlined">
-              Official Login
+              {t("Official Login")}
             </Button>
             <Button component={Link} to={"/citizen-login"} variant="outlined">
-              Citizen Login
+              {t("Citizen Login")}
             </Button>
             <button onClick={() => changeLanguage('en')}><Flag code="US" style={{ width: 24, height: 16 }} /></button>
       <button onClick={() => changeLanguage('hi')}><Flag code="IN" style={{ width: 24, height: 16 }} /></button>
@@ -183,8 +183,8 @@ const Navbar = () => {
             </>
           ) : (
             <>
-              <Link to={"/citizen-login"}>Citizen Login</Link>
-              <Link to={"/official-login"}>Official Login</Link>
+              <Link to={"/citizen-login"}>{t("Citizen Login")}</Link>
+              <Link to={"/official-login"}>{t("Official Login")}</Link>
             </>
           )}
         </ul>
