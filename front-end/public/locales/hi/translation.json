@@ -1,0 +1,16 @@
+{
+  "welcome": "स्वागत है",
+  "greeting": "नमस्ते, {{name}}!",
+  "shiv vihar vikas samiti": "शिव विहार विकास समिति",
+  "Total": "कुल",
+  "InProgress":"कार्य प्रगति पर है",
+  "Solved":"समाधान हो गया",
+  "Rejected":"अस्वीकृत",
+  "New Complaint":"नई शिकायत",
+  "Dashboard": "डैशबोर्ड",
+  "Logout": "लॉगआउट",
+  "Profile": "प्रोफ़ाइल",
+  "Official Login": "अधिकारी लॉगिन",
+  "Citizen Login": "नागरिक लॉगिन"
+  
+}

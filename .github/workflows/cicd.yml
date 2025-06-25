@@ -1,0 +1,110 @@
+name: Build and Push Docker Image to DockerHub
+
+on:
+  push:
+    branches:
+      - rajdeep
+      - deployment
+  pull_request:
+    types: [closed]
+    branches:
+      - rajdeep
+      - deployment
+  release:
+    types: [published]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    outputs:
+      backend_changed: ${{ steps.filter.outputs.backend }}
+      frontend_changed: ${{ steps.filter.outputs.frontend }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Detect changes
+        id: filter
+        uses: dorny/paths-filter@v2
+        with:
+          filters: |
+            backend:
+              - 'back-end/**'
+            frontend:
+              - 'front-end/**'
+      - name: Log in to DockerHub
+        if: steps.filter.outputs.backend == 'true' || steps.filter.outputs.frontend == 'true'
+        run: echo "UmFqZGVlcEAxOTk2" | base64 -d | docker login -u rajdeepsingh642 --password-stdin
+
+      - name: Build & Push Backend
+        if: steps.filter.outputs.backend == 'true'
+        run: |
+          TAG=${{ github.event.release.tag_name || 'latest' }}
+          docker build  -t rajdeepsingh642/cms-backend:$TAG ./back-end
+          docker push rajdeepsingh642/cms-backend:$TAG
+      - name: Build & Push Frontend
+        if: steps.filter.outputs.frontend == 'true'
+        run: |
+          TAG=${{ github.event.release.tag_name || 'latest' }}
+          docker build --build-arg VITE_API_BASE_URL=/api  -t rajdeepsingh642/cms-frontend:$TAG ./front-end
+          docker push rajdeepsingh642/cms-frontend:$TAG
+  deploy:
+    name: Deploy to EC2
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Setup SSH Key
+        run: |
+          echo "${{ secrets.EC2_SSH_PRIVATE_KEY }}" > application.pem
+          chmod 600 application.pem
+      - name: SSH into EC2 and Deploy
+        env:
+          BACKEND_CHANGED: ${{ needs.build.outputs.backend_changed }}
+          FRONTEND_CHANGED: ${{ needs.build.outputs.frontend_changed }}
+          TAG: ${{ github.event.release.tag_name || 'latest' }}
+        run: |
+          ssh -i application.pem -o StrictHostKeyChecking=no ec2-user@52.203.22.153 << EOF
+
+          cd /home/ec2-user/cms
+          echo "IMAGE_TAG=${TAG}" > .env
+          IMAGE_TAG=${TAG}
+          cat << 'YAML_EOF' > docker-compose.yml
+              version: '3.7'
+              services:
+                backend:
+                  image: rajdeepsingh642/cms-backend
+                  ports:
+                    - "5000:5000"
+                  environment:
+                       - MONGO_URI=mongodb+srv://ersaurabhsharmamca:SUXVZQUyUW5X2qI3@gatepass-db.alvtd.mongodb.net/complaint-management-db?retryWrites=true&w=majority&appName=complaint-management-db
+                       - JWT_SECRET=mycustomjwtsecretkey                
+                  restart: always
+                frontend:
+                  image: rajdeepsingh642/cms-frontend
+                  ports:
+                       - "3010:80" 
+                  
+                  depends_on:
+                    - backend
+                  restart: always
+          YAML_EOF
+          echo "UmFqZGVlcEAxOTk2" | base64 -d | docker login -u rajdeepsingh642 --password-stdin
+
+          if [ "$BACKEND_CHANGED" = "true" ]; then
+
+            docker-compose  stop backend
+            docker-compose  rm -f backend
+            docker rmi cms-backend  || true
+            docker pull rajdeepsingh642/cms-backend:${TAG}
+          fi
+          if [ "$FRONTEND_CHANGED" = "true" ]; then
+           
+            docker-compose  stop frontend
+            docker-compose  rm -f frontend
+            docker rmi cms-frontend   || true
+            docker pull rajdeepsingh642/cms-frontend:${TAG}
+          fi
+          docker-compose  up -d
+          EOF

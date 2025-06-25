@@ -21,8 +21,8 @@ const OfficialDashboard = () => {
   const [searchIndex, setSearchIndex] = useState("");
   const [uniqueReasons, setUniqueReasons] = useState([]);
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
-   const { t } = useTranslation();
   useEffect(() => {
     const token = localStorage.getItem("token");
     const userId = localStorage.getItem("userId");
@@ -147,6 +147,12 @@ const OfficialDashboard = () => {
     },
   };
 
+  const statusLabels = {
+    "in-progress": "InProgress",
+    solved: "Solved",
+    rejected: "Rejected"
+  };
+
   return (
     <>
       <SpinnerModal visible={spinnerVisible} />
@@ -175,7 +181,7 @@ const OfficialDashboard = () => {
                   )
                 }
               >
-                <h3 className="text-sm font-bold">{t(status.label)}</h3>
+                <h3 className="text-sm font-bold">{t(statusLabels[status])}</h3>
                 <p className="text-xl">{count}</p>
               </div>
             );
@@ -183,11 +189,7 @@ const OfficialDashboard = () => {
         </div>
 
         <div className="flex items-center gap-2 px-2 font-semibold text-sm text-gray-700">
-          <svg
-            className="w-5 h-5 text-gray-500"
-            fill="currentColor"
-            viewBox="0 0 24 24"
-          >
+          <svg className="w-5 h-5 text-gray-500" fill="currentColor" viewBox="0 0 24 24">
             <path d="M3 4h18v2H3zm4 7h10v2H7zm2 7h6v2H9z" />
           </svg>
           Filters
@@ -250,7 +252,6 @@ const OfficialDashboard = () => {
               key={complaint._id}
               complaint={complaint}
               user={getUser(complaint.reportedBy)}
-              // userType="admin"
               userType={users?.type}
               index={index}
             />
