@@ -6,6 +6,9 @@ import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import Logo from "../assets/logo1.png"
 import { API_BASE_URL } from "@/config";
+import { useTranslation } from "react-i18next";
+import Flag from 'react-world-flags';
+import { useLanguage } from "../context/LanguageContext";
 
 export const Button = styled(MuiButton)((props) => ({
   borderRadius: "25px",
@@ -24,6 +27,8 @@ const Navbar = () => {
   const token = localStorage.getItem("token");
   const userId = localStorage.getItem("userId");
 
+ const { changeLanguage } = useLanguage();
+ const { t } = useTranslation();
   const handleLogout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("userId");
@@ -58,7 +63,7 @@ const Navbar = () => {
         <Link to={Official ? "/official-dashboard" : "/citizen-dashboard"}>
           <div className="LogoGroup flex items-center gap-3">
             <img className="logo h-12 lg:h-12 w-12 rounded-full object-cover" src={Logo} />
-            <h2 className="font-bold text-sm animate-typing whitespace-nowrap overflow-hidden lg:text-lg">Shiv Vihar Vikas Samiti</h2>
+            <h2 className="font-bold text-sm animate-typing whitespace-nowrap overflow-hidden lg:text-lg">{t('shiv vihar vikas samiti')}</h2>
           </div>
         </Link>
         {user ? (
@@ -74,7 +79,7 @@ const Navbar = () => {
               state={{ user }} 
               variant="outlined"
             >
-              New Complaint
+              {t('New Complaint')}
             </Button>
 
             <Button
@@ -82,7 +87,7 @@ const Navbar = () => {
               to={Official ? "/official-dashboard" : "/citizen-dashboard"}
               variant="outlined"
             >
-              Dashboard
+              {t('Dashboard')}
             </Button>
 
             <Button
@@ -106,14 +111,17 @@ const Navbar = () => {
                 }}
               />
               <span>
-                Profile
+                {t('Profile')}
               </span>
             </Button>
+
             <Button onClick={handleLogout} variant="outlined">
 
 
-              Logout
+               {t('Logout')}
             </Button>
+            <button onClick={() => changeLanguage('en')}><Flag code="US" style={{ width: 24, height: 16 }} /></button>
+            <button onClick={() => changeLanguage('hi')}><Flag code="IN" style={{ width: 24, height: 16 }} /></button>
           </div>
         ) : (
           <div className="ButtonGroup gap-8 hidden lg:flex">
@@ -123,6 +131,8 @@ const Navbar = () => {
             <Button component={Link} to={"/citizen-login"} variant="outlined">
               Citizen Login
             </Button>
+            <button onClick={() => changeLanguage('en')}><Flag code="US" style={{ width: 24, height: 16 }} /></button>
+      <button onClick={() => changeLanguage('hi')}><Flag code="IN" style={{ width: 24, height: 16 }} /></button>
           </div>
         )}
 
@@ -144,7 +154,7 @@ const Navbar = () => {
               <Link
                 to={Official ? "/official-dashboard" : "/citizen-dashboard"}
               >
-                Dashboard
+                {t('Dashboard')}
               </Link>
               <Link
                 to={{
@@ -153,15 +163,18 @@ const Navbar = () => {
                     }}
               state={{ user }} 
                 >
-                New Complaint
+                {t('New Complaint')}
               </Link>
               <Link
                 to={"/profile-dashboard"}
               >
-                Profile
+              {t('Profile')}
               </Link>
-              <Link onClick={handleLogout}>Logout</Link>{" "}
-
+              <Link onClick={handleLogout}>
+              {t('Logout')}
+              </Link>{" "}
+              <Link onClick={() => changeLanguage('en')}><Flag code="US" style={{ width: 24, height: 16 }} /></Link>
+              <Link onClick={() => changeLanguage('hi')}><Flag code="IN" style={{ width: 24, height: 16 }} /></Link>      
               <Link
                 to={"https://8bit.co.in/"}
               >

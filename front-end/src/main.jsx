@@ -13,6 +13,10 @@ import OfficialLogin from "./pages/OfficialLogin";
 import ReportComplaint from "./pages/ReportComplaint";
 import ProfileDashboard from "./pages/ProfileDashboard";
 import { ToastContainer } from "react-toastify";
+import './i18n';
+import { I18nextProvider } from 'react-i18next';
+import i18n from './i18n';
+import { LanguageProvider } from './context/LanguageContext';
 
 const router = createBrowserRouter([
   {
@@ -55,8 +59,12 @@ const router = createBrowserRouter([
 ]);
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
-    <RouterProvider router={router} />
-    <ToastContainer limit={1} />
+    <I18nextProvider i18n={i18n}>
+      <LanguageProvider>
+        <RouterProvider router={router} />
+        <ToastContainer limit={1} />
+      </LanguageProvider>
+    </I18nextProvider>
   </React.StrictMode>
 );
 

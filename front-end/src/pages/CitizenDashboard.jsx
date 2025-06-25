@@ -3,7 +3,7 @@ import {
   faSignOut,
   faTrafficLight,
 } from "@fortawesome/free-solid-svg-icons";
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
 import DashboardLinkButton from "../components/DashboardLinkButton";
@@ -11,6 +11,7 @@ import Navbar from "../components/Navbar";
 import ReportedComplaints from "../components/ReportedComplaints";
 import SpinnerModal from "../components/SpinnerModal";
 import { API_BASE_URL } from "@/config";
+import { useTranslation } from "react-i18next";
 
 
 const CitizenDashboard = () => {
@@ -20,6 +21,7 @@ const CitizenDashboard = () => {
   const [complaints, setComplaints] = useState([]);
   const [params] = useSearchParams();
   const navigate = useNavigate();
+   const { t } = useTranslation();
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -113,23 +115,23 @@ const CitizenDashboard = () => {
 
       {/* Top section with status cards */}
       <h2 className="lg:mt-10 font-bold text-center text-xl lg:text-[2rem] my-4 lg:text-left lg:mx-20">
-        Dashboard
+        {t("Dashboard")}
       </h2>
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 px-5 lg:px-20 mb-6">
         <div className="bg-blue-100 text-blue-800 rounded-xl p-4 text-center shadow-md">
-          <h3 className="font-semibold text-lg">Total</h3>
+          <h3 className="font-semibold text-lg">{t("Total")}</h3>
           <p className="text-2xl font-bold">{total}</p>
         </div>
         <div className="bg-yellow-100 text-yellow-800 rounded-xl p-4 text-center shadow-md">
-          <h3 className="font-semibold text-lg">In Progress</h3>
+          <h3 className="font-semibold text-lg">{t("InProgress")}</h3>
           <p className="text-2xl font-bold">{inProgress}</p>
         </div>
         <div className="bg-green-100 text-green-800 rounded-xl p-4 text-center shadow-md">
-          <h3 className="font-semibold text-lg">Solved</h3>
+          <h3 className="font-semibold text-lg">{t("Solved")}</h3>
           <p className="text-2xl font-bold">{solved}</p>
         </div>
         <div className="bg-red-100 text-red-800 rounded-xl p-4 text-center shadow-md">
-          <h3 className="font-semibold text-lg">Rejected</h3>
+          <h3 className="font-semibold text-lg">{t("Rejected")}</h3>
           <p className="text-2xl font-bold">{rejected}</p>
         </div>
       </div>

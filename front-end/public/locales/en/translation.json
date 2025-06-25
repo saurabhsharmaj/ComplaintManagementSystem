@@ -1,0 +1,15 @@
+{
+  "welcome": "Welcome",
+  "greeting": "Hello, {{name}}!",
+  "shiv vihar vikas samiti": "Shiv Vihar Vikas Samiti",
+  "Total": "Total",
+  "InProgress":"InProgress",
+  "Solved":"Solved",
+  "Rejected":"Rejected",
+  "New Complaint":"New Complaint",
+  "Dashboard": "Dashboard",
+   "Logout": "Logout",
+  "Profile": "Profile",
+  "Official Login": "Official Login",
+  "Citizen Login": "Citizen Login"
+}
