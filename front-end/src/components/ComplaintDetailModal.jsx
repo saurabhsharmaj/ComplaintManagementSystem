@@ -92,7 +92,7 @@ const ComplaintDetailModal = ({ setDialogOpen, complaint }) => {
         <div className="flex justify-between">
           <div className="flex gap-4 items-center">
             <FontAwesomeIcon icon={faMapMarkerAlt} />
-            <p>{complaint.location.name}</p>
+            <p>{complaint.location?.name || "Unknown Location"}</p>
           </div>
           <span
             className="w-30 text-center rounded-xl font-bold flex items-center text-white h-12 lg:h-6 px-4"
@@ -110,22 +110,25 @@ const ComplaintDetailModal = ({ setDialogOpen, complaint }) => {
         <h2 className="text-lg font-bold my-4">{complaint.reason}</h2>
         <p>{complaint.additionalInfo}</p>
 
-        {complaint.mediaType === "image" ? (
+        {/* Media Section */}
+        {complaint.mediaType === "image" && complaint?.mediaPath?.buffer ? (
           <img
             className="max-w-full w-auto h-96 object-scale-down"
             src={`data:image/png;base64,${complaint.mediaPath.buffer}`}
             alt="Complaint media"
           />
-        ) : (
+        ) : complaint.mediaType === "video" && complaint?.mediaPath?.buffer ? (
           <video
             controls
             className="max-w-full w-auto h-96 object-scale-down"
             src={`data:video/mp4;base64,${complaint.mediaPath.buffer}`}
           />
+        ) : (
+          <p className="text-center text-gray-500 mt-4">No media available</p>
         )}
 
+        {/* Comments */}
         <h2 className="text-lg font-bold my-4">Comments</h2>
-
         {comments.length === 0 ? (
           <p className="text-center">No Comments</p>
         ) : (
@@ -134,6 +137,7 @@ const ComplaintDetailModal = ({ setDialogOpen, complaint }) => {
           ))
         )}
 
+        {/* Comment Input */}
         {complaint.status === Statuses.inProgress && (
           <div className="my-4 flex gap-4 items-center">
             <TextField
@@ -157,7 +161,7 @@ const ComplaintDetailModal = ({ setDialogOpen, complaint }) => {
         )}
       </DialogContent>
 
-      {/* Sticky footer actions */}
+      {/* Sticky Footer Actions */}
       {official && complaint.status === Statuses.inProgress && (
         <DialogActions className="sticky bottom-0 bg-white z-10 border-t p-4 flex justify-end gap-4">
           <Button

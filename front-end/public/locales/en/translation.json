@@ -18,5 +18,8 @@
   "ClearFilters": "Clear Filters",
   "NoComplaints": "No complaints to display.",
   "Loading": "Loading...",
-  "Filters": "Filters"
+  "Filters": "Filters",
+  "Detailed View": "Detailed View",
+  "Load More": "Load More",
+  "Please Wait" : "Please Wait"
 }
