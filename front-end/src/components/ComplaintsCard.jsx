@@ -4,9 +4,11 @@ import { Dialog } from "@mui/material";
 import { useState } from "react";
 import ComplaintDetailModal from "./ComplaintDetailModal";
 import { Statuses, statusColors } from "../utils/enums";
+import { useTranslation } from "react-i18next";
 
 const ComplaintsCard = ({ complaint, user, userType }) => {
   const [DialogOpen, setDialogOpen] = useState(false);
+  const { t } = useTranslation();
   const date = new Date(complaint.timestamp);
 
   const statusKey = Object.keys(Statuses).find(
