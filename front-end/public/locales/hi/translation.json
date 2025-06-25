@@ -12,13 +12,15 @@
   "Profile": "प्रोफ़ाइल",
   "Official Login": "अधिकारी लॉगिन",
   "Citizen Login": "नागरिक लॉगिन",
-   "Reason": "कारण",
+  "Reason": "कारण",
   "Name": "नाम",
   "IndexCode": "कोड / अनुक्रमांक",
   "ClearFilters": "फ़िल्टर हटाएं",
   "NoComplaints": "कोई शिकायतें प्रदर्शित नहीं हैं।",
   "Loading": "लोड हो रहा है...",
   "Filters": "फ़िल्टर",
-  "Detailed View": "विस्तृत विवरण"
+  "Detailed View": "विस्तृत विवरण",
+  "Load More": "और लोड करें",
+  "Please Wait": "कृपया प्रतीक्षा करें"
   
 }
