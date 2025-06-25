@@ -11,5 +11,12 @@
    "Logout": "Logout",
   "Profile": "Profile",
   "Official Login": "Official Login",
-  "Citizen Login": "Citizen Login"
+  "Citizen Login": "Citizen Login",
+   "Reason": "Reason",
+  "Name": "Name",
+  "IndexCode": "Index / Code",
+  "ClearFilters": "Clear Filters",
+  "NoComplaints": "No complaints to display.",
+  "Loading": "Loading...",
+  "Filters": "Filters"
 }

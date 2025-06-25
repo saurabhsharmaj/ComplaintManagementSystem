@@ -150,7 +150,7 @@ const OfficialDashboard = () => {
   const statusLabels = {
     "in-progress": "InProgress",
     solved: "Solved",
-    rejected: "Rejected"
+    rejected: "Rejected",
   };
 
   return (
@@ -192,7 +192,7 @@ const OfficialDashboard = () => {
           <svg className="w-5 h-5 text-gray-500" fill="currentColor" viewBox="0 0 24 24">
             <path d="M3 4h18v2H3zm4 7h10v2H7zm2 7h6v2H9z" />
           </svg>
-          Filters
+          {t("Filters")}
         </div>
 
         <div className="flex flex-wrap gap-4 items-center px-2 mt-2">
@@ -201,7 +201,7 @@ const OfficialDashboard = () => {
             value={selectedReason}
             onChange={(e) => setSelectedReason(e.target.value)}
           >
-            <option value="">Reason</option>
+            <option value="">{t("Reason")}</option>
             {uniqueReasons.map((reason, idx) => (
               <option key={idx} value={reason}>
                 {reason}
@@ -211,7 +211,7 @@ const OfficialDashboard = () => {
 
           <input
             type="text"
-            placeholder="Name"
+            placeholder={t("Name")}
             className="border border-gray-300 rounded-md px-3 py-2 text-sm w-full sm:w-48"
             value={searchName}
             onChange={(e) => setSearchName(e.target.value)}
@@ -219,7 +219,7 @@ const OfficialDashboard = () => {
 
           <input
             type="text"
-            placeholder="Index / Code"
+            placeholder={t("IndexCode")}
             className="border border-gray-300 rounded-md px-3 py-2 text-sm w-full sm:w-48"
             value={searchIndex}
             onChange={(e) => setSearchIndex(e.target.value)}
@@ -237,14 +237,14 @@ const OfficialDashboard = () => {
                 setSearchIndex("");
               }}
             >
-              Clear Filters
+              {t("ClearFilters")}
             </button>
           </div>
         )}
 
         {spinnerVisible ? (
           <div className="w-full h-[60vh] flex justify-center items-center">
-            <span className="text-gray-500">Loading...</span>
+            <span className="text-gray-500">{t("Loading")}</span>
           </div>
         ) : filteredComplaints.length > 0 ? (
           filteredComplaints.map((complaint, index) => (
@@ -258,7 +258,7 @@ const OfficialDashboard = () => {
           ))
         ) : (
           <div className="text-center text-gray-500 mt-8">
-            No complaints to display.
+            {t("NoComplaints")}
           </div>
         )}
       </div>

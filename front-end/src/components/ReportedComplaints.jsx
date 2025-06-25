@@ -75,7 +75,7 @@ const ReportedComplaints = () => {
       <h3 className="font-bold my-2">Complaints Reported by You</h3>
 
       {/* Spinner while loading */}
-      <SpinnerModal visible={loading} />
+      {/* <SpinnerModal visible={loading} /> */}
 
       {/* Complaint List */}
       {!loading && (
