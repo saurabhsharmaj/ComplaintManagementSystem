@@ -109,7 +109,7 @@ const CitizenDashboard = () => {
 
   return (
     <>
-      <SpinnerModal visible={SpinnerVisible} />
+      {/* <SpinnerModal visible={SpinnerVisible} /> */}
       <Navbar />
       <ToastContainer position="bottom-center" autoClose={5000} hideProgressBar theme="light" />
 
