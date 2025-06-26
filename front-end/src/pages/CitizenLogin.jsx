@@ -5,6 +5,7 @@ import Navbar from "../components/Navbar";
 import { TextField } from "../components/RegisterAccount";
 import { handleLogin } from "../utils/mongodb";
 import SpinnerModal from "../components/SpinnerModal";
+import { useTranslation } from "react-i18next";
 const CitizenLogin = () => {
   const [FormData, setFormData] = useState({
     email: "",
@@ -13,6 +14,7 @@ const CitizenLogin = () => {
   const [Spinner, setSpinner] = useState(false);
   const [Err, setErr] = useState("");
   const navigate = useNavigate();
+  const { t } = useTranslation();
   useEffect(() => {
     const token = localStorage.getItem("token");
     const userId = localStorage.getItem("userId");
@@ -36,7 +38,7 @@ const CitizenLogin = () => {
       <Navbar />
       <div className=" lg:px-96 px-4 h-3/4 flex flex-col justify-center">
         <h2 className="mt-[25%] lg:mt-0 leading-normal font-bold text-center text-base lg:text-[2rem] my-8">
-          Citizen Login
+          {t("Citizen Login")}
         </h2>
         <div
           className="LoginBox flex flex-col gap-5 items-center 
@@ -98,7 +100,7 @@ const CitizenLogin = () => {
             <p className="text-red-600">{Err}</p>
 
             <Button variant="contained" type="submit">
-              Login
+              {t("Login")}
             </Button>
           </form>
         </div>

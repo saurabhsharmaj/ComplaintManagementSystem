@@ -85,10 +85,22 @@ export default defineConfig({
   // DO NOT use './' — use '/' for clean absolute paths in Nginx
   base: '/',
   plugins: [react(), VitePWA(manifestForPlugin)],
+  // build: {
+  //   outDir: "dist",
+  //   target: "es2022",
+  // },
   build: {
-    outDir: "dist",
-    target: "es2022",
-  },
+  outDir: "dist",
+  target: "es2022",
+  assetsDir: 'assets',
+  rollupOptions: {
+    output: {
+      entryFileNames: 'assets/[name].[hash].js',
+      chunkFileNames: 'assets/[name].[hash].js',
+      assetFileNames: 'assets/[name].[hash].[ext]'
+    }
+  }
+},
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
