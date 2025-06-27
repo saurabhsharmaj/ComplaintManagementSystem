@@ -5,8 +5,10 @@ import { isOfficial } from "../utils/mongodb";
 import TrafficArt from "/src/assets/traffic-art.png";
 import Navbar from "/src/components/Navbar";
 import { API_BASE_URL } from "@/config";
+import { useTranslation } from "react-i18next";
 const HomePage = () => {
   const navigate = useNavigate();
+  const {t} = useTranslation();
   useEffect(() => {
   const token = localStorage.getItem("token");
   if (!token) return;
@@ -36,7 +38,7 @@ const HomePage = () => {
         />
         <div>
           <h3 className="slogan mt-[25%] lg:mt-0 leading-normal font-bold text-center text-base lg:text-[2rem]">
-            REPORT SHIV VIHAR VIOLATIONS AND PUBLIC PROBLEMS IN COLONY !!!
+            {t("REPORT SHIV VIHAR VIOLATIONS AND PUBLIC PROBLEMS IN COLONY")} !!!
           </h3>
           <RegisterAccount />
         </div>

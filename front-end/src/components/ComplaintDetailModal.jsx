@@ -3,12 +3,10 @@ import { faClose, faMapMarkerAlt } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Send } from "@mui/icons-material";
 import {
-  Button,
-  DialogActions,
-  DialogContent,
   DialogTitle,
-  IconButton,
+  DialogContent,
   TextField,
+  IconButton,
 } from "@mui/material";
 import { useEffect, useState } from "react";
 import {
@@ -21,12 +19,14 @@ import CommentsTile from "./CommentsTile";
 import { API_BASE_URL } from "@/config";
 import { useTranslation } from "react-i18next";
 
-const ComplaintDetailModal = ({ setDialogOpen, complaint }) => {
+const ComplaintDetailModal = ({ setDialogOpen, complaint: initialComplaint }) => {
+  const { t } = useTranslation();
+
+  const [complaint, setComplaint] = useState(initialComplaint);
   const [official, setOfficial] = useState(false);
-  const [comments, setComments] = useState(complaint.comments || []);
+  const [comments, setComments] = useState(initialComplaint.comments || []);
   const [CommentBoxDisabled, setCommentBoxDisabled] = useState(true);
   const [CommentFValue, setCommentFValue] = useState("");
-  const {t} = useTranslation();
 
   const token = localStorage.getItem("token");
   const userId = localStorage.getItem("userId");
@@ -78,10 +78,23 @@ const ComplaintDetailModal = ({ setDialogOpen, complaint }) => {
     }
   };
 
+  const handleMarkAs = async (statusFunc, newStatus) => {
+    if (CommentFValue.trim()) {
+      await handleAddComment();
+    }
+
+    await statusFunc(complaint._id, token);
+    setComplaint((prev) => ({ ...prev, status: newStatus }));
+
+    // Give time for state update to render before closing modal
+    await new Promise((resolve) => setTimeout(resolve, 100));
+    setDialogOpen(false);
+  };
+
   return (
     <div>
       <DialogTitle className="flex justify-between">
-       {t("Complaint Details")}
+        {t("Complaint Details")}
         <FontAwesomeIcon
           onClick={() => setDialogOpen(false)}
           className="cursor-pointer"
@@ -115,7 +128,7 @@ const ComplaintDetailModal = ({ setDialogOpen, complaint }) => {
         {/* Media Section */}
         {complaint.mediaType === "image" && complaint?.mediaPath?.buffer ? (
           <img
-            className="max-w-full w-auto h-96 object-scale-down"
+            className="max-w-full w-48 h-48 object-scale-down"
             src={`data:image/png;base64,${complaint.mediaPath.buffer}`}
             alt="Complaint media"
           />
@@ -126,7 +139,7 @@ const ComplaintDetailModal = ({ setDialogOpen, complaint }) => {
             src={`data:video/mp4;base64,${complaint.mediaPath.buffer}`}
           />
         ) : (
-          <p className="text-center text-gray-500 mt-4">No media available</p>
+          <p className="text-center text-gray-500 mt-4">{t("No media available")}</p>
         )}
 
         {/* Comments */}
@@ -164,32 +177,23 @@ const ComplaintDetailModal = ({ setDialogOpen, complaint }) => {
       </DialogContent>
 
       {/* Sticky Footer Actions */}
-     {official && complaint.status === Statuses.inProgress && (
-  <div className="sticky bottom-0 bg-white z-10 border-t p-4 flex justify-end gap-4">
-    <button
-      className="px-4 py-2 border border-red-600 text-red-600 hover:bg-red-50 font-medium rounded transition duration-300"
-      onClick={async () => {
-        if (CommentFValue.trim()) await handleAddComment();
-        await markAsRejected(complaint._id, token);
-        setDialogOpen(false);
-      }}
-    >
-      {t("Mark as Rejected")}
-    </button>
+      {official && complaint.status === Statuses.inProgress && (
+        <div className="sticky bottom-0 bg-white z-10 border-t p-4 flex justify-end gap-4">
+          <button
+            className="px-4 py-2 border border-red-600 text-red-600 hover:bg-red-50 font-medium rounded transition duration-300"
+            onClick={() => handleMarkAs(markAsRejected, Statuses.rejected)}
+          >
+            {t("Mark as Rejected")}
+          </button>
 
-    <button
-      className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white font-medium rounded transition duration-300"
-      onClick={async () => {
-        if (CommentFValue.trim()) await handleAddComment();
-        await markAsSolved(complaint._id, token);
-        setDialogOpen(false);
-      }}
-    >
-      {t("Mark as Solved")}
-    </button>
-  </div>
-)}
-
+          <button
+            className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white font-medium rounded transition duration-300"
+            onClick={() => handleMarkAs(markAsSolved, Statuses.solved)}
+          >
+            {t("Mark as Solved")}
+          </button>
+        </div>
+      )}
     </div>
   );
 };
