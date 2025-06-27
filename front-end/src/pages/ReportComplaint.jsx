@@ -1,7 +1,6 @@
 import styled from "@emotion/styled";
 import { LocationSearching } from "@mui/icons-material";
 import {
-  Box,
   Button,
   ButtonBase,
   Checkbox,
@@ -15,10 +14,9 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
 import Navbar from "../components/Navbar";
 import SpinnerModal from "../components/SpinnerModal";
-import { createComplaint, isOfficial } from "../utils/mongodb";
+import { createComplaint} from "../utils/mongodb";
 import { identifyLocation } from "../utils/MiscFunctions";
 import { Statuses } from "../utils/enums";
-import { API_BASE_URL } from "@/config";
 import { useTranslation } from "react-i18next";
 
 const TextField = styled(MuiTextField)(() => ({
@@ -112,7 +110,7 @@ const ReportComplaint = () => {
   const handleFileChange = async (e) => {
     const file = e.target.files?.[0];
     if (!file || !file.type.match("image.*")) {
-      toast.error("Please upload an image file");
+      toast.error(token("Please upload an image file"));
       return;
     }
 
@@ -125,7 +123,7 @@ const ReportComplaint = () => {
       setFormData({ ...FormData, mediaType: "image" });
       setMediaPath(compressedImage);
     } catch (error) {
-      toast.error("Error compressing image");
+      toast.error(t("Error compressing image"));
     } finally {
       setLoaderVisibile(false);
     }
@@ -146,7 +144,7 @@ const ReportComplaint = () => {
     setLoaderVisibile(true);
     createComplaint(FormData, Media, token)
       .then((response) => {
-        toast.success("Complaint Reported Successfully");
+        toast.success(t("Complaint Reported Successfully"));
         setComplaintCode(response?.code || "");
         setTimeout(() => {
           navigate(user?.type === "admin" ? "/official-dashboard" : "/citizen-dashboard");

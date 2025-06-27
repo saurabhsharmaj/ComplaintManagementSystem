@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { handleRegistration } from "../utils/mongodb.js";
 import { toast } from "react-toastify";
+import { useTranslation } from "react-i18next";
 
 export const TextField = styled(MuiTextField)((props) => ({
   width: "100%",
@@ -22,22 +23,22 @@ const RegisterAccount = () => {
   });
   const [Err, setErr] = useState(null);
   const navigate = useNavigate();
+  const {t} = useTranslation();
   useEffect(() => {
     if (FormData.password != FormData.confirmPassword) {
-      setErr("The password and confirmation password do not match.");
+      setErr(t("The password and confirmation password do not match"));
+
     } else {
       setErr(null);
     }
   }, [FormData]);
   return (
     <div
-      className="RegisterAccount flex flex-col gap-5 items-center mt-20 
+      className="RegisterAccount flex flex-col gap-5 items-center mt-2 
       border-solid border-gray-500 px-3 lg:px-4 py-5 mx-4 lg:mx-12 rounded-3xl
-      border-2 shadow-[0px_20px_20px_10px_#00000024] bg-opacity-20
-    "
-    >
+      border-2 shadow-[0px_20px_20px_10px_#00000024] bg-opacity-20">
       <p className="Slogan text-sm lg:text-xl text-center">
-        Register a account to be a <b>HERO</b>
+        {t("Register a account to be a Hero of your city")}
       </p>
       <form
         action=""
@@ -55,14 +56,14 @@ const RegisterAccount = () => {
       >
         <TextField
           variant="outlined"
-          label="Full Name"
+          label={t("Full Name")}
           required
           value={FormData.name}
           onChange={(e) => setFormData({ ...FormData, name: e.target.value })}
         />
         <TextField
           variant="outlined"
-          label="E-mail"
+          label={t("E-mail")}
           type="email"
           required
           value={FormData.email}
@@ -70,7 +71,7 @@ const RegisterAccount = () => {
         />
         <TextField
           variant="outlined"
-          label="Phone No."
+          label={t("Phone No")}
           type="tel"
           required
           value={FormData.mobile}
@@ -78,7 +79,7 @@ const RegisterAccount = () => {
         />
         <TextField
           variant="outlined"
-          label="Password"
+          label={t("Password")}
           type="password"
           required
           value={FormData.password}
@@ -88,7 +89,7 @@ const RegisterAccount = () => {
         />
         <TextField
           variant="outlined"
-          label="Confirm Password"
+          label={t("Confirm Password")}
           type="password"
           required
           value={FormData.confirmPassword}
@@ -98,7 +99,7 @@ const RegisterAccount = () => {
         />
         <p className="text-red-600">{Err}</p>
         <Button variant="contained" type="submit">
-          REGISTER
+          {t("REGISTER")}
         </Button>
       </form>
     </div>

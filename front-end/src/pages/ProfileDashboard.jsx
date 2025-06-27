@@ -66,7 +66,7 @@ const ReportComplaint = () => {
   }, []);
 
   useEffect(() => {
-    setErr(FormData.password !== FormData.confirmPassword ? "Passwords do not match" : null);
+    setErr(FormData.password !== FormData.confirmPassword ? t("Password do not match") : null);
   }, [FormData.password, FormData.confirmPassword]);
 
   return (
@@ -85,12 +85,12 @@ const ReportComplaint = () => {
             setLoaderVisibile(true);
             handleUserProfile(FormData, Media, token)
               .then(() => {
-                toast.success("Profile updated successfully!");
+                toast.success(t("Profile updated successfully"));
                 navigate(user?.type === "admin" ? "/official-dashboard" : "/citizen-dashboard");
               })
               .catch((err) => {
                 setErr(err?.message?.split(": ")[1] || "Profile update failed.");
-                toast.error("Failed to update profile");
+                toast.error(t("Failed to update profile"));
               })
               .finally(() => setLoaderVisibile(false));
           }}
