@@ -67,7 +67,7 @@ const OfficialDashboard = () => {
     <>
       <SpinnerModal visible={loading && page === 1} />
       <Navbar />
-      <div className="container px-4 py-4">
+      <div className="container px-4 py-16">
         {complaints.map((c, i) => (
           <ComplaintsCard
             key={c._id}

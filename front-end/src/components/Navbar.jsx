@@ -72,7 +72,16 @@ const Navbar = () => {
 
   return (
     <>
-      <div className="Navbar w-screen flex justify-between items-center px-4 py-2 lg:py-4 lg:px-8">
+      <div
+          className="
+            Navbar
+            fixed top-0 left-0 w-full z-50
+            h-16           /* ← fixed height of 4rem (64px) */
+            bg-white
+            flex justify-between items-center
+            px-4 py-2 lg:py-4 lg:px-8
+          "
+        >
         <Link to={Official ? "/official-dashboard" : "/citizen-dashboard"}>
           <div className="LogoGroup flex items-center gap-3">
             <img className="logo h-12 lg:h-12 w-12 rounded-full object-cover" src={Logo} alt="logo" />
