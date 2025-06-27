@@ -1,5 +1,5 @@
 import { Button } from "@mui/material";
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import { TextField } from "../components/RegisterAccount";
@@ -76,7 +76,7 @@ const CitizenLogin = () => {
           >
             <TextField
               variant="outlined"
-              label="E-mail or Phone"
+              label={t("E-mail or Phone")}
               type="text"
               onChange={(e) => {
                 if (!isNaN(e.target.value)) {
@@ -90,7 +90,7 @@ const CitizenLogin = () => {
             />
             <TextField
               variant="outlined"
-              label="Password"
+              label={t("Password")}
               type="password"
               onChange={(e) =>
                 setFormData({ ...FormData, password: e.target.value })

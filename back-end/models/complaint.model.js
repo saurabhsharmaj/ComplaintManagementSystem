@@ -44,7 +44,8 @@ const complaintSchema = new Schema({
   reportedBy: {
     type: String,
     required: false,
-    trim: true
+    trim: true,
+    ref: "User",
   },
   comments: [
     {

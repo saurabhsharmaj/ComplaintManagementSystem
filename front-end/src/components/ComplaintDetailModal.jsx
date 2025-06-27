@@ -19,12 +19,14 @@ import {
 import { Statuses, statusColors } from "../utils/enums";
 import CommentsTile from "./CommentsTile";
 import { API_BASE_URL } from "@/config";
+import { useTranslation } from "react-i18next";
 
 const ComplaintDetailModal = ({ setDialogOpen, complaint }) => {
   const [official, setOfficial] = useState(false);
   const [comments, setComments] = useState(complaint.comments || []);
   const [CommentBoxDisabled, setCommentBoxDisabled] = useState(true);
   const [CommentFValue, setCommentFValue] = useState("");
+  const {t} = useTranslation();
 
   const token = localStorage.getItem("token");
   const userId = localStorage.getItem("userId");
@@ -79,7 +81,7 @@ const ComplaintDetailModal = ({ setDialogOpen, complaint }) => {
   return (
     <div>
       <DialogTitle className="flex justify-between">
-        Complaint Details
+       {t("Complaint Details")}
         <FontAwesomeIcon
           onClick={() => setDialogOpen(false)}
           className="cursor-pointer"
@@ -98,7 +100,7 @@ const ComplaintDetailModal = ({ setDialogOpen, complaint }) => {
             className="w-30 text-center rounded-xl font-bold flex items-center text-white h-12 lg:h-6 px-4"
             style={{ backgroundColor: statusColors[StatusColorEnum] }}
           >
-            {complaint.status}
+            {t(complaint.status)}
           </span>
         </div>
 
@@ -107,7 +109,7 @@ const ComplaintDetailModal = ({ setDialogOpen, complaint }) => {
           <p>{date + " , " + time}</p>
         </div>
 
-        <h2 className="text-lg font-bold my-4">{complaint.reason}</h2>
+        <h2 className="text-lg font-bold my-4">{t(complaint.reason)}</h2>
         <p>{complaint.additionalInfo}</p>
 
         {/* Media Section */}
@@ -128,9 +130,9 @@ const ComplaintDetailModal = ({ setDialogOpen, complaint }) => {
         )}
 
         {/* Comments */}
-        <h2 className="text-lg font-bold my-4">Comments</h2>
+        <h2 className="text-lg font-bold my-4">{t("Comments")}</h2>
         {comments.length === 0 ? (
-          <p className="text-center">No Comments</p>
+          <p className="text-center">{t("No Comments")}</p>
         ) : (
           comments.map((comment, idx) => (
             <CommentsTile key={idx} comment={comment} />
@@ -148,7 +150,7 @@ const ComplaintDetailModal = ({ setDialogOpen, complaint }) => {
                 setCommentBoxDisabled(e.target.value.trim() === "");
               }}
               variant="outlined"
-              label="Add your comment"
+              label={t("Add your comment")}
             />
             <IconButton
               className="h-10 w-10 shadow-xl border rounded-full flex items-center justify-center"
@@ -162,33 +164,32 @@ const ComplaintDetailModal = ({ setDialogOpen, complaint }) => {
       </DialogContent>
 
       {/* Sticky Footer Actions */}
-      {official && complaint.status === Statuses.inProgress && (
-        <DialogActions className="sticky bottom-0 bg-white z-10 border-t p-4 flex justify-end gap-4">
-          <Button
-            color="error"
-            variant="outlined"
-            onClick={async () => {
-              if (CommentFValue.trim()) await handleAddComment();
-              await markAsRejected(complaint._id, token);
-              setDialogOpen(false);
-            }}
-          >
-            Mark as Rejected
-          </Button>
+     {official && complaint.status === Statuses.inProgress && (
+  <div className="sticky bottom-0 bg-white z-10 border-t p-4 flex justify-end gap-4">
+    <button
+      className="px-4 py-2 border border-red-600 text-red-600 hover:bg-red-50 font-medium rounded transition duration-300"
+      onClick={async () => {
+        if (CommentFValue.trim()) await handleAddComment();
+        await markAsRejected(complaint._id, token);
+        setDialogOpen(false);
+      }}
+    >
+      {t("Mark as Rejected")}
+    </button>
 
-          <Button
-            color="success"
-            variant="contained"
-            onClick={async () => {
-              if (CommentFValue.trim()) await handleAddComment();
-              await markAsSolved(complaint._id, token);
-              setDialogOpen(false);
-            }}
-          >
-            Mark as Solved
-          </Button>
-        </DialogActions>
-      )}
+    <button
+      className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white font-medium rounded transition duration-300"
+      onClick={async () => {
+        if (CommentFValue.trim()) await handleAddComment();
+        await markAsSolved(complaint._id, token);
+        setDialogOpen(false);
+      }}
+    >
+      {t("Mark as Solved")}
+    </button>
+  </div>
+)}
+
     </div>
   );
 };
