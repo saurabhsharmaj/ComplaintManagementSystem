@@ -70,7 +70,7 @@ const ComplaintsCard = ({ complaint, user, userType }) => {
 
           <div>
             <span>
-              Reported Date:{" "}
+              {t("Reported Date")}:{" "}
               {date.toLocaleString("en-IN", {
                 day: "2-digit",
                 month: "2-digit",
@@ -82,7 +82,7 @@ const ComplaintsCard = ({ complaint, user, userType }) => {
             </span>
 
             <p className="text-xs text-gray-600">{user.mobile}</p>
-            <p className="font-semibold text-gray-800">{complaint.reason}</p>
+            <p className="font-semibold text-gray-800">{t(complaint.reason)}</p>
             <div className="flex items-center gap-2">
               <FontAwesomeIcon icon={faMapMarkerAlt} />
               <span>{complaint.location?.name}</span>
@@ -100,7 +100,7 @@ const ComplaintsCard = ({ complaint, user, userType }) => {
             </span>
           </div>
           <div className="font-bold flex items-center gap-1">
-            <span style={{ color: statusColor }}>{complaint.status}</span>
+            <span style={{ color: statusColor }}>{t(complaint.status)}</span>
           </div>
         </div>
       </div>

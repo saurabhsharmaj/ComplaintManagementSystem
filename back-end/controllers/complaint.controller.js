@@ -55,9 +55,21 @@ const getComplaintsByUser = async (req, res) => {
 };
 
 const getAllComplaints = async (req, res) => {
-  const complaints = await Complaint.find();
-  res.json(complaints);
-};
+  const page = Math.max(parseInt(req.query.page) || 1, 1);
+  const limit = Math.max(parseInt(req.query.limit) || 10, 1);
+  const skip = (page - 1) * limit;
+
+  const [totalCount, complaints] = await Promise.all([
+    Complaint.countDocuments(),
+    Complaint.find()
+      .sort({ timestamp: -1 })
+      .skip(skip)
+      .limit(limit)
+      .populate("reportedBy"),
+  ]);
+
+ return res.json({ totalCount, complaints });
+}
 
 const addComment = async (req, res) => {
   const newComment = {
