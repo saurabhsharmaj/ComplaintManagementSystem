@@ -20,32 +20,33 @@ const OfficialDashboard = () => {
   const userId = localStorage.getItem("userId");
 
   // Fetch complaints from backend with pagination
-  const fetchComplaints = async (pageNum = 1) => {
+    const fetchComplaints = async (pageNum = 1) => {
     setLoading(true);
     try {
       const res = await fetch(
         `${API_BASE_URL}/complaints?page=${pageNum}&limit=${PAGE_SIZE}`,
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
+        { headers: { Authorization: `Bearer ${token}` } }
       );
-
-      if (!res.ok) {
-        throw new Error("Failed to fetch complaints");
-      }
-
+      if (!res.ok) throw new Error("Failed to fetch complaints");
       const { totalCount, complaints: data } = await res.json();
 
-      // Append or replace based on page
-      setComplaints((prev) => (pageNum === 1 ? data : [...prev, ...data]));
 
-      // Determine if more data is available
+     setComplaints((prev) => {
+       if (pageNum === 1) return data;
+       // build a set of existing IDs
+       const existingIds = new Set(prev.map((c) => c._id));
+       // filter out any incoming complaints we already have
+       const newOnes = data.filter((c) => !existingIds.has(c._id));
+       return [...prev, ...newOnes];
+     });
+
       setHasMore(pageNum * PAGE_SIZE < totalCount);
     } catch (err) {
       console.error("Error fetching complaints:", err);
     }
     setLoading(false);
   };
+
 
   // Initial fetch
   useEffect(() => {
@@ -58,10 +59,28 @@ const OfficialDashboard = () => {
 
   // Load next page
   const loadMore = () => {
+    setLoading(true);
     const nextPage = page + 1;
     setPage(nextPage);
     fetchComplaints(nextPage);
   };
+
+  // Infinite scroll: trigger loadMore when you hit bottom
+  useEffect(() => {
+    const handleScroll = () => {
+      if (
+        !loading &&
+        hasMore &&
+        window.innerHeight + window.scrollY >=
+          document.documentElement.scrollHeight - 50
+      ) {
+        loadMore();
+      }
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, [loading, hasMore, page]);
 
   return (
     <>
@@ -72,26 +91,16 @@ const OfficialDashboard = () => {
           <ComplaintsCard
             key={c._id}
             complaint={c}
-            user={c.reportedBy} // ✅ Full user details come from backend
+            user={c.reportedBy}
             index={i}
             userType="admin"
           />
         ))}
 
-        {hasMore && (
-          <div className="flex justify-center mt-4">
-            <button
-              className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-              onClick={loadMore}
-              disabled={loading}
-            >
-              {loading ? t("Loading…") : t("Load More")}
-            </button>
-          </div>
-        )}
-
         {!hasMore && complaints.length > 0 && (
-          <p className="text-center mt-4 text-gray-500">{t("No more complaints")}</p>
+          <p className="text-center mt-4 text-gray-500">
+            {t("No more complaints")}
+          </p>
         )}
       </div>
     </>
