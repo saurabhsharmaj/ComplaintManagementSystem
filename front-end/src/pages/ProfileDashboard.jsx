@@ -76,7 +76,7 @@ const ReportComplaint = () => {
       <ToastContainer position="bottom-center" autoClose={3000} hideProgressBar />
 
       <div className="flex-grow overflow-auto px-4 py-2">
-        <h2 className="text-center font-bold text-lg lg:text-xl mb-2">👤 {t("Edit Profile")}</h2>
+        <h2 className="text-center font-bold text-lg lg:text-xl mb-2 mt-16">👤 {t("Edit Profile")}</h2>
 
         <form
           className="flex flex-col gap-3 items-center max-w-xl mx-auto"

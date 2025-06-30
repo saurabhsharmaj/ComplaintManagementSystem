@@ -162,7 +162,7 @@ const ReportComplaint = () => {
 
       <div className="flex-grow overflow-auto px-4 lg:px-16 py-4">
         <form onSubmit={handleSubmit} className="space-y-4">
-          <h2 className="text-center text-xl font-bold">{t("Report Complaint")}</h2>
+          <h2 className="text-center text-xl font-bold mt-14">{t("Report Complaint")}</h2>
 
           <input
             required
