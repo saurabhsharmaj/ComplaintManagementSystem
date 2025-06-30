@@ -6,6 +6,26 @@ const userSchema = new Schema({
         required: true,
         trim: true,
         minlength: 3
+    },fname: {
+        type: String,
+        required: true,
+        trim: true,
+        minlength: 3
+    },cast: {
+        type: String,
+        required: true,
+        trim: true,
+        minlength: 3
+    },plotno: {
+        type: String,
+        required: true,
+        trim: true,
+        minlength: 3
+    },galino: {
+        type: String,
+        required: true,
+        trim: true,
+        minlength: 3
     },
     email: {
         type: String,

@@ -10,7 +10,7 @@ const registerUser = async (req, res) => {
       return res.status(400).json({ message: "Email or mobile already registered" });
     }
     const hashedPassword = await bcrypt.hash(password, 10);
-    const user = new User({ name, email, password: hashedPassword, mobile, type: "citizen" });
+    const user = new User({ name,fname,cast,plotno,galino, email, password: hashedPassword, mobile, type: "citizen" });
     await user.save();
     const userObj = user.toObject();
     delete userObj.password;
@@ -45,11 +45,15 @@ const loginUser = async (req, res) => {
 
 const updateUser = async (req, res) => {
   try {
-    const { mediaType, name, email, password, mobile } = req.body;
+    const { mediaType, name, fname,cast,plotno,galino, email, password, mobile } = req.body;
     const existingUser = await User.findById(req.params.id);
     if (!existingUser) return res.status(404).json({ error: "User not found" });
 
     existingUser.name = name;
+    existingUser.fname = fname;
+    existingUser.cast = cast;
+    existingUser.plotno = plotno;
+    existingUser.galino = galino;
     existingUser.email = email;
     existingUser.mobile = mobile;
 
