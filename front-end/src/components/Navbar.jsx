@@ -100,6 +100,10 @@ const Navbar = () => {
               <Button component={Link} to={Official ? "/official-dashboard" : "/citizen-dashboard"} variant="outlined">
                 {t("Dashboard")}
               </Button>
+              {Official? <Button component={Link} to="/user-dashboard" variant="outlined">
+                {t("UserDashboard")}
+              </Button>
+              :""}
               <Button component={Link} to="/profile-dashboard" variant="outlined" className="flex gap-2">
                 <img
                   src={
