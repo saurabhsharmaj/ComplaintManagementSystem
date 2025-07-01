@@ -2,24 +2,31 @@ import { useEffect, useState } from "react";
 import { fetchUsers } from "../utils/mongodb";
 import { useTranslation } from "react-i18next";
 import Navbar from "../components/Navbar";
+import SpinnerModal from "../components/SpinnerModal";
 
 const UserDashboard = () => {
   const [users, setUsers] = useState([]);
   const [filtered, setFiltered] = useState([]);
   const [search, setSearch] = useState("");
+  const [loading, setLoading] = useState(false);
   const { t } = useTranslation();
 
   const token = localStorage.getItem("token");
-
   useEffect(() => {
     const getUsers = async () => {
-      const data = await fetchUsers(token);
-      const isArray = Array.isArray(data);
-      setUsers(isArray ? data : []);
-      setFiltered(isArray ? data : []);
+      setLoading(true);
+      try {
+        const data = await fetchUsers(token);
+        const isArray = Array.isArray(data);
+        setUsers(isArray ? data : []);
+        setFiltered(isArray ? data : []);
+      } finally {
+        setLoading(false);
+      }
     };
     getUsers();
   }, [token]);
+  
 
   useEffect(() => {
     const q = search.toLowerCase();
@@ -33,6 +40,7 @@ const UserDashboard = () => {
 
   return (
     <>
+      <SpinnerModal visible={loading} />
       <Navbar />
       <div className="px-5 py-8 mt-10">
         <div className="mb-6 max-w-md mx-auto">
