@@ -20,12 +20,12 @@ const userSchema = new Schema({
         type: String,
         required: true,
         trim: true,
-        minlength: 3
+        minlength: 1
     },galino: {
         type: String,
         required: true,
         trim: true,
-        minlength: 3
+        minlength: 1
     },
     email: {
         type: String,
@@ -51,7 +51,7 @@ const userSchema = new Schema({
         default: 'citizen'
     }, 
     mediaPath: {
-    type: Schema.Types.Mixed, // allows object, string, array, etc.
+    type: Schema.Types.Mixed,
     default: null
     }, 
     mediaType: {

@@ -1,6 +1,7 @@
 import axios from "axios";
 import mongoose from "mongoose";
 import { API_BASE_URL } from "@/config.js";
+import { faHandsAmericanSignLanguageInterpreting } from "@fortawesome/free-solid-svg-icons";
 
 
 
@@ -26,6 +27,10 @@ const statusColors = Object.freeze({
 // Schemas
 const UserSchema = new mongoose.Schema({
   name: String,
+  fname: String,
+  cast: String,
+  plotno: String,
+  galino: String,
   email: { type: String, unique: true },
   password: String,
   mobile: String,

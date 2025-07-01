@@ -73,7 +73,7 @@ const Navbar = () => {
   return (
     <>
       <div
-          className="
+        className="
             Navbar
             fixed top-0 left-0 w-full z-50
             h-16           /* ← fixed height of 4rem (64px) */
@@ -81,7 +81,7 @@ const Navbar = () => {
             flex justify-between items-center
             px-4 py-2 lg:py-4 lg:px-8
           "
-        >
+      >
         <Link to={Official ? "/official-dashboard" : "/citizen-dashboard"}>
           <div className="LogoGroup flex items-center gap-3">
             <img className="logo h-12 lg:h-12 w-12 rounded-full object-cover" src={Logo} alt="logo" />
@@ -91,19 +91,20 @@ const Navbar = () => {
           </div>
         </Link>
 
-        <div className="ButtonGroup gap-6 hidden lg:flex items-center">
+        <div className="ButtonGroup gap-2 hidden lg:flex items-center">
           {user ? (
             <>
-              <Button component={Link} to="/report" state={{ user }} variant="outlined">
+              <Button component={Link} to="/report" state={{ user }} variant="outlined" className="text-sm">
                 {t("New Complaint")}
               </Button>
               <Button component={Link} to={Official ? "/official-dashboard" : "/citizen-dashboard"} variant="outlined">
                 {t("Dashboard")}
               </Button>
-              {Official? <Button component={Link} to="/user-dashboard" variant="outlined">
-                {t("UserDashboard")}
-              </Button>
-              :""}
+              {Official && (
+                <Button component={Link} to="/user-dashboard" variant="outlined">
+                  {t("Users")}
+                </Button>
+              )}
               <Button component={Link} to="/profile-dashboard" variant="outlined" className="flex gap-2">
                 <img
                   src={
@@ -152,9 +153,8 @@ const Navbar = () => {
 
       {/* Mobile Menu */}
       <div
-        className={`MenuMobile lg:hidden w-full text-center py-20 absolute bg-white z-10 rounded-3xl ${
-          Visible ? "block" : "hidden"
-        }`}
+        className={`MenuMobile lg:hidden w-full text-center py-20 absolute bg-white z-10 rounded-3xl ${Visible ? "block" : "hidden"
+          }`}
       >
         <ul className="flex flex-col gap-10 font-bold">
           {user ? (
@@ -164,6 +164,8 @@ const Navbar = () => {
                 {t("New Complaint")}
               </Link>
               <Link to="/profile-dashboard">{t("Profile")}</Link>
+              {Official ? <Link to="/user-dashboard">{t("Users")}</Link> : ""}
+
               <Link onClick={handleLogout}>{t("Logout")}</Link>
             </>
           ) : (
