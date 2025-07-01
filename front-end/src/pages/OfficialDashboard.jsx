@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import SpinnerModal from "../components/SpinnerModal";
@@ -13,8 +13,12 @@ const OfficialDashboard = () => {
   const [users, setUsers] = useState([]);
   const [complaints, setComplaints] = useState([]);
   const [filteredComplaints, setFilteredComplaints] = useState([]);
-  const [visibleCount, setVisibleCount] = useState(10);
+
   const [spinnerVisible, setSpinnerVisible] = useState(true);
+  const [loading, setLoading] = useState(false);
+
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(false);
 
   const [inProgress, setInProgress] = useState(0);
   const [solved, setSolved] = useState(0);
@@ -26,11 +30,6 @@ const OfficialDashboard = () => {
   const [searchIndex, setSearchIndex] = useState("");
   const [uniqueReasons, setUniqueReasons] = useState([]);
 
-  const [page, setPage] = useState(1);
-  const [hasMore, setHasMore] = useState(false);
-  const [loading, setLoading] = useState(false);
-
-  const containerRef = useRef(null);
   const navigate = useNavigate();
   const { t } = useTranslation();
 
@@ -98,7 +97,6 @@ const OfficialDashboard = () => {
     }
 
     setFilteredComplaints(filtered);
-    setVisibleCount(10);
   };
 
   useEffect(() => {
@@ -139,23 +137,21 @@ const OfficialDashboard = () => {
   }, [selectedStatus, selectedReason, searchName, searchIndex]);
 
   useEffect(() => {
-    const handleScroll = () => {
-      if (!containerRef.current) return;
-      const { scrollTop, scrollHeight, clientHeight } = containerRef.current;
+    const handleWindowScroll = () => {
+      const scrollTop = window.scrollY;
+      const scrollHeight = document.documentElement.scrollHeight;
+      const clientHeight = window.innerHeight;
 
-      if (scrollTop + clientHeight >= scrollHeight - 50) {
-        setTimeout(() => {
-          setVisibleCount((prev) =>
-            Math.min(prev + 10, filteredComplaints.length)
-          );
-        }, 500);
+      if (scrollTop + clientHeight >= scrollHeight - 100 && hasMore && !loading) {
+        const nextPage = page + 1;
+        setPage(nextPage);
+        fetchComplaints(nextPage);
       }
     };
 
-    const container = containerRef.current;
-    container?.addEventListener("scroll", handleScroll);
-    return () => container?.removeEventListener("scroll", handleScroll);
-  }, [filteredComplaints]);
+    window.addEventListener("scroll", handleWindowScroll);
+    return () => window.removeEventListener("scroll", handleWindowScroll);
+  }, [page, hasMore, loading]);
 
   const statusStyles = {
     "": {
@@ -189,7 +185,7 @@ const OfficialDashboard = () => {
       <SpinnerModal visible={spinnerVisible || (loading && page === 1)} />
       <Navbar />
 
-      <div ref={containerRef} className="container px-4 py-4 overflow-y-auto h-[calc(100vh-64px)]">
+      <div className="container px-4 py-4">
         {/* Status summary */}
         <div className="flex justify-center sm:justify-between gap-2 mb-6 px-2 flex-wrap mt-16">
           {[
@@ -204,15 +200,9 @@ const OfficialDashboard = () => {
             return (
               <div
                 key={status.value}
-                className={`flex-1 min-w-[120px] ${
-                  isActive ? style.activeBg : style.bg
-                } ${style.text} ${style.hover} p-4 rounded-lg shadow text-center cursor-pointer transition ring-1 ring-inset ${
-                  isActive ? "ring-black/50" : "ring-transparent"
-                }`}
+                className={`flex-1 min-w-[120px] ${isActive ? style.activeBg : style.bg} ${style.text} ${style.hover} p-4 rounded-lg shadow text-center cursor-pointer transition ring-1 ring-inset ${isActive ? "ring-black/50" : "ring-transparent"}`}
                 onClick={() =>
-                  setSelectedStatus((prev) =>
-                    prev === status.value ? "" : status.value
-                  )
+                  setSelectedStatus((prev) => (prev === status.value ? "" : status.value))
                 }
               >
                 <h3 className="text-sm font-bold">{t(status.label)}</h3>
@@ -254,39 +244,31 @@ const OfficialDashboard = () => {
               <option value="">{t("Reason")}</option>
               {uniqueReasons.map((reason, idx) => (
                 <option key={idx} value={reason}>
-                    {t(reason)}
+                  {t(reason)}
                 </option>
               ))}
             </select>
           </div>
 
-          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2">
-      
-            <input
-              id="name"
-              type="text"
-              value={searchName}
-              onChange={(e) => setSearchName(e.target.value)}
-              className="border border-gray-300 rounded-md px-3 py-1 text-sm"
-              placeholder={t("Name")}
-            />
-          </div>
+          <input
+            type="text"
+            value={searchName}
+            onChange={(e) => setSearchName(e.target.value)}
+            className="border border-gray-300 rounded-md px-3 py-1 text-sm"
+            placeholder={t("Name")}
+          />
 
-          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2">
-          
-            <input
-              id="index"
-              type="text"
-              value={searchIndex}
-              onChange={(e) => setSearchIndex(e.target.value)}
-              className="border border-gray-300 rounded-md px-3 py-1 text-sm"
-              placeholder={t("IndexCode")}
-            />
-          </div>
+          <input
+            type="text"
+            value={searchIndex}
+            onChange={(e) => setSearchIndex(e.target.value)}
+            className="border border-gray-300 rounded-md px-3 py-1 text-sm"
+            placeholder={t("IndexCode")}
+          />
         </div>
 
         {/* Complaints List */}
-        {filteredComplaints.slice(0, visibleCount).map((c, i) => (
+        {filteredComplaints.map((c, i) => (
           <ComplaintsCard
             key={c._id}
             complaint={c}
@@ -295,23 +277,6 @@ const OfficialDashboard = () => {
             userType="admin"
           />
         ))}
-
-        {/* Load more */}
-        {hasMore && (
-          <div className="flex justify-center mt-4">
-            <button
-              className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-              onClick={() => {
-                const nextPage = page + 1;
-                setPage(nextPage);
-                fetchComplaints(nextPage);
-              }}
-              disabled={loading}
-            >
-              {loading ? t("Loading…") : t("Load More")}
-            </button>
-          </div>
-        )}
 
         {!hasMore && complaints.length > 0 && (
           <p className="text-center mt-4 text-gray-500">{t("No more complaints")}</p>

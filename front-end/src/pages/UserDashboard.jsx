@@ -1,107 +1,83 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import Navbar from "../components/Navbar";
-import SpinnerModal from "../components/SpinnerModal";
-import ComplaintsCard from "../components/ComplaintsCard";
-import { API_BASE_URL } from "@/config";
+import { fetchUsers } from "../utils/mongodb";
 import { useTranslation } from "react-i18next";
-
-const PAGE_SIZE = 10;
+import Navbar from "../components/Navbar";
 
 const UserDashboard = () => {
-  const [complaints, setComplaints] = useState([]);
-  const [page, setPage] = useState(1);
-  const [hasMore, setHasMore] = useState(false);
-  const [loading, setLoading] = useState(false);
-
-  const navigate = useNavigate();
+  const [users, setUsers] = useState([]);
+  const [filtered, setFiltered] = useState([]);
+  const [search, setSearch] = useState("");
   const { t } = useTranslation();
-  const token = localStorage.getItem("token");
-  const userId = localStorage.getItem("userId");
 
-  // Fetch complaints from backend with pagination
-    const fetchComplaints = async (pageNum = 1) => {
-    setLoading(true);
-    try {
-      const res = await fetch(
-        `${API_BASE_URL}/complaints?page=${pageNum}&limit=${PAGE_SIZE}`,
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-      if (!res.ok) throw new Error("Failed to fetch complaints");
-      const { totalCount, complaints: data } = await res.json();
+  const token = localStorage.getItem("token"); 
 
-
-     setComplaints((prev) => {
-       if (pageNum === 1) return data;
-       // build a set of existing IDs
-       const existingIds = new Set(prev.map((c) => c._id));
-       // filter out any incoming complaints we already have
-       const newOnes = data.filter((c) => !existingIds.has(c._id));
-       return [...prev, ...newOnes];
-     });
-
-      setHasMore(pageNum * PAGE_SIZE < totalCount);
-    } catch (err) {
-      console.error("Error fetching complaints:", err);
-    }
-    setLoading(false);
-  };
-
-
-  // Initial fetch
   useEffect(() => {
-    if (!token || !userId) {
-      navigate("/official-login");
-      return;
-    }
-    fetchComplaints(1);
-  }, []);
-
-  // Load next page
-  const loadMore = () => {
-    const nextPage = page + 1;
-    setPage(nextPage);
-    fetchComplaints(nextPage);
-  };
-
-  // Infinite scroll: trigger loadMore when you hit bottom
-  useEffect(() => {
-    const handleScroll = () => {
-      if (
-        !loading &&
-        hasMore &&
-        window.innerHeight + window.scrollY >=
-          document.documentElement.scrollHeight - 50
-      ) {
-        loadMore();
-      }
+    const getUsers = async () => {
+      const data = await fetchUsers(token);
+      const isArray = Array.isArray(data);
+      setUsers(isArray ? data : []);
+      setFiltered(isArray ? data : []);
     };
+    getUsers();
+  }, [token]);
 
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, [loading, hasMore, page]);
+  useEffect(() => {
+    const q = search.toLowerCase();
+    const filteredUsers = users.filter(
+      (u) =>
+        u.name?.toLowerCase().includes(q) ||
+        u.fname?.toLowerCase().includes(q)
+    );
+    setFiltered(filteredUsers);
+  }, [search, users]);
 
   return (
     <>
-      <SpinnerModal visible={loading && page === 1} />
-      <Navbar />
-      <div className="container px-4 py-16">
-        {complaints.map((c, i) => (
-          <ComplaintsCard
-            key={c._id}
-            complaint={c}
-            user={c.reportedBy}
-            index={i}
-            userType="admin"
-          />
-        ))}
-
-        {!hasMore && complaints.length > 0 && (
-          <p className="text-center mt-4 text-gray-500">
-            {t("No more complaints")}
-          </p>
-        )}
+    <Navbar />
+    <div className="px-5 py-8 mt-10">
+      <div className="mb-6 max-w-md mx-auto">
+        <input
+          type="text"
+          placeholder={t("Search by name or father's name")}
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          className="w-full px-4 py-2 border border-gray-400 rounded-lg shadow-sm"
+        />
       </div>
+
+      <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+        {filtered.map((user, index) => (
+  <div
+    key={index}
+    className="border-2 border-gray-400 rounded-xl p-4 bg-white shadow-md flex flex-col sm:flex-row items-center sm:items-start text-left"
+  >
+    {/* Profile Image */}
+    <div className="w-28 h-32 bg-gray-100  overflow-hidden flex-shrink-0 mb-4 sm:mb-0 sm:mr-6">
+      <img
+        src={
+          user.mediaPath?.buffer
+            ? `data:${user.mediaType};base64,${user.mediaPath.buffer}`
+            : "/default-avatar.png"
+        }
+        alt="Profile"
+        className="object-cover w-full h-full"
+      />
+    </div>
+
+    {/* User Details */}
+    <div className="flex flex-col gap-1">
+      <p className="font-bold">{t("Name")}: {user.name}</p>
+      <p className="text-sm">{t("Father's Name")}: {user.fname}</p>
+      <p className="text-sm">{t("Caste")}: {user.cast}</p>
+      <p className="text-sm">{t("Plot No")}: {user.plotno}</p>
+      <p className="text-sm">{t("Gali No")}: {user.galino}</p>
+      <p className="text-sm">{t("Phone No")}: {user.mobile}</p>
+    </div>
+  </div>
+))}
+
+      </div>
+    </div>
     </>
   );
 };

@@ -113,6 +113,7 @@ const CitizenDashboard = () => {
       <Navbar />
       <ToastContainer position="bottom-center" autoClose={5000} hideProgressBar theme="light" />
 
+
       {/* Top section with status cards */}
       <h2 className="lg:mt-10 font-bold text-center text-xl lg:text-[2rem] my-4 lg:text-left lg:mx-20 mt-20 lg:mt-20">
         {t("Dashboard")}

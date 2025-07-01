@@ -4,13 +4,13 @@ const User = require("../models/user.model");
 
 const registerUser = async (req, res) => {
   try {
-    const { name, email, password, mobile } = req.body;
+    const { name,fname, cast, plotno, galino, email, password, mobile } = req.body;
     const existingUser = await User.findOne({ $or: [{ email }, { mobile }] });
     if (existingUser) {
       return res.status(400).json({ message: "Email or mobile already registered" });
     }
     const hashedPassword = await bcrypt.hash(password, 10);
-    const user = new User({ name,fname,cast,plotno,galino, email, password: hashedPassword, mobile, type: "citizen" });
+    const user = new User({ name, fname, cast, plotno, galino, email, password: hashedPassword, mobile, type: "citizen" });
     await user.save();
     const userObj = user.toObject();
     delete userObj.password;
@@ -44,36 +44,58 @@ const loginUser = async (req, res) => {
 };
 
 const updateUser = async (req, res) => {
-  try {
-    const { mediaType, name, fname,cast,plotno,galino, email, password, mobile } = req.body;
-    const existingUser = await User.findById(req.params.id);
-    if (!existingUser) return res.status(404).json({ error: "User not found" });
 
-    existingUser.name = name;
-    existingUser.fname = fname;
-    existingUser.cast = cast;
-    existingUser.plotno = plotno;
-    existingUser.galino = galino;
-    existingUser.email = email;
-    existingUser.mobile = mobile;
+    console.log("REQ BODY:", req.body);
+    console.log("REQ FILE:", req.file);
 
-    if (password) existingUser.password = await bcrypt.hash(password, 10);
+    const {
+      name,
+      fname,
+      cast,
+      plotno,
+      galino,
+      email,
+      password,
+      mobile,
+      mediaType,
+    } = req.body;
+
+    const userId = req.params.id;
+    const existingUser = await User.findById(userId);
+    if (!existingUser) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    // Only update fields if they exist in request
+    if (name !== undefined) existingUser.name = name;
+    if (fname !== undefined) existingUser.fname = fname;
+    if (cast !== undefined) existingUser.cast = cast;
+    if (plotno !== undefined) existingUser.plotno = plotno;
+    if (galino !== undefined) existingUser.galino = galino;
+    if (email !== undefined) existingUser.email = email;
+    if (mobile !== undefined) existingUser.mobile = mobile;
+
+    if (password) {
+      existingUser.password = await bcrypt.hash(password, 10);
+    }
+
     if (req.file) {
-      existingUser.mediaPath = req.file;
+      existingUser.mediaPath = {
+        buffer: req.file.buffer.toString("base64"),
+        mimetype: req.file.mimetype,
+        originalname: req.file.originalname,
+      };
       existingUser.mediaType = mediaType || req.file.mimetype.split("/")[0];
     }
 
     await existingUser.save();
-    res.json(existingUser);
-  } catch (err) {
-    res.status(500).json({ error: "Failed to update user profile" });
+    res.status(200).json(existingUser);
   }
-};
 
 const getAllUsers = async (req, res) => {
-  const users = await User.find().select("-password");
-  res.json(users);
-};
+    const users = await User.find().sort({ plotno: 1 }); 
+   return res.status(200).json(users);
+  }
 
 const getUserById = async (req, res) => {
   const user = await User.findById(req.params.id).select("-password");

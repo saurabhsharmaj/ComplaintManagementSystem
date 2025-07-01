@@ -38,7 +38,7 @@ const OfficialLogin = () => {
     <div className="h-screen overflow-hidden ">
       <SpinnerModal visible={Spinner} />
       <Navbar />
-      <div className=" lg:px-96 px-4 h-3/4 flex flex-col justify-center">
+      <div className=" lg:px-96 px-4 h-3/4 flex flex-col justify-center mt-20">
         <h2 className="mt-[25%] lg:mt-0 leading-normal font-bold text-center text-base lg:text-[2rem] my-8">
           {t("Official Login")}
         </h2>

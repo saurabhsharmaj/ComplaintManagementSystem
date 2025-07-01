@@ -16,6 +16,10 @@ export const TextField = styled(MuiTextField)((props) => ({
 const RegisterAccount = () => {
   const [FormData, setFormData] = useState({
     name: "",
+    fname: "",
+    cast: "",
+    plotno: "",
+    galino: "",
     email: "",
     mobile: "",
     password: "",
@@ -60,6 +64,34 @@ const RegisterAccount = () => {
           required
           value={FormData.name}
           onChange={(e) => setFormData({ ...FormData, name: e.target.value })}
+        />
+         <TextField
+          variant="outlined"
+          label={t("Father Name")}
+          required
+          value={FormData.fname}
+          onChange={(e) => setFormData({ ...FormData, fname: e.target.value })}
+        />
+         <TextField
+          variant="outlined"
+          label={t("Cast")}
+          required
+          value={FormData.cast}
+          onChange={(e) => setFormData({ ...FormData, cast: e.target.value })}
+        />
+         <TextField
+          variant="outlined"
+          label={t("Plot No")}
+          required
+          value={FormData.plotno}
+          onChange={(e) => setFormData({ ...FormData, plotno: e.target.value })}
+        />
+         <TextField
+          variant="outlined"
+          label={t("Gali No")}
+          required
+          value={FormData.galino}
+          onChange={(e) => setFormData({ ...FormData, galino: e.target.value })}
         />
         <TextField
           variant="outlined"
