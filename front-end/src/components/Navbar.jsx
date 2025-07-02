@@ -76,7 +76,7 @@ const Navbar = () => {
         className="
             Navbar
             fixed top-0 left-0 w-full z-50
-            h-16           /* ← fixed height of 4rem (64px) */
+            h-16          
             bg-white
             flex justify-between items-center
             px-4 py-2 lg:py-4 lg:px-8
@@ -105,7 +105,7 @@ const Navbar = () => {
                   {t("Users")}
                 </Button>
               )}
-              <Button component={Link} to="/profile-dashboard" variant="outlined" className="flex gap-2">
+              <Button component={Link} to="/profile-dashboard"  variant="outlined" className="flex gap-2">
                 <img
                   src={
                     user?.mediaPath?.buffer

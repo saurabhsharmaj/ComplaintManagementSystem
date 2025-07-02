@@ -79,23 +79,55 @@ const updateUser = async (req, res) => {
       existingUser.password = await bcrypt.hash(password, 10);
     }
 
-    if (req.file) {
-      existingUser.mediaPath = {
-        buffer: req.file.buffer.toString("base64"),
-        mimetype: req.file.mimetype,
-        originalname: req.file.originalname,
-      };
-      existingUser.mediaType = mediaType || req.file.mimetype.split("/")[0];
-    }
+   if (req.file) {
+  existingUser.mediaPath = {
+    buffer: req.file.buffer.toString("base64"),
+    mimetype: req.file.mimetype,
+    originalname: req.file.originalname,
+  };
+  existingUser.mediaType = mediaType || req.file.mimetype.split("/")[0];
+}
 
     await existingUser.save();
     res.status(200).json(existingUser);
   }
 
+
+//   const updateUserById = async (req, res) => {
+//   const { password, ...fields } = req.body;
+//   if (req.file) {
+//     fields.mediaPath = req.file.buffer;
+//     fields.mediaType = req.file.mimetype;
+//   }
+//   if (password) {
+//     const salt = await bcrypt.genSalt(10);
+//     fields.password = await bcrypt.hash(password, salt);
+//   }
+
+//   const user = await User.findByIdAndUpdate(req.params.id, fields, { new: true });
+//   if (!user) return res.status(404).json({ error: "User not found" });
+//   res.json({ message: "Updated", user });
+// };
+
 const getAllUsers = async (req, res) => {
-    const users = await User.find().sort({ plotno: 1 }); 
-   return res.status(200).json(users);
-  }
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 12;
+    const skip = (page - 1) * limit;
+
+    const [users, total] = await Promise.all([
+      User.find().sort({ plotno: 1 }).skip(skip).limit(limit),
+      User.countDocuments(),
+    ]);
+
+    return res.status(200).json({
+      users,
+      totalPages: Math.ceil(total / limit),
+      currentPage: page,
+    });
+  } 
+
+
+
 
 const getUserById = async (req, res) => {
   const user = await User.findById(req.params.id).select("-password");
@@ -125,4 +157,5 @@ module.exports = {
   getUserById,
   isOfficial,
   getCurrentUser,
+  // updateUserById,
 };
