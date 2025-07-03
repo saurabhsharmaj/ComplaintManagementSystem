@@ -11,7 +11,7 @@ const {
   getUserById,
   isOfficial,
   getCurrentUser,
-  updateUserById,
+  // updateUserById,
 } = require("../controllers/user.controller");
 
 router.post("/register", registerUser);

@@ -2,6 +2,7 @@ import styled from "@emotion/styled";
 import { faCamera } from "@fortawesome/free-solid-svg-icons";
 import { Button } from "@mui/material";
 import MuiTextField from "@mui/material/TextField";
+import MenuItem from "@mui/material/MenuItem";
 import { useEffect, useRef, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
@@ -22,7 +23,8 @@ const ProfileDashboard = () => {
   const [Media, setMedia] = useState(null);
   const [MediaPath, setMediaPath] = useState("");
   const [token, setToken] = useState("");
-  const [user, setUser] = useState(null);
+  const [loggedInUser, setLoggedInUser] = useState(null); // logged-in user
+  const [userId, setUserId] = useState(null);
   const [FormData, setFormData] = useState({
     name: "",
     fname: "",
@@ -35,6 +37,7 @@ const ProfileDashboard = () => {
     confirmPassword: "",
     mediaPath: "",
     mediaType: "image",
+    type: "citizen", // default
   });
   const [Err, setErr] = useState(null);
   const [LoaderVisibile, setLoaderVisibile] = useState(false);
@@ -43,24 +46,33 @@ const ProfileDashboard = () => {
   const location = useLocation();
   const { t } = useTranslation();
   const { userId: paramUserId } = useParams();
-
   const fromUserProfile = location.state?.from === "user-profile";
+
+  const isAdmin = loggedInUser?.type === "admin";
 
   useEffect(() => {
     const tokenFromStorage = localStorage.getItem("token");
-    const storedUserId = localStorage.getItem("userId");
-    const userId = paramUserId || storedUserId;
+    const loggedInUserId = localStorage.getItem("userId");
+    const targetUserId = paramUserId || loggedInUserId;
 
-    if (!tokenFromStorage || !userId) return navigate("/citizen-login");
+    if (!tokenFromStorage || !targetUserId) return navigate("/citizen-login");
 
+    setUserId(targetUserId);
     setToken(tokenFromStorage);
 
-    fetch(`${API_BASE_URL}/user/${userId}`, {
+    // Get logged-in user info
+    fetch(`${API_BASE_URL}/user/${loggedInUserId}`, {
+      headers: { Authorization: `Bearer ${tokenFromStorage}` },
+    })
+      .then((res) => res.json())
+      .then((data) => setLoggedInUser(data));
+
+    // Get profile to edit (might be own or another user)
+    fetch(`${API_BASE_URL}/user/${targetUserId}`, {
       headers: { Authorization: `Bearer ${tokenFromStorage}` },
     })
       .then((res) => res.json())
       .then((userData) => {
-        setUser(userData);
         setFormData((prev) => ({
           ...prev,
           name: userData.name || "",
@@ -70,6 +82,7 @@ const ProfileDashboard = () => {
           cast: userData.cast || "",
           plotno: userData.plotno || "",
           galino: userData.galino || "",
+          type: userData.type || "citizen",
           mediaPath: userData.mediaPath || "",
         }));
 
@@ -86,7 +99,7 @@ const ProfileDashboard = () => {
         ? t("Password do not match")
         : null
     );
-  }, [FormData.password, FormData.confirmPassword, t]);
+  }, [FormData.password, FormData.confirmPassword]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -94,13 +107,13 @@ const ProfileDashboard = () => {
 
     setLoaderVisibile(true);
 
-    handleUserProfile(FormData, Media, token)
+    handleUserProfile(FormData, Media, token, userId)
       .then(() => {
         toast.success(t("Profile updated successfully"));
         if (fromUserProfile) {
           navigate("/user-dashboard");
         } else {
-          navigate(user?.type === "admin" ? "/official-dashboard" : "/citizen-dashboard");
+          navigate(loggedInUser?.type === "admin" ? "/official-dashboard" : "/citizen-dashboard");
         }
       })
       .catch((err) => {
@@ -182,9 +195,24 @@ const ProfileDashboard = () => {
               type={type}
               value={FormData[key]}
               onChange={(e) => setFormData({ ...FormData, [key]: e.target.value })}
-              required
+              
             />
           ))}
+
+          {/* Only show User Type if logged in user is admin */}
+          {isAdmin && (
+            <TextField
+              select
+              label={t("User Type")}
+              value={FormData.type}
+              onChange={(e) => setFormData({ ...FormData, type: e.target.value })}
+              fullWidth
+              margin="normal"
+            >
+              <MenuItem value="admin">{t("admin")}</MenuItem>
+              <MenuItem value="citizen">{t("citizen")}</MenuItem>
+            </TextField>
+          )}
 
           <TextField
             label={t("New Password (optional)")}
