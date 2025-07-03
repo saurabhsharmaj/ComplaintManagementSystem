@@ -43,8 +43,64 @@ const loginUser = async (req, res) => {
   }
 };
 
-const updateUser = async (req, res) => {
+// const updateUser = async (req, res) => {
 
+//     console.log("REQ BODY:", req.body);
+//     console.log("REQ FILE:", req.file);
+
+//     const {
+//       name,
+//       fname,
+//       cast,
+//       plotno,
+//       galino,
+//       email,
+//       type,
+//       password,
+//       mobile,
+//       mediaType,
+//     } = req.body;
+
+//     const userId = req.params.id;
+//     const existingUser = await User.findById(userId);
+//     if (!existingUser) {
+//       return res.status(404).json({ error: "User not found" });
+//     }
+
+//     // Only update fields if they exist in request
+//     if (name !== undefined) existingUser.name = name;
+//     if (fname !== undefined) existingUser.fname = fname;
+//     if (cast !== undefined) existingUser.cast = cast;
+//     if (plotno !== undefined) existingUser.plotno = plotno;
+//     if (galino !== undefined) existingUser.galino = galino;
+//     if (email !== undefined) existingUser.email = email;
+//     if (mobile !== undefined) existingUser.mobile = mobile;
+//     if (type !== undefined) existingUser.type = type;
+
+//     if (password) {
+//       existingUser.password = await bcrypt.hash(password, 10);
+//     }
+
+//    if (req.file) {
+//   existingUser.mediaPath = {
+//     buffer: req.file.buffer.toString("base64"),
+//     mimetype: req.file.mimetype,
+//     originalname: req.file.originalname,
+//   };
+//   existingUser.mediaType = mediaType || req.file.mimetype.split("/")[0];
+// }
+
+//     await existingUser.save();
+//     res.status(200).json(existingUser);
+//   }
+
+
+
+
+
+
+const updateUser = async (req, res) => {
+  try {
     console.log("REQ BODY:", req.body);
     console.log("REQ FILE:", req.file);
 
@@ -55,18 +111,20 @@ const updateUser = async (req, res) => {
       plotno,
       galino,
       email,
+      type,
       password,
       mobile,
       mediaType,
     } = req.body;
 
     const userId = req.params.id;
+
     const existingUser = await User.findById(userId);
     if (!existingUser) {
       return res.status(404).json({ error: "User not found" });
     }
 
-    // Only update fields if they exist in request
+    // ✅ Update fields only if they exist in request
     if (name !== undefined) existingUser.name = name;
     if (fname !== undefined) existingUser.fname = fname;
     if (cast !== undefined) existingUser.cast = cast;
@@ -74,6 +132,7 @@ const updateUser = async (req, res) => {
     if (galino !== undefined) existingUser.galino = galino;
     if (email !== undefined) existingUser.email = email;
     if (mobile !== undefined) existingUser.mobile = mobile;
+    if (type !== undefined) existingUser.type = type;
 
     if (password) {
       existingUser.password = await bcrypt.hash(password, 10);
@@ -88,14 +147,47 @@ const updateUser = async (req, res) => {
       existingUser.mediaType = mediaType || req.file.mimetype.split("/")[0];
     }
 
+    // ✅ Save with try/catch
     await existingUser.save();
-    res.status(200).json(existingUser);
+
+    res.status(200).json({ message: "User updated successfully", user: existingUser });
+  } catch (error) {
+    console.error("Update failed:", error);
+
+    // ✅ Catch duplicate email error
+    if (error.code === 11000 && error.keyPattern?.email) {
+      return res.status(400).json({ error: "Email already exists" });
+    }
+
+    // ✅ Generic error response
+    res.status(500).json({ error: "Server error: Failed to update user" });
   }
+};
+
+
+
+
+
 
 const getAllUsers = async (req, res) => {
-    const users = await User.find().sort({ plotno: 1 }); 
-   return res.status(200).json(users);
-  }
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 12;
+    const skip = (page - 1) * limit;
+
+    const [users, total] = await Promise.all([
+      User.find().sort({ plotno: 1 }).skip(skip).limit(limit),
+      User.countDocuments(),
+    ]);
+
+    return res.status(200).json({
+      users,
+      totalPages: Math.ceil(total / limit),
+      currentPage: page,
+    });
+  } 
+
+
+
 
 const getUserById = async (req, res) => {
   const user = await User.findById(req.params.id).select("-password");
@@ -125,4 +217,5 @@ module.exports = {
   getUserById,
   isOfficial,
   getCurrentUser,
+  // updateUserById,
 };

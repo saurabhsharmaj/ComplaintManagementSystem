@@ -75,6 +75,9 @@
   "The password and confirmation password do not match": "पासवर्ड और पुष्टि पासवर्ड मेल नहीं खाते हैं",
   "Password do not match": "पासवर्ड मेल नहीं खाते",
   "Users": "उपयोगकर्ता",
+  "User Type": "उपयोगकर्ता प्रकार",
+  "citizen": "नागरिक",
+  "admin": "व्यवस्थापक",
   "Search by name or father's name": "नाम या पिता के नाम से खोजें",
   "REPORT SHIV VIHAR VIOLATIONS AND PUBLIC PROBLEMS IN COLONY": "शिव विहार में कॉलोनी की उल्लंघनों और सार्वजनिक समस्याओं की रिपोर्ट करें",
   "By clicking on this checkbox I understand that you want to lodge a complaint..." : "इस चेकाबोक्स पर क्लिक करें से मुझे समझ में आया कि आप शिकायत दर्ज कराना चाहते हैं..."

@@ -5,27 +5,27 @@ const userSchema = new Schema({
         type: String,
         required: true,
         trim: true,
-        minlength: 3
+        // minlength: 3
     },fname: {
         type: String,
-        required: true,
+        // required: true,
         trim: true,
-        minlength: 3
+        // minlength: 3
     },cast: {
         type: String,
-        required: true,
+        // required: true,
         trim: true,
-        minlength: 3
+        // minlength: 3
     },plotno: {
         type: String,
-        required: true,
+        // required: true,
         trim: true,
-        minlength: 1
+        // minlength: 1
     },galino: {
         type: String,
-        required: true,
+        // required: true,
         trim: true,
-        minlength: 1
+        // minlength: 1
     },
     email: {
         type: String,

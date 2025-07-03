@@ -29,6 +29,10 @@ const router = createBrowserRouter([
     element: <ProfileDashboard />,
   },
   {
+    path: "/profile-Dashboard/:userId",
+    element: <ProfileDashboard />,
+  },
+  {
     path: "/citizen-login",
     element: <CitizenLogin />,
   },
