@@ -1,10 +1,10 @@
+
 const mongoose = require("mongoose");
 
-const uri = "mongodb+srv://ersaurabhsharmamca:SUXVZQUyUW5X2qI3@gatepass-db.alvtd.mongodb.net/complaint-management-db?retryWrites=true&w=majority&appName=complaint-management-db";
 
 const connectDB = async () => {
   try {
-    await mongoose.connect(uri, {
+    await mongoose.connect(process.env.MONGODB_URL, {
       useNewUrlParser: true,
       useUnifiedTopology: true,
     });
