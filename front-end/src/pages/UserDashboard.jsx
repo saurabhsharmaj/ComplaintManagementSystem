@@ -7,7 +7,7 @@ import { useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEdit } from "@fortawesome/free-solid-svg-icons";
 
-const PAGE_SIZE = 12;
+const PAGE_SIZE = 16;
 
 const UserDashboard = () => {
   const [users, setUsers] = useState([]);
