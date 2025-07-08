@@ -171,7 +171,7 @@ const updateUser = async (req, res) => {
 
 const getAllUsers = async (req, res) => {
     const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 16;
+    const limit = parseInt(req.query.limit) || 15;
     const skip = (page - 1) * limit;
 
     const [users, total] = await Promise.all([
