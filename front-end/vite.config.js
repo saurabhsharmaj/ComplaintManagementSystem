@@ -82,6 +82,9 @@ const manifestForPlugin = {
 };
 
 export default defineConfig({
+  server: {
+    host: "0.0.0.0"
+  },
   // DO NOT use './' — use '/' for clean absolute paths in Nginx
   base: '/',
   plugins: [react(), VitePWA(manifestForPlugin)],

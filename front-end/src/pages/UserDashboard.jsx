@@ -7,7 +7,7 @@ import { useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEdit } from "@fortawesome/free-solid-svg-icons";
 
-const PAGE_SIZE = 12;
+const PAGE_SIZE = 15;
 
 const UserDashboard = () => {
   const [users, setUsers] = useState([]);
@@ -68,7 +68,8 @@ const UserDashboard = () => {
           />
         </div>
 
-        <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+        <div className="grid gap-4 grid-cols-1 md:grid-cols-3">
+
           {filtered.map((user) => (
             <div
               key={user._id}
