@@ -43,10 +43,12 @@ const loginUser = async (req, res) => {
   }
 };
 
+ 
 // const updateUser = async (req, res) => {
-
+ 
 //     console.log("REQ BODY:", req.body);
 //     console.log("REQ FILE:", req.file);
+ 
 
 //     const {
 //       name,
@@ -77,9 +79,11 @@ const loginUser = async (req, res) => {
 //     if (mobile !== undefined) existingUser.mobile = mobile;
 //     if (type !== undefined) existingUser.type = type;
 
+
 //     if (password) {
 //       existingUser.password = await bcrypt.hash(password, 10);
 //     }
+
 
 //    if (req.file) {
 //   existingUser.mediaPath = {
@@ -90,14 +94,16 @@ const loginUser = async (req, res) => {
 //   existingUser.mediaType = mediaType || req.file.mimetype.split("/")[0];
 // }
 
+ 
 //     await existingUser.save();
 //     res.status(200).json(existingUser);
 //   }
-
-
-
-
-
+ 
+ 
+ 
+ 
+ 
+ 
 
 const updateUser = async (req, res) => {
   try {
@@ -117,7 +123,9 @@ const updateUser = async (req, res) => {
       mediaType,
     } = req.body;
 
+ 
     const userId = req.params.id;
+ 
 
     const existingUser = await User.findById(userId);
     if (!existingUser) {
@@ -134,9 +142,11 @@ const updateUser = async (req, res) => {
     if (mobile !== undefined) existingUser.mobile = mobile;
     if (type !== undefined) existingUser.type = type;
 
+ 
     if (password) {
       existingUser.password = await bcrypt.hash(password, 10);
     }
+ 
 
     if (req.file) {
       existingUser.mediaPath = {
@@ -147,12 +157,14 @@ const updateUser = async (req, res) => {
       existingUser.mediaType = mediaType || req.file.mimetype.split("/")[0];
     }
 
+
     // ✅ Save with try/catch
     await existingUser.save();
 
     res.status(200).json({ message: "User updated successfully", user: existingUser });
   } catch (error) {
     console.error("Update failed:", error);
+
 
     // ✅ Catch duplicate email error
     if (error.code === 11000 && error.keyPattern?.email) {
@@ -164,30 +176,44 @@ const updateUser = async (req, res) => {
   }
 };
 
-
-
-
-
-
+ 
+ 
+ 
+ 
+ 
+ 
 const getAllUsers = async (req, res) => {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 15;
+    const search = req.query.search || '';
     const skip = (page - 1) * limit;
-
+ 
+    const query = {};
+      if (search) {
+          const searchRegex = new RegExp(search, 'i');
+          query.$or = [
+              { name: { $regex: searchRegex } },
+              { fname: { $regex: searchRegex } },
+              { galino: { $regex: searchRegex } }
+          ];
+    }
     const [users, total] = await Promise.all([
-      User.find().sort({ plotno: 1 }).skip(skip).limit(limit),
-      User.countDocuments(),
+      User.find(query).sort({ plotno: 1 }).skip(skip).limit(limit),
+      User.countDocuments(query),
     ]);
+ 
 
     return res.status(200).json({
       users,
       totalPages: Math.ceil(total / limit),
       currentPage: page,
     });
-  } 
 
-
-
+}
+ 
+ 
+ 
+ 
 
 const getUserById = async (req, res) => {
   const user = await User.findById(req.params.id).select("-password");
@@ -219,3 +245,4 @@ module.exports = {
   getCurrentUser,
   // updateUserById,
 };
+
