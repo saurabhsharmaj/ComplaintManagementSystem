@@ -1,7 +1,7 @@
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const User = require("../models/user.model");
- 
+
 const registerUser = async (req, res) => {
   try {
     const { name,fname, cast, plotno, galino, email, password, mobile } = req.body;
@@ -23,31 +23,33 @@ const registerUser = async (req, res) => {
     res.status(500).json({ message: err.message || "Registration failed" });
   }
 };
- 
+
 const loginUser = async (req, res) => {
   try {
     const { email, phone, password } = req.body;
     if (!password || (!email && !phone)) {
       return res.status(400).json({ error: "Email or phone and password are required" });
     }
- 
+
     const user = await User.findOne({ $or: [{ email }, { mobile: phone }] });
     if (!user || !(await bcrypt.compare(password, user.password))) {
       return res.status(400).json({ error: "Invalid credentials" });
     }
- 
+
     const token = jwt.sign({ userId: user._id }, "your_jwt_secret", { expiresIn: "1d" });
     res.json({ user, token });
   } catch (err) {
     res.status(500).json({ error: "Internal server error" });
   }
 };
+
  
 // const updateUser = async (req, res) => {
  
 //     console.log("REQ BODY:", req.body);
 //     console.log("REQ FILE:", req.file);
  
+
 //     const {
 //       name,
 //       fname,
@@ -60,13 +62,13 @@ const loginUser = async (req, res) => {
 //       mobile,
 //       mediaType,
 //     } = req.body;
- 
+
 //     const userId = req.params.id;
 //     const existingUser = await User.findById(userId);
 //     if (!existingUser) {
 //       return res.status(404).json({ error: "User not found" });
 //     }
- 
+
 //     // Only update fields if they exist in request
 //     if (name !== undefined) existingUser.name = name;
 //     if (fname !== undefined) existingUser.fname = fname;
@@ -76,11 +78,13 @@ const loginUser = async (req, res) => {
 //     if (email !== undefined) existingUser.email = email;
 //     if (mobile !== undefined) existingUser.mobile = mobile;
 //     if (type !== undefined) existingUser.type = type;
- 
+
+
 //     if (password) {
 //       existingUser.password = await bcrypt.hash(password, 10);
 //     }
- 
+
+
 //    if (req.file) {
 //   existingUser.mediaPath = {
 //     buffer: req.file.buffer.toString("base64"),
@@ -89,6 +93,7 @@ const loginUser = async (req, res) => {
 //   };
 //   existingUser.mediaType = mediaType || req.file.mimetype.split("/")[0];
 // }
+
  
 //     await existingUser.save();
 //     res.status(200).json(existingUser);
@@ -99,11 +104,12 @@ const loginUser = async (req, res) => {
  
  
  
+
 const updateUser = async (req, res) => {
   try {
     console.log("REQ BODY:", req.body);
     console.log("REQ FILE:", req.file);
- 
+
     const {
       name,
       fname,
@@ -116,14 +122,16 @@ const updateUser = async (req, res) => {
       mobile,
       mediaType,
     } = req.body;
+
  
     const userId = req.params.id;
  
+
     const existingUser = await User.findById(userId);
     if (!existingUser) {
       return res.status(404).json({ error: "User not found" });
     }
- 
+
     // ✅ Update fields only if they exist in request
     if (name !== undefined) existingUser.name = name;
     if (fname !== undefined) existingUser.fname = fname;
@@ -133,11 +141,13 @@ const updateUser = async (req, res) => {
     if (email !== undefined) existingUser.email = email;
     if (mobile !== undefined) existingUser.mobile = mobile;
     if (type !== undefined) existingUser.type = type;
+
  
     if (password) {
       existingUser.password = await bcrypt.hash(password, 10);
     }
  
+
     if (req.file) {
       existingUser.mediaPath = {
         buffer: req.file.buffer.toString("base64"),
@@ -146,23 +156,26 @@ const updateUser = async (req, res) => {
       };
       existingUser.mediaType = mediaType || req.file.mimetype.split("/")[0];
     }
- 
+
+
     // ✅ Save with try/catch
     await existingUser.save();
- 
+
     res.status(200).json({ message: "User updated successfully", user: existingUser });
   } catch (error) {
     console.error("Update failed:", error);
- 
+
+
     // ✅ Catch duplicate email error
     if (error.code === 11000 && error.keyPattern?.email) {
       return res.status(400).json({ error: "Email already exists" });
     }
- 
+
     // ✅ Generic error response
     res.status(500).json({ error: "Server error: Failed to update user" });
   }
 };
+
  
  
  
@@ -189,26 +202,29 @@ const getAllUsers = async (req, res) => {
       User.countDocuments(query),
     ]);
  
+
     return res.status(200).json({
       users,
       totalPages: Math.ceil(total / limit),
       currentPage: page,
     });
+
 }
  
  
  
  
+
 const getUserById = async (req, res) => {
   const user = await User.findById(req.params.id).select("-password");
   res.json(user);
 };
- 
+
 const isOfficial = async (req, res) => {
   const user = await User.findById(req.params.id);
   res.json({ isOfficial: user?.type === "official" });
 };
- 
+
 const getCurrentUser = async (req, res) => {
   try {
     const user = await User.findById(req.userId).select("-password");
@@ -218,7 +234,7 @@ const getCurrentUser = async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 };
- 
+
 module.exports = {
   registerUser,
   loginUser,
@@ -229,5 +245,4 @@ module.exports = {
   getCurrentUser,
   // updateUserById,
 };
- 
- 
+
