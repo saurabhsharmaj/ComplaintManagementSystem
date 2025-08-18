@@ -1,0 +1,50 @@
+import React, { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import RegisterAccount from "../components/RegisterAccount";
+import { isOfficial } from "../utils/mongodb";
+import TrafficArt from "/src/assets/traffic-art.png";
+import Navbar from "/src/components/Navbar";
+import { API_BASE_URL } from "@/config";
+import { useTranslation } from "react-i18next";
+const HomePage = () => {
+  const navigate = useNavigate();
+  const {t} = useTranslation();
+  useEffect(() => {
+  const token = localStorage.getItem("token");
+  if (!token) return;
+
+  fetch(API_BASE_URL+"/users/verifyToken", {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  })
+    .then((res) => res.json())
+    .then((data) => {
+      if (data.isOfficial === true) {
+        navigate("/official-dashboard");
+      } else if (data.isOfficial === false) {
+        navigate("/citizen-dashboard");
+      }
+    });
+}, []);
+  return (
+    <div className="HomePage">
+      <Navbar />
+      <div className="HomeContainer grid grid-cols-1 lg:grid-cols-2 items-center px-5 lg:px-20">
+        <img
+          className="TrafficArt hidden lg:block h-[32rem]"
+          src={TrafficArt}
+          alt=""
+        />
+        <div>
+          <h3 className="slogan mt-[25%] lg:mt-0 leading-normal font-bold text-center text-base lg:text-[2rem] mt-5 lg:mt-16">
+            {t("REPORT SHIV VIHAR VIOLATIONS AND PUBLIC PROBLEMS IN COLONY")} !!!
+          </h3>
+          <RegisterAccount />
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default HomePage;
