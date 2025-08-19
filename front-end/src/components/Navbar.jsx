@@ -79,13 +79,17 @@ const Navbar = () => {
             h-16          
             bg-white
             flex justify-between items-center
-            px-4 py-2 lg:py-4 lg:px-8
+            px-3 py-2 lg:py-4 lg:px-8
           "
       >
         <Link to={Official ? "/official-dashboard" : "/citizen-dashboard"}>
           <div className="LogoGroup flex items-center gap-3">
-            <img className="logo h-12 lg:h-12 w-12 rounded-full object-cover" src={Logo} alt="logo" />
-            <h2 className="font-bold text-sm animate-typing whitespace-nowrap overflow-hidden lg:text-lg">
+            <img
+              className="logo h-10 w-10 md:h-12 md:w-12 rounded-full object-cover"
+              src={Logo}
+              alt="logo"
+            />
+            <h2 className="font-bold text-sm whitespace-nowrap overflow-hidden lg:text-lg">
               {t("shiv vihar vikas samiti")}
             </h2>
           </div>
@@ -94,18 +98,37 @@ const Navbar = () => {
         <div className="ButtonGroup gap-2 hidden lg:flex items-center">
           {user ? (
             <>
-              <Button component={Link} to="/report" state={{ user }} variant="outlined" className="text-sm">
+              <Button
+                component={Link}
+                to="/report"
+                state={{ user }}
+                variant="outlined"
+                className="text-sm"
+              >
                 {t("New Complaint")}
               </Button>
-              <Button component={Link} to={Official ? "/official-dashboard" : "/citizen-dashboard"} variant="outlined">
+              <Button
+                component={Link}
+                to={Official ? "/official-dashboard" : "/citizen-dashboard"}
+                variant="outlined"
+              >
                 {t("Dashboard")}
               </Button>
               {Official && (
-                <Button component={Link} to="/user-dashboard" variant="outlined">
+                <Button
+                  component={Link}
+                  to="/user-dashboard"
+                  variant="outlined"
+                >
                   {t("Users")}
                 </Button>
               )}
-              <Button component={Link} to="/profile-dashboard"  variant="outlined" className="flex gap-2">
+              <Button
+                component={Link}
+                to="/profile-dashboard"
+                variant="outlined"
+                className="flex gap-2"
+              >
                 <img
                   src={
                     user?.mediaPath?.buffer
@@ -113,7 +136,8 @@ const Navbar = () => {
                       : "/default-avatar.png"
                   }
                   alt="Profile"
-                  style={{ width: "32px", height: "32px", borderRadius: "50%", objectFit: "cover" }}
+                  // style={{ width: "32px", height: "32px", borderRadius: "50%", objectFit: "cover" }}
+                  className="w-8 h-8 md:w-8 md:h-8 rounded-full object-cover"
                 />
                 {t("Profile")}
               </Button>
@@ -133,33 +157,55 @@ const Navbar = () => {
           )}
 
           {/* Language Dropdown */}
-          <Button variant="outlined" onClick={handleMenuClick} endIcon={<ExpandMore />}>
-            <Flag code={i18n.language === "en" ? "US" : "IN"} style={{ width: 20, marginRight: 8 }} />
+          <Button
+            variant="outlined"
+            onClick={handleMenuClick}
+            endIcon={<ExpandMore />}
+          >
+            <Flag
+              code={i18n.language === "en" ? "US" : "IN"}
+              style={{ width: 20, marginRight: 8 }}
+            />
             {i18n.language === "en" ? t("English") : t("Hindi")}
           </Button>
-          <Menu anchorEl={anchorEl} open={open} onClose={() => handleMenuClose(null)}>
+          <Menu
+            anchorEl={anchorEl}
+            open={open}
+            onClose={() => handleMenuClose(null)}
+          >
             <MenuItem onClick={() => handleMenuClose("en")}>
-              <Flag code="US" style={{ width: 24, marginRight: 8 }} /> {t("English")}
+              <Flag code="US" style={{ width: 24, marginRight: 8 }} />{" "}
+              {t("English")}
             </MenuItem>
             <MenuItem onClick={() => handleMenuClose("hi")}>
-              <Flag code="IN" style={{ width: 24, marginRight: 8 }} /> {t("Hindi")}
+              <Flag code="IN" style={{ width: 24, marginRight: 8 }} />{" "}
+              {t("Hindi")}
             </MenuItem>
           </Menu>
         </div>
 
         {/* Mobile Menu Toggle */}
-        <FontAwesomeIcon className="lg:hidden" icon={Visible ? faClose : faBars} onClick={() => setVisible(!Visible)} />
+        <FontAwesomeIcon
+          className="lg:hidden"
+          icon={Visible ? faClose : faBars}
+          onClick={() => setVisible(!Visible)}
+        />
       </div>
 
       {/* Mobile Menu */}
       <div
-        className={`MenuMobile lg:hidden w-full text-center py-20 absolute bg-white z-10 rounded-3xl ${Visible ? "block" : "hidden"
-          }`}
+        className={`MenuMobile lg:hidden fixed top-16 left-0 w-full min-h-[calc(100vh-4rem)] text-center py-12 bg-white z-40 rounded-b-3xl overflow-y-auto transition-all duration-300 ${
+          Visible ? "block" : "hidden"
+        }`}
       >
-        <ul className="flex flex-col gap-10 font-bold">
+        <ul className="flex flex-col gap-8 font-bold">
           {user ? (
             <>
-              <Link to={Official ? "/official-dashboard" : "/citizen-dashboard"}>{t("Dashboard")}</Link>
+              <Link
+                to={Official ? "/official-dashboard" : "/citizen-dashboard"}
+              >
+                {t("Dashboard")}
+              </Link>
               <Link to="/report" state={{ user }}>
                 {t("New Complaint")}
               </Link>
@@ -177,21 +223,36 @@ const Navbar = () => {
 
           {/* Language Dropdown for Mobile */}
           <div className="flex justify-center">
-            <Button variant="outlined" onClick={handleMenuClick} endIcon={<ExpandMore />}>
-              <Flag code={i18n.language === "en" ? "US" : "IN"} style={{ width: 20, marginRight: 8 }} />
+            <Button
+              variant="outlined"
+              onClick={handleMenuClick}
+              endIcon={<ExpandMore />}
+            >
+              <Flag
+                code={i18n.language === "en" ? "US" : "IN"}
+                style={{ width: 20, marginRight: 8 }}
+              />
               {i18n.language === "en" ? t("English") : t("Hindi")}
             </Button>
-            <Menu anchorEl={anchorEl} open={open} onClose={() => handleMenuClose(null)}>
+            <Menu
+              anchorEl={anchorEl}
+              open={open}
+              onClose={() => handleMenuClose(null)}
+            >
               <MenuItem onClick={() => handleMenuClose("en")}>
-                <Flag code="US" style={{ width: 24, marginRight: 8 }} /> {t("English")}
+                <Flag code="US" style={{ width: 24, marginRight: 8 }} />{" "}
+                {t("English")}
               </MenuItem>
               <MenuItem onClick={() => handleMenuClose("hi")}>
-                <Flag code="IN" style={{ width: 24, marginRight: 8 }} /> {t("Hindi")}
+                <Flag code="IN" style={{ width: 24, marginRight: 8 }} />{" "}
+                {t("Hindi")}
               </MenuItem>
             </Menu>
           </div>
 
-          <Link to="https://8bit.co.in/">Developed By : 8bit System Private Limited</Link>
+          <Link to="https://8bit.co.in/">
+            Developed By : 8bit System Private Limited
+          </Link>
         </ul>
       </div>
     </>

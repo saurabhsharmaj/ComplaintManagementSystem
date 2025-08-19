@@ -39,9 +39,12 @@ const OfficialDashboard = () => {
   const fetchComplaints = async (pageNum = 1) => {
     setLoading(true);
     try {
-      const res = await fetch(`${API_BASE_URL}/complaints?page=${pageNum}&limit=${PAGE_SIZE}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const res = await fetch(
+        `${API_BASE_URL}/complaints?page=${pageNum}&limit=${PAGE_SIZE}`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
 
       if (!res.ok) throw new Error("Failed to fetch complaints");
 
@@ -75,7 +78,9 @@ const OfficialDashboard = () => {
     let filtered = [...complaintsList];
 
     if (selectedStatus) {
-      filtered = filtered.filter((c) => c.status?.toLowerCase() === selectedStatus);
+      filtered = filtered.filter(
+        (c) => c.status?.toLowerCase() === selectedStatus
+      );
     }
 
     if (selectedReason) {
@@ -142,7 +147,11 @@ const OfficialDashboard = () => {
       const scrollHeight = document.documentElement.scrollHeight;
       const clientHeight = window.innerHeight;
 
-      if (scrollTop + clientHeight >= scrollHeight - 100 && hasMore && !loading) {
+      if (
+        scrollTop + clientHeight >= scrollHeight - 100 &&
+        hasMore &&
+        !loading
+      ) {
         const nextPage = page + 1;
         setPage(nextPage);
         fetchComplaints(nextPage);
@@ -185,38 +194,54 @@ const OfficialDashboard = () => {
       <SpinnerModal visible={spinnerVisible || (loading && page === 1)} />
       <Navbar />
 
-      <div className="container px-4 py-4">
+      <div className="px-3 md:px-4 py-4">
         {/* Status summary */}
-        <div className="flex justify-center sm:justify-between gap-2 mb-6 px-2 flex-wrap mt-16">
-          {[
-            { label: "Total", value: "", count: inProgress + solved + rejected },
-            { label: "InProgress", value: "in-progress", count: inProgress },
-            { label: "Solved", value: "solved", count: solved },
-            { label: "Rejected", value: "rejected", count: rejected },
-          ].map((status) => {
-            const isActive = selectedStatus === status.value;
-            const style = statusStyles[status.value];
+        <div className="mt-16 mb-6">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-2 md:gap-4">
+            {[
+              {
+                label: "Total",
+                value: "",
+                count: inProgress + solved + rejected,
+              },
+              { label: "InProgress", value: "in-progress", count: inProgress },
+              { label: "Solved", value: "solved", count: solved },
+              { label: "Rejected", value: "rejected", count: rejected },
+            ].map((status) => {
+              const isActive = selectedStatus === status.value;
+              const style = statusStyles[status.value];
 
-            return (
-              <div
-                key={status.value}
-                className={`flex-1 min-w-[120px] ${isActive ? style.activeBg : style.bg} ${style.text} ${style.hover} p-4 rounded-lg shadow text-center cursor-pointer transition ring-1 ring-inset ${isActive ? "ring-black/50" : "ring-transparent"}`}
-                onClick={() =>
-                  setSelectedStatus((prev) => (prev === status.value ? "" : status.value))
-                }
-              >
-                <h3 className="text-sm font-bold">{t(status.label)}</h3>
-                <p className="text-xl">{status.count}</p>
-              </div>
-            );
-          })}
+              return (
+                <div
+                  key={status.value}
+                  className={`${isActive ? style.activeBg : style.bg} ${
+                    style.text
+                  } ${
+                    style.hover
+                  } p-3 md:p-4 rounded-lg shadow text-center cursor-pointer transition ring-1 ring-inset ${
+                    isActive ? "ring-black/50" : "ring-transparent"
+                  }`}
+                  onClick={() =>
+                    setSelectedStatus((prev) =>
+                      prev === status.value ? "" : status.value
+                    )
+                  }
+                >
+                  <h3 className="text-xs md:text-sm font-bold">
+                    {t(status.label)}
+                  </h3>
+                  <p className="text-lg md:text-xl">{status.count}</p>
+                </div>
+              );
+            })}
+          </div>
         </div>
 
         {/* Clear Filters */}
         {(selectedReason || selectedStatus || searchName || searchIndex) && (
           <div className="mb-2 text-right">
             <button
-              className="text-sm bg-gray-200 px-3 py-1 rounded hover:bg-gray-300 transition"
+              className="text-xs md:text-sm bg-gray-200 px-3 py-1 rounded hover:bg-gray-300 transition"
               onClick={() => {
                 setSelectedReason("");
                 setSelectedStatus("");
@@ -230,41 +255,48 @@ const OfficialDashboard = () => {
         )}
 
         {/* Filters */}
-        <div className="mb-4 flex flex-col sm:flex-row sm:flex-wrap gap-4 sm:items-center">
-          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2">
-            <label htmlFor="reason" className="text-sm font-semibold">
-              {t("Filters")}
-            </label>
-            <select
-              id="reason"
-              className="border border-gray-300 rounded-md px-3 py-1 text-sm"
-              value={selectedReason}
-              onChange={(e) => setSelectedReason(e.target.value)}
-            >
-              <option value="">{t("Reason")}</option>
-              {uniqueReasons.map((reason, idx) => (
-                <option key={idx} value={reason}>
-                  {t(reason)}
-                </option>
-              ))}
-            </select>
+        <div className="mb-4 space-y-3 md:space-y-0">
+          <div className="flex flex-col sm:flex-row sm:items-center gap-3 md:gap-4">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2">
+              <label
+                htmlFor="reason"
+                className="text-sm font-semibold whitespace-nowrap"
+              >
+                {t("Filters")}
+              </label>
+              <select
+                id="reason"
+                className="w-full sm:w-autoborder border-gray-300 rounded-md px-3 py-1 text-xs md:text-sm min-w-0"
+                value={selectedReason}
+                onChange={(e) => setSelectedReason(e.target.value)}
+              >
+                <option value="">{t("Reason")}</option>
+                {uniqueReasons.map((reason, idx) => (
+                  <option key={idx} value={reason}>
+                    {t(reason)}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="flex flex-col sm:flex-row gap-2 md:gap-4 flex-1 min-w-0">
+              <input
+                type="text"
+                value={searchName}
+                onChange={(e) => setSearchName(e.target.value)}
+                className="flex:1 min-w-0 border border-gray-300 rounded-md px-3 py-1 text-xs md:text-sm"
+                placeholder={t("Name")}
+              />
+
+              <input
+                type="text"
+                value={searchIndex}
+                onChange={(e) => setSearchIndex(e.target.value)}
+                className="flex-1 min-w-0 border border-gray-300 rounded-md px-3 py-1 text-xs md:text-sm"
+                placeholder={t("IndexCode")}
+              />
+            </div>
           </div>
-
-          <input
-            type="text"
-            value={searchName}
-            onChange={(e) => setSearchName(e.target.value)}
-            className="border border-gray-300 rounded-md px-3 py-1 text-sm"
-            placeholder={t("Name")}
-          />
-
-          <input
-            type="text"
-            value={searchIndex}
-            onChange={(e) => setSearchIndex(e.target.value)}
-            className="border border-gray-300 rounded-md px-3 py-1 text-sm"
-            placeholder={t("IndexCode")}
-          />
         </div>
 
         {/* Complaints List */}
@@ -279,7 +311,9 @@ const OfficialDashboard = () => {
         ))}
 
         {!hasMore && complaints.length > 0 && (
-          <p className="text-center mt-4 text-gray-500">{t("No more complaints")}</p>
+          <p className="text-center mt-4 text-xs md:text-sm text-gray-500">
+            {t("No more complaints")}
+          </p>
         )}
       </div>
     </>
