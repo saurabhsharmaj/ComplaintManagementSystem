@@ -13,7 +13,6 @@ import SpinnerModal from "../components/SpinnerModal";
 import { API_BASE_URL } from "@/config";
 import { useTranslation } from "react-i18next";
 
-
 const CitizenDashboard = () => {
   const [deferredPrompt, setDeferredPrompt] = useState(null);
   const [SpinnerVisible, setSpinnerVisible] = useState(false);
@@ -21,7 +20,7 @@ const CitizenDashboard = () => {
   const [complaints, setComplaints] = useState([]);
   const [params] = useSearchParams();
   const navigate = useNavigate();
-   const { t } = useTranslation();
+  const { t } = useTranslation();
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -49,9 +48,12 @@ const CitizenDashboard = () => {
         } else {
           setSpinnerVisible(false);
           if (params.get("newUser")) {
-            toast.success("Registration Successful, Welcome to citizen dashboard", {
-              icon: "👋",
-            });
+            toast.success(
+              "Registration Successful, Welcome to citizen dashboard",
+              {
+                icon: "👋",
+              }
+            );
           }
           fetchComplaints(userId, token);
         }
@@ -62,7 +64,10 @@ const CitizenDashboard = () => {
 
     window.addEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
     return () => {
-      window.removeEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
+      window.removeEventListener(
+        "beforeinstallprompt",
+        handleBeforeInstallPrompt
+      );
     };
   }, []);
 
@@ -103,19 +108,29 @@ const CitizenDashboard = () => {
   // Safe status checking
   const normalize = (status) => status?.toLowerCase() || "";
   const total = complaints.length;
-  const inProgress = complaints.filter((c) => normalize(c.status) === "in-progress").length;
-  const solved = complaints.filter((c) => normalize(c.status) === "solved").length;
-  const rejected = complaints.filter((c) => normalize(c.status) === "rejected").length;
+  const inProgress = complaints.filter(
+    (c) => normalize(c.status) === "in-progress"
+  ).length;
+  const solved = complaints.filter(
+    (c) => normalize(c.status) === "solved"
+  ).length;
+  const rejected = complaints.filter(
+    (c) => normalize(c.status) === "rejected"
+  ).length;
 
   return (
     <>
       {/* <SpinnerModal visible={SpinnerVisible} /> */}
       <Navbar />
-      <ToastContainer position="bottom-center" autoClose={5000} hideProgressBar theme="light" />
-
+      <ToastContainer
+        position="bottom-center"
+        autoClose={5000}
+        hideProgressBar
+        theme="light"
+      />
 
       {/* Top section with status cards */}
-      <h2 className="lg:mt-10 font-bold text-center text-xl lg:text-[2rem] my-4 lg:text-left lg:mx-20 mt-20 lg:mt-20">
+      <h2 className=" font-bold text-center text-xl lg:text-[2rem] my-4 lg:text-left lg:mx-20 mt-20 lg:mt-20">
         {t("Dashboard")}
       </h2>
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 px-5 lg:px-20 mb-6">
@@ -140,7 +155,12 @@ const CitizenDashboard = () => {
       {/* Action buttons + complaint list */}
       <div className="grid lg:grid-cols-[0.8fr_0.6fr] mx-10">
         <div>
-          <DashboardLinkButton icon={faEdit} name={"New Complaint"} link={"/report"} className={"mt-16"} />
+          <DashboardLinkButton
+            icon={faEdit}
+            name={"New Complaint"}
+            link={"/report"}
+            className={"mt-16"}
+          />
           <DashboardLinkButton
             icon={faTrafficLight}
             name={"Track Reported complaints"}
