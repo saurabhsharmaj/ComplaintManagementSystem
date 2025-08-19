@@ -79,13 +79,13 @@ const Navbar = () => {
             h-16          
             bg-white
             flex justify-between items-center
-            px-4 py-2 lg:py-4 lg:px-8
+            px-3 py-2 lg:py-4 lg:px-8
           "
       >
         <Link to={Official ? "/official-dashboard" : "/citizen-dashboard"}>
           <div className="LogoGroup flex items-center gap-3">
-            <img className="logo h-12 lg:h-12 w-12 rounded-full object-cover" src={Logo} alt="logo" />
-            <h2 className="font-bold text-sm animate-typing whitespace-nowrap overflow-hidden lg:text-lg">
+            <img className="logo h-10 w-10 md:h-12 md:w-12 rounded-full object-cover" src={Logo} alt="logo" />
+            <h2 className="font-bold text-sm whitespace-nowrap overflow-hidden lg:text-lg">
               {t("shiv vihar vikas samiti")}
             </h2>
           </div>
@@ -113,7 +113,8 @@ const Navbar = () => {
                       : "/default-avatar.png"
                   }
                   alt="Profile"
-                  style={{ width: "32px", height: "32px", borderRadius: "50%", objectFit: "cover" }}
+                  // style={{ width: "32px", height: "32px", borderRadius: "50%", objectFit: "cover" }}
+                  className="w-8 h-8 md:w-8 md:h-8 rounded-full object-cover"
                 />
                 {t("Profile")}
               </Button>
@@ -153,10 +154,10 @@ const Navbar = () => {
 
       {/* Mobile Menu */}
       <div
-        className={`MenuMobile lg:hidden w-full text-center py-20 absolute bg-white z-10 rounded-3xl ${Visible ? "block" : "hidden"
+        className={`MenuMobile lg:hidden fixed top-16 left-0 w-full min-h-[calc(100vh-4rem)] text-center py-12 bg-white z-40 rounded-b-3xl overflow-y-auto transition-all duration-300 ${Visible ? "block" : "hidden"
           }`}
       >
-        <ul className="flex flex-col gap-10 font-bold">
+        <ul className="flex flex-col gap-8 font-bold">
           {user ? (
             <>
               <Link to={Official ? "/official-dashboard" : "/citizen-dashboard"}>{t("Dashboard")}</Link>

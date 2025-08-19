@@ -20,7 +20,8 @@ import { Statuses } from "../utils/enums";
 import { useTranslation } from "react-i18next";
 
 const TextField = styled(MuiTextField)(() => ({
-  width: "80%",
+  width: "100%",
+  maxWidth: "100%",
   [`& fieldset`]: {
     borderRadius: "15px",
   },
@@ -155,14 +156,15 @@ const ReportComplaint = () => {
   };
 
   return (
-    <div className="h-screen w-full overflow-hidden flex flex-col">
+    <div className="min-h-screen w-full flex flex-col bg-transparent">
       <SpinnerModal visible={LoaderVisibile} />
       <Navbar />
       <ToastContainer position="bottom-center" autoClose={5000} theme="light" />
 
-      <div className="flex-grow overflow-auto px-4 lg:px-16 py-4">
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <h2 className="text-center text-xl font-bold mt-14">{t("Report Complaint")}</h2>
+      <div className="flex-grow overflow-auto px-3 md:px-8 lg:px-16 py-4">
+        <div className="max-w-2xl mx-auto">
+        <form onSubmit={handleSubmit} className="space-y-4 md:space-y-6">
+          <h2 className="text-center text-lg md:text-xl lg:text-2xl font-bold mt-16 md:mt-14 mb-6">{t("Report Complaint")}</h2>
 
           <input
             required
@@ -174,17 +176,17 @@ const ReportComplaint = () => {
           />
           <div
             onClick={() => FileInput.current?.click()}
-            className="bg-slate-300 p-2 rounded cursor-pointer text-center"
+            className="bg-slate-300 hover:bg-slate-400 transition-colors p-3 md:p-4 rounded-lg cursor-pointer text-center text-sm md:text-base font-medium"
           >
             {t("Image")} +
           </div>
 
           {Media && (
-            <div className="text-center">
+            <div className="text-center space-y-3">
               <img
                 src={MediaPath}
                 alt="Preview"
-                className="mx-auto max-h-40 object-contain"
+                className="mx-auto max-h-32 md:max-h-40 w-full object-contain rounded-lg border"
               />
               <Button onClick={() => FileInput.current?.click()} variant="outlined" size="small">
                 {t("Change Image")}
@@ -193,11 +195,12 @@ const ReportComplaint = () => {
           )}
 
           {complaintCode && (
-            <div className="bg-black text-white px-4 py-2 rounded text-center font-bold">
+            <div className="bg-black text-white px-4 py-3 rounded-lg text-center font-bold text-sm md:text-base">
               {complaintCode}
             </div>
           )}
 
+          <div className="w-full">
           <TextField
             label={t("Location")}
             value={FormData.location.name}
@@ -208,18 +211,21 @@ const ReportComplaint = () => {
                     const loc = await identifyLocation();
                     setFormData((prev) => ({ ...prev, location: loc }));
                   }}
+                  className="p-2 hover:bg-gray-100 rounded"
                 >
-                  <LocationSearching />
+                  <LocationSearching className="text-xl md:text-2xl" />
                 </ButtonBase>
               ),
             }}
           />
+          </div>
 
-          <div>
-            <p className="font-medium">{t("Reason")}:</p>
+          <div className="space-y-2">
+            <p className="font-medium text-sm md:text-base">{t("Reason")}:</p>
             <RadioGroup
               onChange={(e) => setFormData({ ...FormData, reason: e.target.value })}
               value={FormData.reason}
+              className="space-y-1"
             >
               {[
                 "Streetlight Not Working",
@@ -234,31 +240,43 @@ const ReportComplaint = () => {
                   key={reason}
                   value={reason}
                   control={<Radio size="small" />}
-                  label={t(reason)}
+                  label={<span className="text-sm md:text-base">{t(reason)}</span>}
+                  className="mx-0"
                 />
               ))}
             </RadioGroup>
           </div>
 
+           <div className="w-full">
           <TextField
             multiline
             rows={2}
             value={FormData.additionalInfo}
             onChange={(e) => setFormData({ ...FormData, additionalInfo: e.target.value })}
             placeholder={t("More Information")}
+            size="medium"
           />
+          </div>
 
+          <div className="flex items-start space-x-2">
           <FormControlLabel
             required
-            control={<Checkbox />}
-            label={t("By clicking on this checkbox I understand that you want to lodge a complaint...")}
+            control={<Checkbox className="mt-0"/>}
+            label={
+              <span className="text-xs md:text-sm leading-tight">
+                {t("By clicking on this checkbox I understand that you want to lodge a complaint...")}
+              </span>
+            }
+            className="item-start"
           />
+          </div>
 
-          <Button type="submit" fullWidth variant="contained">
+          <Button type="submit" fullWidth variant="contained" size="large" className="py-3 md:py-4 text-sm md:text-base font-medium">
             {t("Submit")}
           </Button>
         </form>
       </div>
+    </div>
     </div>
   );
 };
