@@ -46,16 +46,18 @@ const ComplaintSchema = new mongoose.Schema({
   reportedBy: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
   timestamp: Number,
   mediaPath: String,
-  status: { type: String, enum: Object.values(Statuses), default: Statuses.pending },
+  status: {
+    type: String,
+    enum: Object.values(Statuses),
+    default: Statuses.pending,
+  },
   comments: [CommentSchema],
 });
 
- 
 const User = mongoose.model("User", UserSchema);
 const Complaint = mongoose.model("Complaint", ComplaintSchema);
- 
+
 // --------- AUTHENTICATION FUNCTIONS ---------
- 
 
 export const handleRegistration = async (formData) => {
   const response = await axios.post(API_BASE_URL + "/register", formData, {
@@ -67,36 +69,34 @@ export const handleRegistration = async (formData) => {
   // }
 };
 
- 
-export const fetchUsers = async (token, page = 1, limit = 12, search= "") => {
+export const fetchUsers = async (token, page = 1, limit = 12, search = "") => {
   let url = `${API_BASE_URL}/users?page=${page}&limit=${limit}`;
-  if(search){
+  if (search) {
     url += `&search=${search}`;
   }
- 
-  const res = await fetch(url, {
 
+  const res = await fetch(url, {
     headers: {
       Authorization: `Bearer ${token}`,
     },
   });
 
- 
   if (!res.ok) {
     throw new Error("Failed to fetch Users");
   }
- 
+
   const data = await res.json();
   return data;
 };
- 
- 
 
 export const handleUserProfile = async (formData, mediaFile, token, userId) => {
-  const formPayload = new FormData()
-  console.log("userId", userId );
+  const formPayload = new FormData();
+  console.log("userId", userId);
   Object.entries(formData).forEach(([key, value]) => {
-    formPayload.append(key, typeof value === 'object' ? JSON.stringify(value) : value);
+    formPayload.append(
+      key,
+      typeof value === "object" ? JSON.stringify(value) : value
+    );
   });
 
   // Append media file (image or video)
@@ -114,18 +114,16 @@ export const handleUserProfile = async (formData, mediaFile, token, userId) => {
     throw new Error(error.message || "Failed to update UserProfile");
   }
 
- 
   const user = await response.json();
   return user;
 };
- 
 
 export const handleLogin = async (formData) => {
   // try {
   const response = await axios.post(API_BASE_URL + "/login", formData, {
     headers: { "Content-Type": "application/json" },
   });
-  console.log(formData)
+  console.log(formData);
   console.log(response.data);
   localStorage.setItem("userId", response.data.user._id);
   localStorage.setItem("token", response.data.token);
@@ -136,11 +134,14 @@ export const handleLogin = async (formData) => {
 };
 
 export const createComplaint = async (formData, mediaFile, token) => {
-  const formPayload = new FormData()
+  const formPayload = new FormData();
   const userId = localStorage.getItem("userId");
   // Append all fields
   Object.entries(formData).forEach(([key, value]) => {
-    formPayload.append(key, typeof value === 'object' ? JSON.stringify(value) : value);
+    formPayload.append(
+      key,
+      typeof value === "object" ? JSON.stringify(value) : value
+    );
   });
 
   // Append media file (image or video)
@@ -158,14 +159,11 @@ export const createComplaint = async (formData, mediaFile, token) => {
     throw new Error(error.message || "Failed to create complaint");
   }
 
- 
   const complaint = await response.json();
   return complaint;
 };
- 
-export const isOfficial = async (formData, mediaUrl, token) => {
- 
 
+export const isOfficial = async (formData, mediaUrl, token) => {
   const userId = localStorage.getItem("userId");
   const response = await fetch(API_BASE_URL + "/isOfficial/" + userId, {
     method: "GET",
@@ -185,14 +183,11 @@ export const isOfficial = async (formData, mediaUrl, token) => {
     throw new Error(error.message || "Failed to create complaint");
   }
 
- 
   const userType = response.json().getType();
   return userType === "admin";
 };
- 
-export const complaint = async (formData, mediaUrl, token) => {
- 
 
+export const complaint = async (formData, mediaUrl, token) => {
   const userId = localStorage.getItem("userId");
   const response = await fetch(API_BASE_URL + "/isOfficial/" + userId, {
     method: "GET",
@@ -212,11 +207,9 @@ export const complaint = async (formData, mediaUrl, token) => {
     throw new Error(error.message || "Failed to create complaint");
   }
 
- 
   const complaint = await response.json();
   return complaint;
 };
- 
 
 const fetchComplaintsByUser = async (userId, token) => {
   try {
@@ -224,15 +217,13 @@ const fetchComplaintsByUser = async (userId, token) => {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`
-      }
+        Authorization: `Bearer ${token}`,
+      },
     });
 
- 
     if (!res.ok) {
       throw new Error("Failed to fetch complaints");
     }
- 
 
     const data = await res.json();
     return data;
@@ -248,15 +239,13 @@ export const fetchComplaints = async (token) => {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`
-      }
+        Authorization: `Bearer ${token}`,
+      },
     });
 
- 
     if (!res.ok) {
       throw new Error("Failed to fetch complaints");
     }
- 
 
     const data = await res.json();
     return data;
@@ -266,36 +255,33 @@ export const fetchComplaints = async (token) => {
   }
 };
 
- 
 export const addComment = async (complaintID, commentText, token) => {
- 
-
   const commentData = {
     author: localStorage.getItem("userId"),
     comment: commentText,
     timestamp: Date.now(),
   };
 
-  const response = await fetch(API_BASE_URL + "/complaint/" + complaintID + "/comment", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`, // Include the auth token
-    },
-    body: JSON.stringify({
-      ...commentData,
-      timestamp: Date.now() // Optional: add timestamp on client if not handled in backend
-    }),
-  });
+  const response = await fetch(
+    API_BASE_URL + "/complaint/" + complaintID + "/comment",
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`, // Include the auth token
+      },
+      body: JSON.stringify({
+        ...commentData,
+        timestamp: Date.now(), // Optional: add timestamp on client if not handled in backend
+      }),
+    }
+  );
 
   if (!response.ok) {
     const error = await response.json();
     throw new Error(error.message || "Failed to create complaint");
   }
-
- 
 };
- 
 
 export const fetchCommentById = async (complaintID, token) => {
   // await Complaint.findByIdAndUpdate(complaintID, { status: Statuses.solved });
@@ -304,7 +290,7 @@ export const fetchCommentById = async (complaintID, token) => {
     headers: {
       "Content-Type": "application/json",
       Authorization: `Bearer ${token}`, // Include the auth token
-    }
+    },
   });
 
   if (!response.ok) {
@@ -312,21 +298,22 @@ export const fetchCommentById = async (complaintID, token) => {
     throw new Error(error.message || "Failed to mark complaint as resolved");
   }
 
- 
   const data = await res.json();
   return data;
 };
- 
 
 export const markAsSolved = async (complaintID, token) => {
   // await Complaint.findByIdAndUpdate(complaintID, { status: Statuses.solved });
-  const response = await fetch(API_BASE_URL + "/complaint/" + complaintID + "/solved", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`, // Include the auth token
+  const response = await fetch(
+    API_BASE_URL + "/complaint/" + complaintID + "/solved",
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`, // Include the auth token
+      },
     }
-  });
+  );
 
   if (!response.ok) {
     const error = await response.json();
@@ -336,13 +323,16 @@ export const markAsSolved = async (complaintID, token) => {
 
 export const markAsRejected = async (complaintID, token) => {
   //await Complaint.findByIdAndUpdate(complaintID, { status: Statuses.rejected });
-  const response = await fetch(API_BASE_URL + "/complaint/" + complaintID + "/rejected", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`, // Include the auth token
+  const response = await fetch(
+    API_BASE_URL + "/complaint/" + complaintID + "/rejected",
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`, // Include the auth token
+      },
     }
-  });
+  );
 
   if (!response.ok) {
     const error = await response.json();
@@ -363,14 +353,11 @@ export const fetchUserById = async (userId, token) => {
     throw new Error(error.message || "Failed to find user By Id");
   }
 
- 
   const data = await response.json();
   return data;
 };
- 
- 
+
 // --------- SIMULATED STORAGE FUNCTION ---------
- 
 
 // You should replace this with actual upload logic (e.g., AWS S3, Cloudinary, etc.)
 export const uploadMedia = async (file) => {
@@ -383,7 +370,4 @@ export const uploadMedia = async (file) => {
 // Use localStorage or cookie-based JWT storage on frontend
 export const setSessionPersistence = () => {
   // No-op in backend. Session handling is done via JWT
-
 };
- 
-t
