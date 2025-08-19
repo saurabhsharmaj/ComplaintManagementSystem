@@ -11,7 +11,7 @@ const PAGE_SIZE = 15;
 
 const UserDashboard = () => {
   const [users, setUsers] = useState([]);
-  const [filtered, setFiltered] = useState([]);
+  // const [filtered, setFiltered] = useState([]);
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(false);
   const [page, setPage] = useState(1);
@@ -21,37 +21,39 @@ const UserDashboard = () => {
   const navigate = useNavigate();
   const token = localStorage.getItem("token");
 
+  console.log(users);
+
   useEffect(() => {
     const getUsers = async () => {
       setLoading(true);
       try {
-        const response = await fetchUsers(token, page, PAGE_SIZE);
+        const response = await fetchUsers(token, page, PAGE_SIZE, search);
         const { users, totalPages } = response;
         setUsers(users);
-        setFiltered(users);
+        // setFiltered(users);
         setTotalPages(totalPages);
       } catch (err) {
         console.error("Error fetching users:", err);
         setUsers([]);
-        setFiltered([]);
+        // setFiltered([]);
       } finally {
         setLoading(false);
       }
     };
 
     if (token) getUsers();
-  }, [page, token]);
+  }, [page, token, search]);
 
-  useEffect(() => {
-    const query = search.toLowerCase();
-    const results = users.filter(
-      (u) =>
-        u.name?.toLowerCase().includes(query) ||
-        u.fname?.toLowerCase().includes(query) ||
-        u.galino?.toLowerCase().includes(query)
-    );
-    setFiltered(results);
-  }, [search, users]);
+  // useEffect(() => {
+  //   const query = search.toLowerCase();
+  //   const results = users.filter(
+  //     (u) =>
+  //       u.name?.toLowerCase().includes(query) ||
+  //       u.fname?.toLowerCase().includes(query) ||
+  //       u.galino?.toLowerCase().includes(query)
+  //   );
+  //   setFiltered(results);
+  // }, [search, users]);
 
   return (
     <>
@@ -63,14 +65,16 @@ const UserDashboard = () => {
             type="text"
             placeholder={t("Search by name or father's name")}
             value={search}
-            onChange={(e) => setSearch(e.target.value)}
+            onChange={(e) => {
+              setSearch(e.target.value)
+              setPage(1);   //Reset page to 1 on new search 
+            }}
             className="w-full px-4 py-2 border border-gray-400 rounded-lg shadow-sm"
           />
         </div>
 
         <div className="grid gap-4 grid-cols-1 md:grid-cols-3">
-
-          {filtered.map((user) => (
+          {users.map((user) => (
             <div
               key={user._id}
               className="relative border-2 border-gray-400 rounded-xl p-4 bg-white shadow-md flex flex-row items-center text-left gap-4"
@@ -99,12 +103,24 @@ const UserDashboard = () => {
               </div>
 
               <div className="flex flex-col gap-1 flex-grow">
-                <p className="font-bold text-base">{t("Name")}: {user.name}</p>
-                <p className="text-sm">{t("Father's Name")}: {user.fname}</p>
-                <p className="text-sm">{t("Caste")}: {user.cast}</p>
-                <p className="text-sm">{t("Plot No")}: {user.plotno}</p>
-                <p className="text-sm">{t("Gali No")}: {user.galino}</p>
-                <p className="text-sm">{t("Phone No")}: {user.mobile}</p>
+                <p className="font-bold text-base">
+                  {t("Name")}: {user.name}
+                </p>
+                <p className="text-sm">
+                  {t("Father's Name")}: {user.fname}
+                </p>
+                <p className="text-sm">
+                  {t("Caste")}: {user.cast}
+                </p>
+                <p className="text-sm">
+                  {t("Plot No")}: {user.plotno}
+                </p>
+                <p className="text-sm">
+                  {t("Gali No")}: {user.galino}
+                </p>
+                <p className="text-sm">
+                  {t("Phone No")}: {user.mobile}
+                </p>
               </div>
             </div>
           ))}

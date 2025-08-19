@@ -68,20 +68,25 @@ export const handleRegistration = async (formData) => {
   // }
 };
 
-export const fetchUsers = async (token, page = 1, limit = 12) => {
-  const res = await fetch(`${API_BASE_URL}/users?page=${page}&limit=${limit}`, {
+export const fetchUsers = async (token, page = 1, limit = 12, search= "") => {
+  let url = `${API_BASE_URL}/users?page=${page}&limit=${limit}`;
+  if(search){
+    url += `&search=${search}`;
+  }
+
+  const res = await fetch(url, {
     headers: {
       Authorization: `Bearer ${token}`,
     },
   });
 
-    if (!res.ok) {
-      throw new Error("Failed to fetch Users");
-    }
+  if (!res.ok) {
+    throw new Error("Failed to fetch Users");
+  }
 
-    const data = await res.json();
-    return data;
-  };
+  const data = await res.json();
+  return data;
+};
 
 
 export const handleUserProfile = async (formData, mediaFile, token, userId) => {

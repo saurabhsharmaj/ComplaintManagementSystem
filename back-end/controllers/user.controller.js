@@ -172,11 +172,21 @@ const updateUser = async (req, res) => {
 const getAllUsers = async (req, res) => {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 15;
+    const search = req.query.search || '';
     const skip = (page - 1) * limit;
 
+    const query = {};
+      if (search) {
+          const searchRegex = new RegExp(search, 'i'); 
+          query.$or = [
+              { name: { $regex: searchRegex } },
+              { fname: { $regex: searchRegex } },
+              { galino: { $regex: searchRegex } }
+          ];
+    }
     const [users, total] = await Promise.all([
-      User.find().sort({ plotno: 1 }).skip(skip).limit(limit),
-      User.countDocuments(),
+      User.find(query).sort({ plotno: 1 }).skip(skip).limit(limit),
+      User.countDocuments(query),
     ]);
 
     return res.status(200).json({
@@ -184,7 +194,7 @@ const getAllUsers = async (req, res) => {
       totalPages: Math.ceil(total / limit),
       currentPage: page,
     });
-  } 
+} 
 
 
 
