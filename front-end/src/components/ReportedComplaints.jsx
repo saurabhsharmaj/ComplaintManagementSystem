@@ -71,20 +71,33 @@ const ReportedComplaints = () => {
   };
 
   return (
-    <main className="pt-16">
-    <div className="lg:border lg:shadow-[3px_4px_4px_rgba(0,0,0,0.26)] rounded-lg lg:border-solid lg:border-black w-full flex flex-col items-center lg:h-[28rem] py-2">
-      <h3 className="font-bold my-2">Complaints Reported by You</h3>
+    <main className="min-h-screen pt-16">
+    
+    <div className="border shadow-[3px_4px_4px_rgba(0,0,0,0.26)] rounded-lg border-solid border-black p-6 lg:p-8 h-full lg:h-96 flex flex-col">
+      {/* <div className="px-3 md:px-6 lg:px-8 py-4 md:py-6">
+      <div className="max-w-6xl mx-auto">
+      <div className="border border-gray-200 shadow-lg rounded-lg md:rounded-xl p-4 md:p-6"> */}
+      <h3 className="font-bold text-lg md:text-xl lg:text-2xl text-center mb-4 md:mb-6 text-gray-800">Complaints Reported by You</h3>
 
       {/* Spinner while loading */}
       {/* <SpinnerModal visible={loading} /> */}
 
       {/* Complaint List */}
       {!loading && (
-        <div className="container px-4 overflow-y-auto">
+        // <div className="space-y-3 md:space-y-4">
+        <div className="flex-1 flex flex-col overflow-hidden">
           {complaints && complaints.length === 0 ? (
-            <h2>No Complaints Found #</h2>
+            <div className="flex-1 flex items-center justify-center">
+            <div className="text-center py-8">
+            <h2 className="text-lg text-gray-600">No Complaints Found #</h2>
+            </div>
+            </div>
           ) : (
-            complaints &&
+            <div className="flex-1 overflow-y-auto space-y-3 pr-1 custom-scrollbar" style={{
+                  scrollbarWidth: 'none',
+                  scrollbarColor: 'none',
+                }}>
+            {complaints &&
             complaints.map((complaint) => (
               <ComplaintsCard
                 key={complaint._id}
@@ -93,7 +106,8 @@ const ReportedComplaints = () => {
                 // userType="admin"
                 userType={user?.type}
               />
-            ))
+            ))}
+            </div>
           )}
         </div>
       )}
