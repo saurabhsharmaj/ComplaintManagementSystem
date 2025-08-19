@@ -6,16 +6,19 @@ import SpinnerModal from "../components/SpinnerModal";
 import { useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEdit } from "@fortawesome/free-solid-svg-icons";
+
  
 const PAGE_SIZE = 15;
  
 const UserDashboard = () => {
   const [users, setUsers] = useState([]);
   // const [filtered, setFiltered] = useState([]);
+
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(false);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+
  
   const { t } = useTranslation();
   const navigate = useNavigate();
@@ -23,23 +26,29 @@ const UserDashboard = () => {
  
   console.log(users);
  
+
   useEffect(() => {
     const getUsers = async () => {
       setLoading(true);
       try {
+
         const response = await fetchUsers(token, page, PAGE_SIZE, search);
         const { users, totalPages } = response;
         setUsers(users);
         // setFiltered(users);
+
         setTotalPages(totalPages);
       } catch (err) {
         console.error("Error fetching users:", err);
         setUsers([]);
+
         // setFiltered([]);
+
       } finally {
         setLoading(false);
       }
     };
+
  
     if (token) getUsers();
   }, [page, token, search]);
@@ -55,6 +64,7 @@ const UserDashboard = () => {
   //   setFiltered(results);
   // }, [search, users]);
  
+
   return (
     <>
       <SpinnerModal visible={loading} />
@@ -65,6 +75,7 @@ const UserDashboard = () => {
             type="text"
             placeholder={t("Search by name or father's name")}
             value={search}
+
             onChange={(e) => {
               setSearch(e.target.value)
               setPage(1);   //Reset page to 1 on new search
@@ -75,6 +86,7 @@ const UserDashboard = () => {
  
         <div className="grid gap-4 grid-cols-1 md:grid-cols-3">
           {users.map((user) => (
+
             <div
               key={user._id}
               className="relative border-2 border-gray-400 rounded-xl p-4 bg-white shadow-md flex flex-row items-center text-left gap-4"
@@ -89,7 +101,7 @@ const UserDashboard = () => {
               >
                 <FontAwesomeIcon icon={faEdit} />
               </div>
- 
+
               <div className="w-28 h-32 bg-gray-100 overflow-hidden flex-shrink-0">
                 <img
                   src={
@@ -101,6 +113,7 @@ const UserDashboard = () => {
                   className="object-cover w-full h-full"
                 />
               </div>
+
  
               <div className="flex flex-col gap-1 flex-grow">
                 <p className="font-bold text-base">
@@ -121,11 +134,12 @@ const UserDashboard = () => {
                 <p className="text-sm">
                   {t("Phone No")}: {user.mobile}
                 </p>
+
               </div>
             </div>
           ))}
         </div>
- 
+
         <div className="flex justify-center gap-4 mt-10">
           <button
             onClick={() => setPage((prev) => Math.max(prev - 1, 1))}
@@ -149,7 +163,9 @@ const UserDashboard = () => {
     </>
   );
 };
+
  
 export default UserDashboard;
  
  
+

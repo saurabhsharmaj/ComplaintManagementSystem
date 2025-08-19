@@ -10,6 +10,7 @@ backend/package-lock.json
 dev-dist/
 dist/
 
-node_modules
+
+
 
 .env
