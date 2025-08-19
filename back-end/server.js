@@ -3,8 +3,12 @@ const cors = require("cors");
 const connectDB = require("./db");
 const s3 = require("./routes/s3.route");
 const userRoutes = require("./routes/user.route");
+const nodeRoutes = require("./routes/nodeRoutes.js");
+const levelRoutes = require("./routes/levelRoutes.js");
+
 const complaintRoutes = require("./routes/complaint.route");
 require("dotenv").config();
+
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -26,7 +30,8 @@ app.use(express.urlencoded({ limit: '10mb', extended: true }));
 app.use("/api", userRoutes);
 app.use("/api", complaintRoutes);
 app.use("/api", s3);
-
+app.use("/api/nodes", nodeRoutes);
+app.use("/api/levels", levelRoutes);
 // DB Connect and start server
 connectDB().then(() => {
   app.listen(PORT, () => {
