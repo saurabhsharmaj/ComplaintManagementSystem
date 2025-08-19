@@ -130,7 +130,7 @@ const CitizenDashboard = () => {
       />
 
       {/* Top section with status cards */}
-      <h2 className=" font-bold text-center text-xl lg:text-[2rem] my-4 lg:text-left lg:mx-20 mt-20 lg:mt-20">
+      <h2 className="font-bold text-center text-xl lg:text-[2rem] my-4 lg:text-left lg:mx-20 mt-20 lg:mt-20">
         {t("Dashboard")}
       </h2>
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 px-5 lg:px-20 mb-6">
