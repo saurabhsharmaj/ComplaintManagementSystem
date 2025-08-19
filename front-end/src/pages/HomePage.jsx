@@ -37,7 +37,7 @@ const HomePage = () => {
           alt=""
         />
         <div>
-          <h3 className="slogan mt-[25%] lg:mt-0 leading-normal font-bold text-center text-base lg:text-[2rem] mt-5 lg:mt-16">
+          <h3 className="slogan  leading-normal font-bold text-center text-base lg:text-[2rem] mt-5 lg:mt-16">
             {t("REPORT SHIV VIHAR VIOLATIONS AND PUBLIC PROBLEMS IN COLONY")} !!!
           </h3>
           <RegisterAccount />
