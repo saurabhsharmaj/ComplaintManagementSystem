@@ -16,6 +16,9 @@ import { motion } from "framer-motion";
 import axios from "axios";
 import LevelSection from "./LevelSection";
 import ThemeToggle from "./ThemeToggle";
+import { API_BASE_URL } from "@/config";
+import Navbar from "../components/Navbar";
+import { useTranslation } from "react-i18next";
 
 /* ---------------------------------------------
  * Utility helpers (non-breaking, for UX/validation)
@@ -194,7 +197,9 @@ const LevelBox = ({
  * LevelTree — main container
  * --------------------------------------------*/
 const LevelTree = () => {
-  const [currentUserRole] = useState("admin"); // "admin" | "citizen"  (kept as-is)
+  const { t } = useTranslation();
+  const [currentUserRole, setCurrentUserRole] = useState("citizen"); // "admin" | "citizen"
+  const [user, setUser] = useState(null);
   const [nodes, setNodes] = useState([]);
   const [levels, setLevels] = useState([]);
   const [levelNames, setLevelNames] = useState({});
@@ -222,6 +227,7 @@ const LevelTree = () => {
 
   // UX: simple validation feedback on Add form
   const [formHint, setFormHint] = useState("");
+  const [editFormErrors, setEditFormErrors] = useState({});
 
   // UX: optional search (non-breaking)
   const [search, setSearch] = useState("");
@@ -251,6 +257,32 @@ const LevelTree = () => {
     }
     return created;
   };
+
+  // Fetch user data and determine role
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    const userId = localStorage.getItem("userId");
+
+    if (userId && token) {
+      fetch(API_BASE_URL + "/user/" + userId, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+        .then((res) => res.json())
+        .then((userData) => {
+          setUser(userData);
+          setCurrentUserRole(userData.type === "admin" ? "admin" : "citizen");
+        })
+        .catch(() => {
+          setUser(null);
+          setCurrentUserRole("citizen");
+        });
+    } else {
+      setUser(null);
+      setCurrentUserRole("citizen");
+    }
+  }, []);
 
   // Fetch levels and nodes from backend
   useEffect(() => {
@@ -483,16 +515,28 @@ const LevelTree = () => {
   const totalMembers = filteredNodes.length;
 
   return (
+    <>
+    <div className="mb-16">
+
+    <Navbar />
+    </div>
     <div className="min-h-screen relative overflow-x-hidden text-[13px] bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-indigo-50 via-white to-purple-50 dark:from-gray-950 dark:via-gray-900 dark:to-black">
       {/* Add Node button */}
+      
       {currentUserRole === "admin" && (
+        <>
+         
         <div className="sticky top-0 right-0 z-20 flex items-center gap-2 p-3 sm:p-4 backdrop-blur bg-white/70 dark:bg-gray-900/60 border-b border-gray-200 dark:border-gray-800">
+        <div className="text-center ">
+          {/* <h1 className="text-4xl font-extrabold text-gray-800 dark:text-gray-200 mt-3">{t("Shiv Vihar Vikas Samiti")}</h1> */}
+          <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">{t("Members")}: <span className="font-semibold">{totalMembers}</span></p>
+        </div>
           <div className="flex sm:hidden items-center bg-white/90 dark:bg-gray-800/90 border border-gray-300 dark:border-gray-700 rounded-full px-3 py-1 shadow w-full">
             <Search className="w-4 h-4 mr-1 text-gray-500" />
             <input
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search…"
+              placeholder={t("Search…")}
               className="bg-transparent outline-none text-sm text-gray-700 dark:text-gray-200 placeholder-gray-400 w-full"
             />
           </div>
@@ -502,7 +546,7 @@ const LevelTree = () => {
             <input
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search…"
+              placeholder={t("Search…")}
               className="bg-transparent outline-none text-sm text-gray-700 dark:text-gray-200 placeholder-gray-400"
             />
           </div>
@@ -511,18 +555,17 @@ const LevelTree = () => {
             onClick={() => setShowForm(true)}
             className="ml-auto sm:ml-0 bg-indigo-600 hover:bg-indigo-700 text-white px-4 sm:px-6 py-2 rounded-full shadow-lg"
           >
-            ➕ Add Node
+            ➕ {t("Add Member")}
           </button>
 
           {/* Theme toggle */}
-          <ThemeToggle />
+          {/* <ThemeToggle className='bg-green-300 p-20'/> */}
         </div>
+        </>
+
       )}
 
-      <div className="text-center mb-12">
-        <h1 className="text-4xl font-extrabold text-gray-800 dark:text-gray-200">8Bit Organization</h1>
-        <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">Members: <span className="font-semibold">{totalMembers}</span></p>
-      </div>
+    
 
       {/* Add Node Form — UPDATED to include email, phone, department */}
       {showForm && currentUserRole === "admin" && (
@@ -539,17 +582,17 @@ const LevelTree = () => {
                 ×
               </button>
               <h2 className="text-2xl font-bold text-center mb-2 text-gray-900 dark:text-gray-100">
-                Add New Member
+                {t("Add New Member")}
               </h2>
-              <p className="text-center text-xs text-gray-500 dark:text-gray-400 mb-4">Fill the details below to add a new member to the organization.</p>
+              <p className="text-center text-xs text-gray-500 dark:text-gray-400 mb-4">{t("Fill the details below to add a new member to the organization.")}</p>
               <form onSubmit={handleSubmit} className="space-y-3">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div>
-                    <label htmlFor="name" className="block text-xs font-medium text-gray-600 dark:text-gray-300 mb-1">Name *</label>
+                    <label htmlFor="name" className="block text-xs font-medium text-gray-600 dark:text-gray-300 mb-1">{t("Name")} *</label>
                     <input
                       id="name"
                       name="name"
-                      placeholder="e.g. Jane Doe"
+                      placeholder={t("e.g. Jane Doe")}
                       required
                       value={formData.name}
                       onChange={handleChange}
@@ -557,11 +600,11 @@ const LevelTree = () => {
                     />
                   </div>
                   <div>
-                    <label htmlFor="role" className="block text-xs font-medium text-gray-600 dark:text-gray-300 mb-1">Role *</label>
+                    <label htmlFor="role" className="block text-xs font-medium text-gray-600 dark:text-gray-300 mb-1">{t("Role")} *</label>
                     <input
                       id="role"
                       name="role"
-                      placeholder="e.g. Product Manager"
+                      placeholder={t("e.g. Product Manager")}
                       required
                       value={formData.role}
                       onChange={handleChange}
@@ -569,12 +612,12 @@ const LevelTree = () => {
                     />
                   </div>
                   <div className="sm:col-span-2">
-                    <label htmlFor="email" className="block text-xs font-medium text-gray-600 dark:text-gray-300 mb-1">Email</label>
+                    <label htmlFor="email" className="block text-xs font-medium text-gray-600 dark:text-gray-300 mb-1">{t("Email")}</label>
                     <input
                       id="email"
                       type="email"
                       name="email"
-                      placeholder="name@example.com"
+                      placeholder={t("name@example.com")}
                       value={formData.email}
                       onChange={handleChange}
                       className={`w-full rounded-lg border bg-white dark:bg-gray-700 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 shadow-sm ${
@@ -583,11 +626,11 @@ const LevelTree = () => {
                     />
                   </div>
                   <div>
-                    <label htmlFor="phone" className="block text-xs font-medium text-gray-600 dark:text-gray-300 mb-1">Phone</label>
+                    <label htmlFor="phone" className="block text-xs font-medium text-gray-600 dark:text-gray-300 mb-1">{t("Phone")}</label>
                     <input
                       id="phone"
                       name="phone"
-                      placeholder="e.g. +1 555 0100"
+                      placeholder={t("e.g. +1 555 0100")}
                       value={formData.phone}
                       onChange={handleChange}
                       className={`w-full rounded-lg border bg-white dark:bg-gray-700 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 shadow-sm ${
@@ -596,22 +639,22 @@ const LevelTree = () => {
                     />
                   </div>
                   <div>
-                    <label htmlFor="department" className="block text-xs font-medium text-gray-600 dark:text-gray-300 mb-1">Department</label>
+                    <label htmlFor="department" className="block text-xs font-medium text-gray-600 dark:text-gray-300 mb-1">{t("Department")}</label>
                     <input
                       id="department"
                       name="department"
-                      placeholder="e.g. Engineering"
+                      placeholder={t("e.g. Engineering")}
                       value={formData.department}
                       onChange={handleChange}
                       className="w-full rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-700 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 shadow-sm"
                     />
                   </div>
                   <div className="sm:col-span-2">
-                    <label htmlFor="image" className="block text-xs font-medium text-gray-600 dark:text-gray-300 mb-1">Image URL</label>
+                    <label htmlFor="image" className="block text-xs font-medium text-gray-600 dark:text-gray-300 mb-1">{t("Image URL")}</label>
                     <input
                       id="image"
                       name="image"
-                      placeholder="https://..."
+                      placeholder={t("https://...")}
                       value={formData.image}
                       onChange={handleChange}
                       className="w-full rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-700 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 shadow-sm"
@@ -620,7 +663,7 @@ const LevelTree = () => {
                 </div>
 
                 <div>
-                  <label htmlFor="level" className="block text-xs font-medium text-gray-600 dark:text-gray-300 mb-1">Level</label>
+                  <label htmlFor="level" className="block text-xs font-medium text-gray-600 dark:text-gray-300 mb-1">{t("Level")}</label>
                   <select
                     id="level"
                     name="level"
@@ -633,16 +676,16 @@ const LevelTree = () => {
                         {levelNames[lvl]} (Level {lvl})
                       </option>
                     ))}
-                    <option value={0}>➕ Add New Level</option>
+                    <option value={0}>➕ {t("Add New Level")}</option>
                   </select>
                 </div>
 
                 {formData.level === 0 && (
                   <div>
-                    <label htmlFor="newLevelName" className="block text-xs font-medium text-gray-600 dark:text-gray-300 mb-1">New Level Name</label>
+                    <label htmlFor="newLevelName" className="block text-xs font-medium text-gray-600 dark:text-gray-300 mb-1">{t("New Level Name")}</label>
                     <input
                       id="newLevelName"
-                      placeholder="e.g. Senior Leadership"
+                      placeholder={t("e.g. Senior Leadership")}
                       value={newLevelName}
                       onChange={(e) => setNewLevelName(e.target.value)}
                       className="w-full rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-700 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 shadow-sm"
@@ -660,10 +703,10 @@ const LevelTree = () => {
                     onClick={() => setShowForm(false)}
                     className="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 shadow"
                   >
-                    Cancel
+                    {t("Cancel")}
                   </button>
                   <button type="submit" className="inline-flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 active:bg-green-800 text-white px-4 py-2.5 rounded-lg shadow">
-                    ✅ Add Member
+                    ✅ {t("Add Member")}
                   </button>
                 </div>
               </form>
@@ -710,7 +753,7 @@ const LevelTree = () => {
             <motion.div
               initial={{ opacity: 0, y: 12, scale: 0.98 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
-              className="relative w-full max-w-lg rounded-2xl shadow-2xl border border-gray-200 dark:border-gray-700 overflow-hidden bg-white dark:bg-gray-800"
+              className="relative w-full max-w-4xl rounded-2xl shadow-2xl border border-gray-200 dark:border-gray-700 overflow-hidden bg-white dark:bg-gray-800 max-h-[90vh] overflow-y-auto"
             >
               <button
                 className="absolute top-3 right-4 text-gray-500 hover:text-red-500 dark:text-gray-300 text-xl font-bold"
@@ -774,116 +817,215 @@ const LevelTree = () => {
                           onClick={() => setIsEditingNode(true)}
                           className="inline-flex items-center gap-2 bg-yellow-500 hover:bg-yellow-600 active:bg-yellow-700 text-white px-4 py-2 rounded-lg shadow"
                         >
-                          ✏️ Edit
+                          ✏️ {t("Edit")}
                         </button>
                         <button
                           onClick={() => confirmDeleteNode(selectedNode)}
                           className="inline-flex items-center gap-2 bg-red-600 hover:bg-red-700 active:bg-red-800 text-white px-4 py-2 rounded-lg shadow"
                         >
-                          🗑 Delete
+                          🗑 {t("Delete")}
                         </button>
                       </div>
                     )}
                   </div>
                 </div>
               ) : (
-                <form onSubmit={handleEditNode} className="space-y-4">
-                  <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Edit Member</h3>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    <div>
-                      <label className="block text-xs font-medium text-gray-600 dark:text-gray-300 mb-1">Name *</label>
-                      <input
-                        type="text"
-                        value={selectedNode.name || ""}
-                        onChange={(e) => setSelectedNode((prev) => ({ ...prev, name: e.target.value }))}
-                        className="w-full rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-700 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 shadow-sm"
-                        placeholder="Name"
-                        required
-                      />
+                <div className="p-4">
+                  {/* Header with Member Info */}
+                  <div className="flex items-center gap-4 mb-4 p-3 bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-gray-800 dark:to-gray-700 rounded-xl">
+                    <div className="w-12 h-12 rounded-full ring-2 ring-white dark:ring-gray-900 overflow-hidden shadow-lg">
+                      {selectedNode.image ? (
+                        <img src={selectedNode.image} alt={selectedNode.name} className="w-full h-full object-cover" />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-blue-500 to-purple-600">
+                          <User className="w-6 h-6 text-white" />
+                        </div>
+                      )}
                     </div>
                     <div>
-                      <label className="block text-xs font-medium text-gray-600 dark:text-gray-300 mb-1">Role *</label>
-                      <input
-                        type="text"
-                        value={selectedNode.role || ""}
-                        onChange={(e) => setSelectedNode((prev) => ({ ...prev, role: e.target.value }))}
-                        className="w-full rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-700 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 shadow-sm"
-                        placeholder="Role"
-                        required
-                      />
-                    </div>
-                    <div className="sm:col-span-2">
-                      <label className="block text-xs font-medium text-gray-600 dark:text-gray-300 mb-1">Email</label>
-                      <input
-                        type="email"
-                        value={selectedNode.email || ""}
-                        onChange={(e) => setSelectedNode((prev) => ({ ...prev, email: e.target.value }))}
-                        className="w-full rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-700 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 shadow-sm"
-                        placeholder="Email (optional)"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-xs font-medium text-gray-600 dark:text-gray-300 mb-1">Phone</label>
-                      <input
-                        type="text"
-                        value={selectedNode.phone || ""}
-                        onChange={(e) => setSelectedNode((prev) => ({ ...prev, phone: e.target.value }))}
-                        className="w-full rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-700 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 shadow-sm"
-                        placeholder="Phone (optional)"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-xs font-medium text-gray-600 dark:text-gray-300 mb-1">Department</label>
-                      <input
-                        type="text"
-                        value={selectedNode.department || ""}
-                        onChange={(e) => setSelectedNode((prev) => ({ ...prev, department: e.target.value }))}
-                        className="w-full rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-700 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 shadow-sm"
-                        placeholder="Department (optional)"
-                      />
-                    </div>
-                    <div className="sm:col-span-2">
-                      <label className="block text-xs font-medium text-gray-600 dark:text-gray-300 mb-1">Image URL</label>
-                      <input
-                        type="text"
-                        value={selectedNode.image || ""}
-                        onChange={(e) => setSelectedNode((prev) => ({ ...prev, image: e.target.value }))}
-                        className="w-full rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-700 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 shadow-sm"
-                        placeholder="Image URL (optional)"
-                      />
+                      <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100">{t("Edit Member")}</h3>
+                      <p className="text-xs text-gray-600 dark:text-gray-400">Update member information and details</p>
                     </div>
                   </div>
 
-                  <div>
-                    <label className="block text-xs font-medium text-gray-600 dark:text-gray-300 mb-1">Level</label>
-                    <select
-                      value={selectedNode.level || 1}
-                      onChange={(e) =>
-                        setSelectedNode((prev) => ({ ...prev, level: parseInt(e.target.value) }))
-                      }
-                      className="w-full rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-700 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 shadow-sm"
-                    >
-                      {levels.map((lvl) => (
-                        <option key={lvl} value={lvl}>
-                          {levelNames[lvl]} (Level {lvl})
-                        </option>
-                      ))}
-                    </select>
-                  </div>
+                  <form onSubmit={handleEditNode} className="space-y-4">
+                    {/* Horizontal Layout - Two Columns */}
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                      {/* Left Column - Basic Information */}
+                      <div className="bg-white dark:bg-gray-800 rounded-xl p-4 border border-gray-200 dark:border-gray-700">
+                        <h4 className="text-base font-semibold text-gray-900 dark:text-gray-100 mb-3 flex items-center gap-2">
+                          <User className="w-4 h-4 text-indigo-600" />
+                          {t("Basic Information")}
+                        </h4>
+                        <div className="space-y-3">
+                          <div>
+                            <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">
+                              {t("Name")} <span className="text-red-500">*</span>
+                            </label>
+                            <input
+                              type="text"
+                              value={selectedNode.name || ""}
+                              onChange={(e) => setSelectedNode((prev) => ({ ...prev, name: e.target.value }))}
+                              className="w-full rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-2 text-sm text-gray-900 dark:text-gray-100 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-200 dark:focus:ring-indigo-800 transition-all duration-200"
+                              placeholder={t("e.g. Jane Doe")}
+                              required
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">
+                              {t("Role")} <span className="text-red-500">*</span>
+                            </label>
+                            <input
+                              type="text"
+                              value={selectedNode.role || ""}
+                              onChange={(e) => setSelectedNode((prev) => ({ ...prev, role: e.target.value }))}
+                              className="w-full rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-2 text-sm text-gray-900 dark:text-gray-100 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-200 dark:focus:ring-indigo-800 transition-all duration-200"
+                              placeholder={t("e.g. Product Manager")}
+                              required
+                            />
+                          </div>
+                          <div className="grid grid-cols-2 gap-2">
+                            <div>
+                              <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">
+                                {t("Department")}
+                              </label>
+                              <input
+                                type="text"
+                                value={selectedNode.department || ""}
+                                onChange={(e) => setSelectedNode((prev) => ({ ...prev, department: e.target.value }))}
+                                className="w-full rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-2 text-sm text-gray-900 dark:text-gray-100 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-200 dark:focus:ring-indigo-800 transition-all duration-200"
+                                placeholder={t("e.g. Engineering")}
+                              />
+                            </div>
+                            <div>
+                              <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">
+                                {t("Level")}
+                              </label>
+                              <select
+                                value={selectedNode.level || 1}
+                                onChange={(e) =>
+                                  setSelectedNode((prev) => ({ ...prev, level: parseInt(e.target.value) }))
+                                }
+                                className="w-full rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-2 text-sm text-gray-900 dark:text-gray-100 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-200 dark:focus:ring-indigo-800 transition-all duration-200"
+                              >
+                                {levels.map((lvl) => (
+                                  <option key={lvl} value={lvl}>
+                                    {levelNames[lvl]} (L{lvl})
+                                  </option>
+                                ))}
+                              </select>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
 
-                  <div className="flex items-center justify-end gap-3 pt-1">
-                    <button
-                      type="button"
-                      onClick={() => setIsEditingNode(false)}
-                      className="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 shadow"
-                    >
-                      Cancel
-                    </button>
-                    <button type="submit" className="w-auto inline-flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 active:bg-green-800 text-white px-4 py-2.5 rounded-lg shadow">
-                      ✅ Save Changes
-                    </button>
-                  </div>
-                </form>
+                      {/* Right Column - Contact & Image */}
+                      <div className="space-y-4">
+                        {/* Contact Information */}
+                        <div className="bg-white dark:bg-gray-800 rounded-xl p-4 border border-gray-200 dark:border-gray-700">
+                          <h4 className="text-base font-semibold text-gray-900 dark:text-gray-100 mb-3 flex items-center gap-2">
+                            <Mail className="w-4 h-4 text-green-600" />
+                            {t("Contact Information")}
+                          </h4>
+                          <div className="space-y-3">
+                            <div>
+                              <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">
+                                <Mail className="w-3 h-3 inline mr-1" />
+                                {t("Email")}
+                              </label>
+                              <input
+                                type="email"
+                                value={selectedNode.email || ""}
+                                onChange={(e) => setSelectedNode((prev) => ({ ...prev, email: e.target.value }))}
+                                className={`w-full rounded-lg border bg-white dark:bg-gray-700 px-3 py-2 text-sm text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-1 transition-all duration-200 ${
+                                  selectedNode.email && !isValidEmail(selectedNode.email)
+                                    ? "border-red-400 focus:border-red-500 focus:ring-red-200"
+                                    : "border-gray-200 dark:border-gray-600 focus:border-indigo-500 focus:ring-indigo-200 dark:focus:ring-indigo-800"
+                                }`}
+                                placeholder={t("name@example.com")}
+                              />
+                              {selectedNode.email && !isValidEmail(selectedNode.email) && (
+                                <p className="text-xs text-red-500 mt-1">Invalid email format</p>
+                              )}
+                            </div>
+                            <div>
+                              <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">
+                                <Phone className="w-3 h-3 inline mr-1" />
+                                {t("Phone")}
+                              </label>
+                              <input
+                                type="text"
+                                value={selectedNode.phone || ""}
+                                onChange={(e) => setSelectedNode((prev) => ({ ...prev, phone: e.target.value }))}
+                                className={`w-full rounded-lg border bg-white dark:bg-gray-700 px-3 py-2 text-sm text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-1 transition-all duration-200 ${
+                                  selectedNode.phone && !isValidPhone(selectedNode.phone)
+                                    ? "border-red-400 focus:border-red-500 focus:ring-red-200"
+                                    : "border-gray-200 dark:border-gray-600 focus:border-indigo-500 focus:ring-indigo-200 dark:focus:ring-indigo-800"
+                                }`}
+                                placeholder={t("e.g. +1 555 0100")}
+                              />
+                              {selectedNode.phone && !isValidPhone(selectedNode.phone) && (
+                                <p className="text-xs text-red-500 mt-1">Invalid phone format</p>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Profile Image */}
+                        <div className="bg-white dark:bg-gray-800 rounded-xl p-4 border border-gray-200 dark:border-gray-700">
+                          <h4 className="text-base font-semibold text-gray-900 dark:text-gray-100 mb-3 flex items-center gap-2">
+                            <User className="w-4 h-4 text-purple-600" />
+                            {t("Profile Image")}
+                          </h4>
+                          <div className="flex gap-3">
+                            <div className="flex-1">
+                              <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">
+                                {t("Image URL")}
+                              </label>
+                              <input
+                                type="url"
+                                value={selectedNode.image || ""}
+                                onChange={(e) => setSelectedNode((prev) => ({ ...prev, image: e.target.value }))}
+                                className="w-full rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-2 text-sm text-gray-900 dark:text-gray-100 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-200 dark:focus:ring-indigo-800 transition-all duration-200"
+                                placeholder={t("https://...")}
+                              />
+                            </div>
+                            {selectedNode.image && (
+                              <div className="flex-shrink-0">
+                                <p className="text-xs text-gray-500 mb-1">Preview:</p>
+                                <img 
+                                  src={selectedNode.image} 
+                                  alt="Preview" 
+                                  className="w-12 h-12 rounded-lg object-cover border border-gray-200"
+                                  onError={(e) => {
+                                    e.target.style.display = 'none';
+                                  }}
+                                />
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Action Buttons */}
+                    <div className="flex items-center justify-end gap-3 pt-3 border-t border-gray-200 dark:border-gray-700">
+                      <button
+                        type="button"
+                        onClick={() => setIsEditingNode(false)}
+                        className="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 hover:border-gray-400 transition-all duration-200 text-sm font-medium"
+                      >
+                        ❌ {t("Cancel")}
+                      </button>
+                      <button 
+                        type="submit" 
+                        className="inline-flex items-center justify-center gap-2 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 active:from-green-800 active:to-green-900 text-white px-4 py-2 rounded-lg shadow-md hover:shadow-lg transform hover:-translate-y-0.5 transition-all duration-200 text-sm font-medium"
+                      >
+                        ✅ {t("Save Changes")}
+                      </button>
+                    </div>
+                  </form>
+                </div>
               )}
             </motion.div>
           )}
@@ -926,6 +1068,8 @@ const LevelTree = () => {
         </div>
       </div>
     </div>
+    </>
+
   );
 };
 

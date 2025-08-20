@@ -38,7 +38,7 @@ const router = createBrowserRouter([
     element: <CitizenLogin />,
   },
   {
-    path: "/level",
+    path: "/level-tree",
     element: <LevelTree />,
   },
   {
