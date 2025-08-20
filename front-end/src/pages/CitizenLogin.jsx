@@ -33,18 +33,15 @@ const CitizenLogin = () => {
       });
   }, []);
   return (
-    <div className="h-screen overflow-hidden">
+    <div className="min-h-screen">
       <SpinnerModal visible={Spinner} />
       <Navbar />
-      <div className=" lg:px-96 px-4 h-3/4 flex flex-col justify-cente mt-20">
-        <h2 className="mt-[25%] lg:mt-0 leading-normal font-bold text-center text-base lg:text-[2rem] my-8">
+      <div className=" flex flex-col items-center justify-center min-h-[calc(100vh-80px)] px-4 md:px-8 py-6">
+        <h2 className="font-bold text-center text-2xl md:text-3xl lg:text-4xl mb-8 text-gray-800">
           {t("Citizen Login")}
         </h2>
         <div
-          className="LoginBox flex flex-col gap-5 items-center 
-      border-solid border-gray-500 px-3 lg:px-12 py-12 mx-4 lg:mx-12 rounded-3xl
-      border-2 shadow-[0px_20px_20px_10px_#00000024] bg-opacity-20 lg:h-3/4
-      justify-center
+          className="LoginBox flex flex-col gap-6 items-center border-2 border-gray-500 bg-opacity-90 backdrop-blur-sm px-8 md:px-12 lg:px-16 py-10 md:py-12 rounded-3xl shadow-[0px_20px_20px_10px_#00000024] w-full max-w-lg md:max-w-xl lg:max-w-2xl mx-auto
     "
         >
           <form
@@ -72,7 +69,7 @@ const CitizenLogin = () => {
                   setSpinner(false);
                 });
             }}
-            className=" flex flex-col gap-5 w-full"
+            className=" flex flex-col gap-6 w-full"
           >
             <TextField
               variant="outlined"
@@ -87,6 +84,7 @@ const CitizenLogin = () => {
               }
               }
               required
+              size="medium"
             />
             <TextField
               variant="outlined"
@@ -96,10 +94,19 @@ const CitizenLogin = () => {
                 setFormData({ ...FormData, password: e.target.value })
               }
               required
+              size="medium"
             />
             <p className="text-red-600">{Err}</p>
 
-            <Button variant="contained" type="submit">
+            <Button variant="contained" type="submit"  size="large"
+              fullWidth
+              sx={{
+                fontSize: { xs: "16px", md: "18px" },
+                padding: { xs: "12px", md: "14px" },
+                borderRadius: "12px",
+                textTransform: "none",
+                fontWeight: 600
+              }}>
               {t("Login")}
             </Button>
           </form>
