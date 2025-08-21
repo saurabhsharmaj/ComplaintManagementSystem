@@ -28,21 +28,25 @@ const HomePage = () => {
     });
 }, []);
   return (
-    <div className="HomePage">
+    <div className="HomePage min-h-screen">
       <Navbar />
-      <div className="HomeContainer grid grid-cols-1 lg:grid-cols-2 items-center px-5 lg:px-20">
+      <div className="HomeContainer grid grid-cols-1 lg:grid-cols-2 items-center px-4 md:px-8 lg:px-20 py-2 lg:py-4 pt-6 md:pt-8 lg:pt-10">
+        <div className=" flex justify-center lg:justify-start">
         <img
-          className="TrafficArt hidden lg:block h-[32rem]"
+          className="TrafficArt hidden lg:block h-96 xl:h-[42rem] 2xl:h-[45rem] w-full max-w-2xl object-contain"
           src={TrafficArt}
           alt=""
         />
-        <div>
-          <h3 className="slogan  leading-normal font-bold text-center text-base lg:text-[2rem] mt-5 lg:mt-16">
+        </div>
+        <div className="flex flex-col items-center lg:items-start px-2 md:px-4">
+          <h3 className="slogan text-center font-bold leading-normal text-lg sm:text-xl md:text-2xl lg:text-3xl xl:text-4xl mt-0 mb-2 max-w-3xl mx-auto px-4">
             {t("REPORT SHIV VIHAR VIOLATIONS AND PUBLIC PROBLEMS IN COLONY")} !!!
           </h3>
+          <div className="w-full max-w-lg md:max-w-xl lg:max-w-3xl">
           <RegisterAccount />
+          </div>
         </div>
-      </div>
+      </div>  
     </div>
   );
 };

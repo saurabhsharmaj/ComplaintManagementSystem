@@ -34,15 +34,13 @@ const RegisterAccount = () => {
   }, [FormData]);
   return (
     <div
-      className="RegisterAccount flex flex-col gap-5 items-center mt-2 
-      border-solid border-gray-500 px-3 lg:px-4 py-5 mx-4 lg:mx-12 rounded-3xl
-      border-2 shadow-[0px_20px_20px_10px_#00000024] bg-opacity-20">
-      <p className="Slogan text-sm lg:text-xl text-center">
+      className="RegisterAccount flex flex-col gap-4 items-center mt-2 border-2 border-gray-500 bg-opacity-90 backdrop-blur-sm px-5 md:px-7 lg:px-9 py-6 md:py-7 lg:py-8 rounded-3xl shadow-[0px_20px_20px_10px_#00000024] w-full max-w-3xl mx-auto">
+      <p className="Slogan text-lg lg:text-xl text-center font-semibold text-gray-700 leading-relaxed tracking-wide">
         {t("Register a account to be a Hero of your city")}
       </p>
       <form
         action=""
-        className=" flex flex-col gap-5 w-full"
+        className=" flex flex-col gap-4 md:gap-5 w-full"
         onSubmit={async (e) => {
           e.preventDefault();
           handleRegistration(FormData).then((res) => {
@@ -102,7 +100,7 @@ const RegisterAccount = () => {
           }
         />
         <p className="text-red-600">{Err}</p>
-        <Button variant="contained" type="submit">
+        <Button variant="contained" type="submit" size="large" className="mt-2">
           {t("REGISTER")}
         </Button>
       </form>
